@@ -12,9 +12,10 @@ GWindow::GWindow(unsigned int WinID, unsigned int WinWidth, unsigned int WinHeig
     }
     glfwMakeContextCurrent(window);
     glfwSetWindowPos(window, WinPosX, WinPosY + WINDOW_PANEL_HEIGHT);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback_wrapper);
-    glfwSetCursorPosCallback(window, mouse_callback_wrapper);
-    glfwSetScrollCallback(window, scroll_callback_wrapper);
+    glfwSetFramebufferSizeCallback(window, framebufferSizeCallbackWrapper);
+    glfwSetMouseButtonCallback(window, mouseButtonCallbackWrapper);
+    glfwSetCursorPosCallback(window, mouseCursorCallbackWrapper);
+    glfwSetScrollCallback(window, scrollCallbackWrapper);
 
     // tell GLFW to capture our mouse
     //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -63,36 +64,45 @@ void GWindow::makeContextCurrent()
 //    return window;
 //}
 
-void GWindow::framebuffer_size_callback_wrapper(GLFWwindow* window, int width, int height)
+void GWindow::framebufferSizeCallbackWrapper(GLFWwindow* window, int width, int height)
 {
     GWindow* instance = static_cast<GWindow*>(glfwGetWindowUserPointer(window));
     if (instance)
     {
-        instance->framebuffer_size_callback(window, width, height);
+        instance->framebufferSizeCallback(window, width, height);
     }
 }
 
-void GWindow::mouse_callback_wrapper(GLFWwindow* window, double xpos, double ypos)
+void GWindow::mouseButtonCallbackWrapper(GLFWwindow* window, int button, int action, int mods)
 {
     GWindow* instance = static_cast<GWindow*>(glfwGetWindowUserPointer(window));
     if (instance)
     {
-        instance->mouse_callback(window, xpos, ypos);
+        instance->mouseButtonCallback(window, button, action, mods);
     }
 }
 
-void GWindow::scroll_callback_wrapper(GLFWwindow* window, double xoffset, double yoffset)
+void GWindow::mouseCursorCallbackWrapper(GLFWwindow* window, double xpos, double ypos)
 {
     GWindow* instance = static_cast<GWindow*>(glfwGetWindowUserPointer(window));
     if (instance)
     {
-        instance->scroll_callback(window, xoffset, yoffset);
+        instance->mouseCursorCallback(window, xpos, ypos);
+    }
+}
+
+void GWindow::scrollCallbackWrapper(GLFWwindow* window, double xoffset, double yoffset)
+{
+    GWindow* instance = static_cast<GWindow*>(glfwGetWindowUserPointer(window));
+    if (instance)
+    {
+        instance->scrollCallback(window, xoffset, yoffset);
     }
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
-void GWindow::framebuffer_size_callback(GLFWwindow* window, int width, int height)
+void GWindow::framebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
     // make sure the viewport matches the new window dimensions; note that width and 
     // height will be significantly larger than specified on retina displays.
@@ -119,9 +129,24 @@ void GWindow::processInput(GLFWwindow* window, float deltaTime)
         camera.ProcessKeyboard(RIGHT, deltaTime);
 }
 
+void GWindow::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+{
+    if (button == GLFW_MOUSE_BUTTON_LEFT)
+    {
+        if (action == GLFW_PRESS)
+        {
+            leftMouseButtonPressed = true;
+        }
+        else if (action == GLFW_RELEASE)
+        {
+            leftMouseButtonPressed = false;
+        }
+    }
+}
+
 // glfw: whenever the mouse moves, this callback is called
 // -------------------------------------------------------
-void GWindow::mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
+void GWindow::mouseCursorCallback(GLFWwindow* window, double xposIn, double yposIn)
 {
     float xpos = static_cast<float>(xposIn);
     float ypos = static_cast<float>(yposIn);
@@ -139,12 +164,13 @@ void GWindow::mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
     lastX = xpos;
     lastY = ypos;
 
-    camera.ProcessMouseMovement(xoffset, yoffset);
+    if (leftMouseButtonPressed)
+        camera.ProcessMouseMovement(xoffset, yoffset);
 }
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called
 // ----------------------------------------------------------------------
-void GWindow::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+void GWindow::scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
     camera.ProcessMouseScroll(static_cast<float>(yoffset));
 }
