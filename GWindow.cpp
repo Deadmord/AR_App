@@ -1,7 +1,7 @@
 #include "GWindow.h"
 
 GWindow::GWindow(unsigned int WinID, unsigned int WinWidth, unsigned int WinHeight, unsigned int WinPosX, unsigned int WinPosY, const std::string& name, GLFWmonitor* monitor, glm::vec4 bgColor)
-    :wndID(WinID), WinWidth(WinWidth), WinHeight(WinHeight), lastX(WinWidth / 2.0f), lastY(WinHeight / 2.0f), camera(Camera(glm::vec3(0.0f, 0.0f, 3.0f))), bgColor(bgColor)
+    :wndID(WinID), WinWidth(WinWidth), WinHeight(WinHeight), lastX(WinWidth / 2.0f), lastY(WinHeight / 2.0f), camera(Camera(glm::vec3(2.5f, 2.5f, 10.0f))), bgColor(bgColor)
 {
     window = glfwCreateWindow(WinWidth, WinHeight, name.c_str(), monitor, NULL);
     if (window == NULL)
@@ -158,8 +158,8 @@ void GWindow::mouseCursorCallback(GLFWwindow* window, double xposIn, double ypos
         firstMouse = false;
     }
 
-    float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+    float xoffset = lastX - xpos;
+    float yoffset = ypos - lastY; // reversed since y-coordinates go from bottom to top
 
     lastX = xpos;
     lastY = ypos;

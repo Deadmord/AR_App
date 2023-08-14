@@ -129,10 +129,10 @@ std::vector<unsigned int> indicesCube = {  // note that we start from 0!
 //--------------- positions ------------------ axisRotation ------ angle -- speed ------- colorMask --------------
 std::vector<InitState> initStateCube =
 {
-    {   glm::vec3(0.0f,  0.0f, 0.0f), glm::vec3(0.3f, 1.0f, 0.2f),  0.0f,  5.0f, glm::vec3(1.0f, 1.0f, 1.0f)    },
-    {   glm::vec3(1.5f,  0.0f, 0.0f), glm::vec3(0.8f, 0.2f, 0.5f),  45.0f, 10.0f, glm::vec3(1.0f, 0.0f, 0.0f)    },
-    {   glm::vec3(-1.5f, 0.0f, 0.0f), glm::vec3(0.5f, 0.7f, 0.1f), -45.0f, 15.0f, glm::vec3(0.0f, 1.0f, 0.0f)    },
-    {   glm::vec3(0.0f, -2.0f, 0.0f), glm::vec3(0.1f, 1.0f, 0.9f),  30.0f, 20.0f, glm::vec3(3.0f, 3.0f, 3.0f)    }
+    {   glm::vec3(2.0f, 3.0f, 1.0f), glm::vec3(0.3f, 1.0f, 0.2f),  0.0f,  5.0f, glm::vec3(1.0f, 1.0f, 1.0f)    },
+    {   glm::vec3(3.5f, 2.0f, 1.0f), glm::vec3(0.8f, 0.2f, 0.5f),  45.0f, 10.0f, glm::vec3(1.0f, 0.0f, 0.0f)    },
+    {   glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.5f, 0.7f, 0.1f), -45.0f, 15.0f, glm::vec3(0.0f, 1.0f, 0.0f)    },
+    {   glm::vec3(2.0f, 1.5f, 2.0f), glm::vec3(0.1f, 1.0f, 0.9f),  30.0f, 20.0f, glm::vec3(3.0f, 3.0f, 3.0f)    }
 };
 
 std::vector<InitState> initStateCubeEmpt =

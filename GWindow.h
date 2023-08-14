@@ -267,7 +267,7 @@ private:
 
 public:												//remove it or make private
 	// camera
-	Camera camera = Camera(glm::vec3(0.0f, 0.0f, 1.0f));
+	Camera camera;
 	float lastX = 400.0f;
 	float lastY = 300.0f;
 	bool firstMouse = true;
