@@ -247,13 +247,15 @@ public:
 	//GLFWwindow* getWindowPtr();		//dont use anymore, replace with "operator GLFWwindow*"
 
 private:
-	static void framebuffer_size_callback_wrapper(GLFWwindow* window, int width, int height);
-	static void mouse_callback_wrapper(GLFWwindow* window, double xpos, double ypos);
-	static void scroll_callback_wrapper(GLFWwindow* window, double xoffset, double yoffset);
+	static void framebufferSizeCallbackWrapper(GLFWwindow* window, int width, int height);
+	static void mouseButtonCallbackWrapper(GLFWwindow* window, int button, int action, int mods);
+	static void mouseCursorCallbackWrapper(GLFWwindow* window, double xpos, double ypos);
+	static void scrollCallbackWrapper(GLFWwindow* window, double xoffset, double yoffset);
 
-	void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-	void mouse_callback(GLFWwindow* window, double xposIn, double yposIn);
-	void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+	void framebufferSizeCallback(GLFWwindow* window, int width, int height);
+	void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+	void mouseCursorCallback(GLFWwindow* window, double xposIn, double yposIn);
+	void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 	void processInput(GLFWwindow* window, float deltaTime);	//remove it or make private
 
 private:
@@ -265,6 +267,7 @@ public:												//remove it or make private
 	float lastX = 400.0f;
 	float lastY = 300.0f;
 	bool firstMouse = true;
+	bool leftMouseButtonPressed = false;
 
 private:
 	GLuint wndID = 0;
