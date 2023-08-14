@@ -31,7 +31,9 @@ public:
 	static std::vector<GLuint> VBO;
 	static std::vector<GLuint> EBO;
 	static std::vector<GLsizei> objSize;	//number of vertexes 
-	static std::vector<const std::vector<InitState>*> objStatePtrs0;
-	static std::vector<const std::vector<InitState>*> objStatePtrs1;	//Рефакторинг! убрать
+	static std::vector<const std::vector<InitState>*> objStatePtrs0;	//!!! Рефакторинг! убрать
+	static std::vector<const std::vector<InitState>*> objStatePtrs1;
+	static std::vector<const std::vector<InitState>*> objStatePtrs2;
+	static std::vector<const std::vector<InitState>*> objStatePtrs3;
 };
 

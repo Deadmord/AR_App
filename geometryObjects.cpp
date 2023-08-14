@@ -3,8 +3,10 @@ std::vector<GLuint> GeometryObjects::VAO;
 std::vector<GLuint> GeometryObjects::VBO;
 std::vector<GLuint> GeometryObjects::EBO;
 std::vector<GLsizei> GeometryObjects::objSize;
-std::vector<const std::vector<InitState>*> GeometryObjects::objStatePtrs0;
+std::vector<const std::vector<InitState>*> GeometryObjects::objStatePtrs0; // !!!! Убрать это все! Костыль. Обьект должен быть одни в не зависимости от окна.
 std::vector<const std::vector<InitState>*> GeometryObjects::objStatePtrs1;
+std::vector<const std::vector<InitState>*> GeometryObjects::objStatePtrs2;
+std::vector<const std::vector<InitState>*> GeometryObjects::objStatePtrs3;
 
 void GeometryObjects::setSize(GLsizei size)
 {
@@ -12,8 +14,10 @@ void GeometryObjects::setSize(GLsizei size)
     VBO.resize(size);
     EBO.resize(size);
     objSize.resize(size);
-    objStatePtrs0.resize(size);
+    objStatePtrs0.resize(size);         // !!!! Убрать это все! Костыль. Обьект должен быть одни в не зависимости от окна.
     objStatePtrs1.resize(size);
+    objStatePtrs2.resize(size);
+    objStatePtrs3.resize(size);
 
     glGenVertexArrays(size, VAO.data());
     glGenBuffers(size, VBO.data());
@@ -50,7 +54,12 @@ void GeometryObjects::addObject(GLuint wndIndex, GLuint objIndex, GLsizeiptr siz
     // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
     glBindVertexArray(0);
     objSize[objIndex] = sizeEBO;
-    !wndIndex ? objStatePtrs0[objIndex] = objStatePtr : objStatePtrs1[objIndex] = objStatePtr;
+
+    //!wndIndex ? objStatePtrs0[objIndex] = objStatePtr : objStatePtrs1[objIndex] = objStatePtr; 
+    if (wndIndex == 0) objStatePtrs0[objIndex] = objStatePtr;                           // !!!! Убрать это все! Костыль. Обьект должен быть одни в не зависимости от окна.
+    if (wndIndex == 1) objStatePtrs1[objIndex] = objStatePtr;
+    if (wndIndex == 2) objStatePtrs2[objIndex] = objStatePtr;
+    if (wndIndex == 3) objStatePtrs3[objIndex] = objStatePtr;
 }
 
 void GeometryObjects::initObjectTexture(bool linePolygonMode)
