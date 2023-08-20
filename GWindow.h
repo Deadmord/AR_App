@@ -163,7 +163,7 @@ public:
 		// input hendling
 		processInput(window, deltaTime);
 
-		// rendering commands here											разкоментировать когда все перенесется сюда
+		// rendering commands here											
 		glClearColor(bgColor.r, bgColor.g, bgColor.b, bgColor.a);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // also clear the depth buffer now!
 
@@ -214,7 +214,11 @@ public:
 			}
 
 			// ------------- render objects copies from objState list ---------------
-			const std::vector<InitState>& objState = (!wndID ? *GeometryObjects::objStatePtrs0[index] : *GeometryObjects::objStatePtrs1[index]);
+			const std::vector<InitState>& objState = (!wndID ? *GeometryObjects::objStatePtrs0[index] 
+				: wndID == 1 ? *GeometryObjects::objStatePtrs1[index] 
+				: wndID == 2 ? *GeometryObjects::objStatePtrs2[index] 
+				: *GeometryObjects::objStatePtrs3[index]);
+			//const std::vector<InitState>& objState = (!wndID ? *GeometryObjects::objStatePtrs0[index] : *GeometryObjects::objStatePtrs1[index]);
 			//const std::vector<InitState> &objState = *GeometryObjects::objStatePtrs1[index];
 			const GLsizei objSize = GeometryObjects::objSize[index];
 			for (GLsizei i = 0; i < objState.size(); i++)
@@ -263,7 +267,7 @@ private:
 
 public:												//remove it or make private
 	// camera
-	Camera camera = Camera(glm::vec3(0.0f, 0.0f, 1.0f));
+	Camera camera;
 	float lastX = 400.0f;
 	float lastY = 300.0f;
 	bool firstMouse = true;

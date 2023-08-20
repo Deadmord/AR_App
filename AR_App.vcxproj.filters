@@ -33,9 +33,6 @@
     <ClCompile Include="GWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AppState.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="RTCounter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -44,6 +41,9 @@
     </ClCompile>
     <ClCompile Include="geometryObjects.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="appState.cpp">
+      <Filter>Resource Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -5,6 +5,12 @@ VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AR_App", "AR_App.vcxproj", "{14EC069A-6245-4F41-8313-2BEFD4167002}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "calibrate_camera", "..\calibrate_camera\calibrate_camera.vcxproj", "{1E91B927-9F23-4009-B506-E1270CA3656E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "chAruco_Tutorial_Example", "..\chAruco_Tutorial_Example\chAruco_Tutorial_Example.vcxproj", "{E52E8FF5-D5E7-4237-AF17-6B0711FDD7D0}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "detect_Board_and_Markers", "..\detect_Board_and_Markers\detect_Board_and_Markers.vcxproj", "{1DDD4906-E109-4FB8-ADC7-E340C98DDB79}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +27,30 @@ Global
 		{14EC069A-6245-4F41-8313-2BEFD4167002}.Release|x64.Build.0 = Release|x64
 		{14EC069A-6245-4F41-8313-2BEFD4167002}.Release|x86.ActiveCfg = Release|Win32
 		{14EC069A-6245-4F41-8313-2BEFD4167002}.Release|x86.Build.0 = Release|Win32
+		{1E91B927-9F23-4009-B506-E1270CA3656E}.Debug|x64.ActiveCfg = Debug|x64
+		{1E91B927-9F23-4009-B506-E1270CA3656E}.Debug|x64.Build.0 = Debug|x64
+		{1E91B927-9F23-4009-B506-E1270CA3656E}.Debug|x86.ActiveCfg = Debug|Win32
+		{1E91B927-9F23-4009-B506-E1270CA3656E}.Debug|x86.Build.0 = Debug|Win32
+		{1E91B927-9F23-4009-B506-E1270CA3656E}.Release|x64.ActiveCfg = Release|x64
+		{1E91B927-9F23-4009-B506-E1270CA3656E}.Release|x64.Build.0 = Release|x64
+		{1E91B927-9F23-4009-B506-E1270CA3656E}.Release|x86.ActiveCfg = Release|Win32
+		{1E91B927-9F23-4009-B506-E1270CA3656E}.Release|x86.Build.0 = Release|Win32
+		{E52E8FF5-D5E7-4237-AF17-6B0711FDD7D0}.Debug|x64.ActiveCfg = Debug|x64
+		{E52E8FF5-D5E7-4237-AF17-6B0711FDD7D0}.Debug|x64.Build.0 = Debug|x64
+		{E52E8FF5-D5E7-4237-AF17-6B0711FDD7D0}.Debug|x86.ActiveCfg = Debug|Win32
+		{E52E8FF5-D5E7-4237-AF17-6B0711FDD7D0}.Debug|x86.Build.0 = Debug|Win32
+		{E52E8FF5-D5E7-4237-AF17-6B0711FDD7D0}.Release|x64.ActiveCfg = Release|x64
+		{E52E8FF5-D5E7-4237-AF17-6B0711FDD7D0}.Release|x64.Build.0 = Release|x64
+		{E52E8FF5-D5E7-4237-AF17-6B0711FDD7D0}.Release|x86.ActiveCfg = Release|Win32
+		{E52E8FF5-D5E7-4237-AF17-6B0711FDD7D0}.Release|x86.Build.0 = Release|Win32
+		{1DDD4906-E109-4FB8-ADC7-E340C98DDB79}.Debug|x64.ActiveCfg = Debug|x64
+		{1DDD4906-E109-4FB8-ADC7-E340C98DDB79}.Debug|x64.Build.0 = Debug|x64
+		{1DDD4906-E109-4FB8-ADC7-E340C98DDB79}.Debug|x86.ActiveCfg = Debug|Win32
+		{1DDD4906-E109-4FB8-ADC7-E340C98DDB79}.Debug|x86.Build.0 = Debug|Win32
+		{1DDD4906-E109-4FB8-ADC7-E340C98DDB79}.Release|x64.ActiveCfg = Release|x64
+		{1DDD4906-E109-4FB8-ADC7-E340C98DDB79}.Release|x64.Build.0 = Release|x64
+		{1DDD4906-E109-4FB8-ADC7-E340C98DDB79}.Release|x86.ActiveCfg = Release|Win32
+		{1DDD4906-E109-4FB8-ADC7-E340C98DDB79}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
