@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "chAruco_Tutorial_Example", 
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "detect_Board_and_Markers", "..\detect_Board_and_Markers\detect_Board_and_Markers.vcxproj", "{1DDD4906-E109-4FB8-ADC7-E340C98DDB79}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ArUco_Measuring", "..\ArUco_Measuring\ArUco_Measuring.vcxproj", "{4DA18324-C269-478D-936C-D194CDB1D415}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -51,6 +53,14 @@ Global
 		{1DDD4906-E109-4FB8-ADC7-E340C98DDB79}.Release|x64.Build.0 = Release|x64
 		{1DDD4906-E109-4FB8-ADC7-E340C98DDB79}.Release|x86.ActiveCfg = Release|Win32
 		{1DDD4906-E109-4FB8-ADC7-E340C98DDB79}.Release|x86.Build.0 = Release|Win32
+		{4DA18324-C269-478D-936C-D194CDB1D415}.Debug|x64.ActiveCfg = Debug|x64
+		{4DA18324-C269-478D-936C-D194CDB1D415}.Debug|x64.Build.0 = Debug|x64
+		{4DA18324-C269-478D-936C-D194CDB1D415}.Debug|x86.ActiveCfg = Debug|Win32
+		{4DA18324-C269-478D-936C-D194CDB1D415}.Debug|x86.Build.0 = Debug|Win32
+		{4DA18324-C269-478D-936C-D194CDB1D415}.Release|x64.ActiveCfg = Release|x64
+		{4DA18324-C269-478D-936C-D194CDB1D415}.Release|x64.Build.0 = Release|x64
+		{4DA18324-C269-478D-936C-D194CDB1D415}.Release|x86.ActiveCfg = Release|Win32
+		{4DA18324-C269-478D-936C-D194CDB1D415}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
