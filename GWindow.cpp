@@ -54,6 +54,126 @@ void GWindow::setupGeometryObject(GLuint wndIndex, GLuint objIndex, const std::v
     
 }
 
+void GWindow::setupImgTexture(GLuint index, const std::string& imgTexture, GLenum internalformat, GLenum format)
+{
+    textures[index].isImg = true;
+    textures[index].filePath = imgTexture;
+
+    textures[index].data = stbi_load(imgTexture.c_str(), &textures[index].width, &textures[index].height, &textures[index].nrChannels, 0);
+    textures[index].internalformat = internalformat;
+    textures[index].format = format;
+
+    //---------------------- video texture -------------------
+    if (!textures[index].data)
+    {
+        std::cout << "Error: Img can't be open! Source: " << imgTexture << std::endl;
+    }
+    else
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, internalformat, textures[index].width, textures[index].height, 0, format, GL_UNSIGNED_BYTE, textures[index].data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+        std::cout << "Img opened successfully!" << std::endl;
+        textures[index].isOpened = true;
+
+    }
+    //stbi_image_free(data);
+}
+
+void GWindow::setupShaderProgram(GLuint index, Shader* shaderProgPtr)
+{
+    shaders[index] = shaderProgPtr;
+}
+
+void GWindow::renderFrame(float deltaTime)
+{
+    glfwMakeContextCurrent(window);
+
+    // input hendling
+    processInput(window, deltaTime);
+
+    // rendering commands here											
+    glClearColor(bgColor.r, bgColor.g, bgColor.b, bgColor.a);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // also clear the depth buffer now!
+
+    for (GLsizei index{ 0 }; index < objectListSize; index++)
+    {
+        shaders[index]->use();
+        glBindVertexArray(GeometryObjects::VAO[index]);
+        glm::mat4 model = glm::mat4(1.0f);
+        glm::mat4 view = glm::mat4(1.0f);
+        glm::mat4 projection;
+
+        if (textures[index].isStream || textures[index].isVideo)
+        {
+            // checking
+            if (!textures[index].vidCapture.isOpened())		//может быть заменить на textures[index].isOpened ?
+            {
+                std::cout << "Error: Video stream can't be open" << std::endl;
+                textures[index].isOpened = false;
+                break;
+            }
+            cv::Mat frameVideo;
+            bool isSuccessStream = textures[index].vidCapture.read(frameVideo);
+            if (!isSuccessStream && textures[index].isVideo)
+            {
+                textures[index].vidCapture.set(cv::CAP_PROP_POS_FRAMES, 0); // return to file begin
+                isSuccessStream = textures[index].vidCapture.read(frameVideo);
+            }
+            if (!isSuccessStream)
+            {
+                std::cout << "Error: Video stream can't be read or disconnect! Source: " << textures[index].streamIndex << textures[index].filePath << std::endl;
+                textures[index].isOpened = false;
+                break;
+            }
+            else
+            {
+                glTexImage2D(GL_TEXTURE_2D, 0, textures[index].internalformat, textures[index].width, textures[index].height, 0, textures[index].format, GL_UNSIGNED_BYTE, frameVideo.data);
+            }
+        }
+        if (textures[index].isImg)
+        {
+            // checking
+            if (!textures[index].isOpened)		//может быть заменить на textures[index].isOpened ?
+            {
+                std::cout << "Error: Img can't be open" << std::endl;
+                break;
+            }
+            glTexImage2D(GL_TEXTURE_2D, 0, textures[index].internalformat, textures[index].width, textures[index].height, 0, textures[index].format, GL_UNSIGNED_BYTE, textures[index].data);
+        }
+
+        // ------------- render objects copies from objState list ---------------
+        const std::vector<InitState>& objState = (!wndID ? *GeometryObjects::objStatePtrs0[index]
+            : wndID == 1 ? *GeometryObjects::objStatePtrs1[index]
+            : wndID == 2 ? *GeometryObjects::objStatePtrs2[index]
+            : *GeometryObjects::objStatePtrs3[index]);
+        //const std::vector<InitState>& objState = (!wndID ? *GeometryObjects::objStatePtrs0[index] : *GeometryObjects::objStatePtrs1[index]);
+        //const std::vector<InitState> &objState = *GeometryObjects::objStatePtrs1[index];
+        const GLsizei objSize = GeometryObjects::objSize[index];
+        for (GLsizei i = 0; i < objState.size(); i++)
+        {
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, objState[i].positions);
+            float angle = objState[i].angle;
+            model = glm::rotate(model, glm::radians(angle), objState[i].axisRotation);
+            model = glm::rotate(model, glm::radians(objState[i].speed * (float)glfwGetTime()), objState[i].axisRotation);
+            view = glm::mat4(1.0f);
+            view = camera.GetViewMatrix();
+            projection = glm::perspective(glm::radians(camera.Zoom), (float)WinWidth / (float)WinHeight, 0.1f, 100.0f);
+            shaders[index]->setCordTrans("model", glm::value_ptr(model));
+            shaders[index]->setCordTrans("view", glm::value_ptr(view));
+            shaders[index]->setCordTrans("projection", glm::value_ptr(projection));
+            shaders[index]->setColorMask("colorMask", objState[i].colorMask);
+            glDrawElements(GL_TRIANGLES, objSize, GL_UNSIGNED_INT, 0);
+        }
+
+        if (!index) glClear(GL_DEPTH_BUFFER_BIT);	// first object is background
+    }
+    // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
+    // -------------------------------------------------------------------------------
+    glfwSwapBuffers(window);
+    glfwPollEvents();
+}
+
 void GWindow::makeContextCurrent()
 {
     glfwMakeContextCurrent(window);
