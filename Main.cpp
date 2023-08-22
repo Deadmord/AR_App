@@ -131,79 +131,14 @@ int main()
     window_3.setupShaderProgram(1, &shaderProgObjWin_3);
     window_3.setupShaderProgram(2, &shaderProgObjWin_3);
 
-    //-----------------------------------------
-    cv::Mat markerImage;
-    cv::aruco::Dictionary dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_1000);
-    //for (int i{ 0 }; i < 1000; i++)         //Print markers
-    //{
-    //    cv::aruco::generateImageMarker(dictionary, i, 240, markerImage, 1);
-
-    //    std::string formattedIndex = std::to_string(i);
-    //    while (formattedIndex.length() < 3) {
-    //        formattedIndex = "0" + formattedIndex;
-    //    }
-
-    //    std::string filename = "markers/marker" + formattedIndex + ".png";
-    //    cv::imwrite(filename, markerImage);
-    //    //cv::imshow(filename, markerImage);
-    //}
-
-    cv::VideoCapture vidCapture = cv::VideoCapture(1);
-    cv::Mat inputImage;
-    std::vector<int> markerIds;
-    std::vector<std::vector<cv::Point2f>> markerCorners, rejectedCandidates;
-    cv::aruco::DetectorParameters detectorParams = cv::aruco::DetectorParameters();
-    //cv::aruco::Dictionary dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_1000);
-    cv::aruco::ArucoDetector detector(dictionary, detectorParams);
-
-    /*
-    *     //... calibrate
-    cv::Mat cameraMatrix, distCoeffs;
-    // You can read camera parameters from tutorial_camera_params.yml
-    readCameraParameters(cameraParamsFilename, cameraMatrix, distCoeffs); // This function is implemented in aruco_samples_utility.hpp
-    std::vector<cv::Vec3d> rvecs, tvecs;
-    // Set coordinate system
-    cv::Mat objPoints(4, 1, CV_32FC3);
-    //...
-        // Calculate pose for each marker
-        for (int i = 0; i < nMarkers; i++) {
-            solvePnP(objPoints, corners.at(i), cameraMatrix, distCoeffs, rvecs.at(i), tvecs.at(i));
-        }
-
-    */
-
-
-    //-----------------------------------------
-
     while (!glfwWindowShouldClose(window_1) && !glfwWindowShouldClose(window_2) && !glfwWindowShouldClose(window_3))
     {
         window_1.renderFrame(RTCounter::getDeltaTime());
         window_2.renderFrame(RTCounter::getDeltaTime());
         window_3.renderFrame(RTCounter::getDeltaTime());
 
-        //-----------------------------------------
-        vidCapture.grab();
-        vidCapture.retrieve(inputImage);
-        
-        //vidCapture.read(inputImage);
-        detector.detectMarkers(inputImage, markerCorners, markerIds, rejectedCandidates);
-        cv::Mat outputImage = inputImage.clone();
-        cv::aruco::drawDetectedMarkers(outputImage, markerCorners, markerIds);
-        cv::imshow("ArUco markers", outputImage);
-        //-----------------------------------------
-
         RTCounter::updateTimer();
         RTCounter::printFPS_Console();
-
-        //-----------------------------------------
-        for (int markerId : markerIds)
-        {
-            std::cout << markerId << " ";
-        }
-        std::cout << '\r';
-        //-----------------------------------------
-
-
     }
 
     // ------------------ check if auto caled and !!! include in destructor !!! ----------------
