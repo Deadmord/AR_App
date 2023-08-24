@@ -112,8 +112,11 @@ void GWindow::renderFrame(float deltaTime)
                 textures[index].isOpened = false;
                 break;
             }
-            cv::Mat frameVideo;
+            cv::Mat frameVideo, frameVideoAruco;
             bool isSuccessStream = textures[index].vidCapture.read(frameVideo);
+                //while (inputVideo.grab()) {           использовать для асинхронного захвата видео кадра, наверное лучше разместить в конце метода и сделать исинхронной чтобы выполнялась пока обрабатывается остальные потоки.
+                //    inputVideo.retrieve(image);
+                //}
             if (!isSuccessStream && textures[index].isVideo)
             {
                 textures[index].vidCapture.set(cv::CAP_PROP_POS_FRAMES, 0); // return to file begin
@@ -127,7 +130,10 @@ void GWindow::renderFrame(float deltaTime)
             }
             else
             {
-                glTexImage2D(GL_TEXTURE_2D, 0, textures[index].internalformat, textures[index].width, textures[index].height, 0, textures[index].format, GL_UNSIGNED_BYTE, frameVideo.data);
+                //------------------- aruco ------------------
+                bool result = arucoProcessorPtr->detectMarkers(frameVideo, frameVideoAruco);
+                //--------------------------------------------
+                glTexImage2D(GL_TEXTURE_2D, 0, textures[index].internalformat, textures[index].width, textures[index].height, 0, textures[index].format, GL_UNSIGNED_BYTE, frameVideoAruco.data);
             }
         }
         if (textures[index].isImg)

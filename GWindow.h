@@ -5,13 +5,19 @@
 #include <vector>
 #include <GLFW/glfw3.h>
 #include <opencv2/opencv.hpp>
-#include <opencv2/aruco.hpp>
 #include <glm/glm.hpp>
 #include "stb_image.h"
 #include "geometryObjects.h"
 #include "geometryData.h"
+#include "aruco/ArucoProcessor.h"
 
-
+// declaration of global settings
+namespace arUcoSettingsNamespace {
+	extern float markerLength;
+	extern cv::aruco::PredefinedDictionaryType dictionaryId;
+	extern std::string cameraParams;
+	extern bool showRejected;
+}
 
 struct TextureData
 {
@@ -92,6 +98,13 @@ public:
 				textures[index].isOpened = true;
 			}
 		}
+
+		if (textures[index].isOpened && textures[index].isStream) //&& turn aruco flag
+		{
+			//--------------- ArUco init ======================
+			arucoProcessorPtr = std::make_unique<ArucoProcessor>(arUcoSettingsNamespace::markerLength, arUcoSettingsNamespace::dictionaryId, arUcoSettingsNamespace::cameraParams, arUcoSettingsNamespace::showRejected);
+			//--------------------------------------------
+		}
 	}
 
 	void setupImgTexture(GLuint index, const std::string& imgTexture, GLenum internalformat, GLenum format);
@@ -134,5 +147,6 @@ private:
 	std::vector<TextureData> textures;
 	std::vector<Shader*> shaders;
 	GLsizei objectListSize = 0;
+	std::unique_ptr<ArucoProcessor> arucoProcessorPtr;
 };
 
