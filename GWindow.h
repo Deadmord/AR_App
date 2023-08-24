@@ -6,6 +6,7 @@
 #include <GLFW/glfw3.h>
 #include <opencv2/opencv.hpp>
 #include <glm/glm.hpp>
+#include <glm/gtx/string_cast.hpp> // Äëÿ glm::value_ptr è glm::to_string
 #include "stb_image.h"
 #include "geometryObjects.h"
 #include "geometryData.h"

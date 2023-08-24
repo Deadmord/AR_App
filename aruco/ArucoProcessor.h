@@ -58,12 +58,13 @@ public:
 		size_t  nMarkers = markers.corners.size();
 		markers.rvecs.resize(nMarkers); 
 		markers.tvecs.resize(nMarkers);
+		markers.projectionMatrixes.resize(nMarkers);
 
 		if (estimatePose && !markers.ids.empty()) {
 			// Calculate pose for each marker
 			for (size_t i = 0; i < nMarkers; i++) {
 				solvePnP(*objPoints, markers.corners.at(i), camMatrix, distCoeffs, markers.rvecs.at(i), markers.tvecs.at(i));
-				//markers.projectionMatrixes.at(i) = createProjectionMatrix(camMatrix, markers.rvecs.at(i), markers.tvecs.at(i), frameSize.width, frameSize.height);
+				markers.projectionMatrixes.at(i) = createProjectionMatrix(camMatrix, markers.rvecs.at(i), markers.tvecs.at(i), frameSize.width, frameSize.height);
 			}
 		}
 
@@ -97,15 +98,29 @@ private:
 		// Convert rotation vector to rotation matrix
 		cv::Mat rotationMatrix;
 		cv::Rodrigues(rvec, rotationMatrix);
+		std::cout << "Rotation Matrix:\n" << rotationMatrix << std::endl;
 
 		// Create a 4x4 transformation matrix by combining rotation and translation
-		cv::Mat transformationMatrix = cv::Mat::eye(4, 4, CV_64F);
-		rotationMatrix.copyTo(transformationMatrix.rowRange(0, 3).colRange(0, 3));
-		cv::Mat translationMat = (cv::Mat_<double>(3, 1) << tvec[0], tvec[1], tvec[2]);
-		translationMat.copyTo(transformationMatrix.rowRange(0, 3).col(3));
+		cv::Mat transformationMatrix = cv::Mat::eye(4, 4, CV_64F); // Identity matrix
+		rotationMatrix.copyTo(transformationMatrix(cv::Rect(0, 0, 3, 3))); // Copy rotation part
+
+		// Copy translation vector into the transformation matrix
+		transformationMatrix.at<double>(0, 3) = tvec[0];
+		transformationMatrix.at<double>(1, 3) = tvec[1];
+		transformationMatrix.at<double>(2, 3) = tvec[2];
+		//rotationMatrix.copyTo(transformationMatrix.rowRange(0, 3).colRange(0, 3));	
+		//cv::Mat translationMat = (cv::Mat_<double>(3, 1) << tvec[0], tvec[1], tvec[2]);
+		//translationMat.copyTo(transformationMatrix.rowRange(0, 3).col(3));
+		std::cout << "Transformation Matrix:\n" << transformationMatrix << std::endl;
+
+		// Extend camera matrix to 4x4
+		cv::Mat extendedCameraMatrix = cv::Mat::eye(4, 4, CV_64F);
+		cameraMatrix.copyTo(extendedCameraMatrix(cv::Rect(0, 0, 3, 3)));
+		std::cout << "extendedCamera Matrix:\n" << extendedCameraMatrix << std::endl;
 
 		// Combine camera matrix and transformation matrix
-		cv::Mat viewMatrix = cameraMatrix * transformationMatrix.inv();
+		cv::Mat viewMatrix = extendedCameraMatrix * transformationMatrix.inv();
+		std::cout << "View Matrix:\n" << viewMatrix << std::endl;
 
 		// Create OpenGL-style projection matrix
 		glm::mat4 projectionMatrix = glm::perspective(glm::radians(FOV), float(width) / float(height), nearPlane, farPlane);
@@ -120,6 +135,7 @@ private:
 		// Convert glm projection matrix to OpenCV
 		cv::Mat resultProjectionMatrix(4, 4, CV_32F);
 		memcpy(resultProjectionMatrix.data, glm::value_ptr(glmProjectionMatrix), sizeof(float) * 16);
+		std::cout << "resultProjectionMatrix:\n" << resultProjectionMatrix << std::endl;
 
 		return resultProjectionMatrix;
 	}

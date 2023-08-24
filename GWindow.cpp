@@ -159,12 +159,15 @@ void GWindow::renderFrame(float deltaTime)
         {
             model = glm::mat4(1.0f);
             model = glm::translate(model, objState[i].positions);
+            std::cout << "model:\n" << glm::to_string(model) << "\n\n";    //убрать
             float angle = objState[i].angle;
             model = glm::rotate(model, glm::radians(angle), objState[i].axisRotation);
             model = glm::rotate(model, glm::radians(objState[i].speed * (float)glfwGetTime()), objState[i].axisRotation);
             view = glm::mat4(1.0f);
             view = camera.GetViewMatrix();
+            std::cout << "view:\n" << glm::to_string(view) << "\n\n";    //убрать
             projection = glm::perspective(glm::radians(camera.Zoom), (float)WinWidth / (float)WinHeight, 0.1f, 100.0f);
+            std::cout << "projection:\n" << glm::to_string(projection) << "\n\n";    //убрать
             shaders[index]->setCordTrans("model", glm::value_ptr(model));
             shaders[index]->setCordTrans("view", glm::value_ptr(view));
             shaders[index]->setCordTrans("projection", glm::value_ptr(projection));
