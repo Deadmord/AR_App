@@ -19,11 +19,19 @@ struct MonitorData
     int monitor_X, monitor_Y, monitor_Width, monitor_Height;
 };
 
-// settings
-const glm::vec4 BG_CLR_W1 = glm::vec4(0.2f, 0.3f, 0.2f, 1.0f);	//window 1 background color
-const glm::vec4 BG_CLR_W2 = glm::vec4(0.2f, 0.2f, 0.3f, 1.0f);	//window 2 background color
-const glm::vec4 BG_CLR_W3 = glm::vec4(0.3f, 0.2f, 0.2f, 1.0f);	//window 3 background color
-const glm::vec4 BG_CLR_W4 = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);	//window 4 background color
+//*********************** Settings ***********************
+// ----------------------- ArUco --------------------------
+namespace arUcoSettingsNamespace {
+    float markerLength = 0.035f;
+    cv::aruco::PredefinedDictionaryType dictionaryId = cv::aruco::DICT_6X6_250;
+    std::string cameraParams = "camera_paramsUSB01.yml";
+    bool showRejected = true;
+}
+// -------------- Windows background color ----------------
+const glm::vec4 BG_CLR_W1 = glm::vec4(0.2f, 0.3f, 0.2f, 1.0f);	//window 1 
+const glm::vec4 BG_CLR_W2 = glm::vec4(0.2f, 0.2f, 0.3f, 1.0f);	//window 2 
+const glm::vec4 BG_CLR_W3 = glm::vec4(0.3f, 0.2f, 0.2f, 1.0f);	//window 3 
+const glm::vec4 BG_CLR_W4 = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);	//window 4 
 
 int main()
 {

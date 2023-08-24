@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Module Aruco">
+      <UniqueIdentifier>{9e83ec19-17c2-4bd0-afb5-3abd440a2aee}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="glad.c">
@@ -33,6 +36,9 @@
     <ClCompile Include="GWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="AppState.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="RTCounter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -42,8 +48,8 @@
     <ClCompile Include="geometryObjects.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="appState.cpp">
-      <Filter>Resource Files</Filter>
+    <ClCompile Include="aruco\ArucoProcessor.cpp">
+      <Filter>Module Aruco</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -70,6 +76,12 @@
     </ClInclude>
     <ClInclude Include="geometryObjects.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="aruco\aruco_utilities.hpp">
+      <Filter>Module Aruco</Filter>
+    </ClInclude>
+    <ClInclude Include="aruco\ArucoProcessor.h">
+      <Filter>Module Aruco</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
