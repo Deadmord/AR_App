@@ -6,7 +6,8 @@
 #include <GLFW/glfw3.h>
 #include <opencv2/opencv.hpp>
 #include <glm/glm.hpp>
-#include <glm/gtx/string_cast.hpp> // Äëÿ glm::value_ptr è glm::to_string
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/string_cast.hpp> // For glm::value_ptr è glm::to_string
 #include "stb_image.h"
 #include "geometryObjects.h"
 #include "geometryData.h"
@@ -22,10 +23,10 @@ namespace arUcoSettingsNamespace {
 
 struct TextureData
 {
-	GLboolean		isOpened = false;
-	GLboolean		isImg = false;
-	GLboolean		isVideo = false;
-	GLboolean		isStream = false;
+	bool			isOpened = false;
+	bool			isImg = false;
+	bool			isVideo = false;
+	bool			isStream = false;
 	std::string		filePath;
 	GLint			streamIndex = 0;
 	GLint			width;
@@ -37,8 +38,9 @@ struct TextureData
 	uchar*			data;
 };
 
-const int		WINDOW_PANEL_HEIGHT = 30;			// 30px for window panel
-const glm::vec4 BG_CLR = glm::vec4(0.2f, 0.3f, 0.3f, 1.0f); //default bg color
+const int		WINDOW_PANEL_HEIGHT = 30;				// 30px for window panel
+const glm::vec4 BG_CLR	(0.2f, 0.3f, 0.3f, 1.0f);		//default bg color
+const glm::vec3 camInitPosition	(5.0f, 4.0f, 20.0f);	//Camera start position
 
 class GWindow
 {
@@ -73,6 +75,15 @@ public:
 		}
 		//cv::VideoCapture vid_captureCamera
 		textures[index].vidCapture = cv::VideoCapture(videoTexture);
+
+		//------------ for aruco -------------------need refactoring this!!
+		if (textures[index].isStream) //&& turn aruco flag
+		{
+			textures[index].vidCapture.set(cv::CAP_PROP_FRAME_WIDTH, WinWidth);
+			textures[index].vidCapture.set(cv::CAP_PROP_FRAME_HEIGHT, WinHeight);
+		}
+		//------------------------------------------
+
 		textures[index].width = static_cast<int>(textures[index].vidCapture.get(cv::CAP_PROP_FRAME_WIDTH));
 		textures[index].height = static_cast<int>(textures[index].vidCapture.get(cv::CAP_PROP_FRAME_HEIGHT));
 
