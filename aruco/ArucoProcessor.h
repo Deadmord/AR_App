@@ -14,7 +14,7 @@ struct Markers
 	std::vector<std::vector<cv::Point2f>> corners, rejected;
 	std::vector<cv::Vec3d> rvecs;
 	std::vector<cv::Vec3d> tvecs;
-	std::vector<glm::mat4> projectionMatrixes;
+	std::vector<glm::mat4> viewMatrixes;
 };
 
 class ArucoProcessor
@@ -36,6 +36,10 @@ public:
 				std::cerr << "Invalid camera file" << std::endl;
 				throw std::runtime_error("Invalid camera parameters file");   //Refactoring !!! Add tray/catch
 			}
+
+			// Calculate the distortion correction for the camera matrix and get the undistortion matrices
+			cv::Mat newCamMatrix;
+			cv::initUndistortRectifyMap(camMatrix, distCoeffs, cv::Mat(), newCamMatrix, frameSize, CV_16SC2, undistortionMap1, undistortionMap2);
 
 			// Getting focal lenght from camera calibration parameters
 			double focal_length_x = camMatrix.at<double>(0, 0); // also could be camera_matrix.at<double>(1, 1); for f_y
@@ -70,13 +74,13 @@ public:
 		size_t  nMarkers = markers.corners.size();
 		markers.rvecs.resize(nMarkers); 
 		markers.tvecs.resize(nMarkers);
-		markers.projectionMatrixes.resize(nMarkers);
+		markers.viewMatrixes.resize(nMarkers);
 
 		if (estimatePose && !markers.ids.empty()) {
 			// Calculate pose for each marker
 			for (size_t i = 0; i < nMarkers; i++) {
 				solvePnP(*objPoints, markers.corners.at(i), camMatrix, distCoeffs, markers.rvecs.at(i), markers.tvecs.at(i));
-				markers.projectionMatrixes.at(i) = createProjectionMatrix(camMatrix, markers.rvecs.at(i), markers.tvecs.at(i), frameSize.width, frameSize.height);
+				markers.viewMatrixes.at(i) = createViewMatrix(camMatrix, markers.rvecs.at(i), markers.tvecs.at(i), frameSize.width, frameSize.height);
 			}
 		}
 
@@ -115,6 +119,26 @@ public:
 		return frameSize;
 	}
 
+	const cv::Mat& getCameraMat() const
+	{
+		return camMatrix;
+	}
+
+	const cv::Mat& getDistortCoeff() const
+	{
+		return distCoeffs;
+	}
+
+	const cv::Mat& getUndistortMap1() const
+	{
+		return undistortionMap1;
+	}
+
+	const cv::Mat& getUndistortMap2() const
+	{
+		return undistortionMap2;
+	}
+
 	const float& getFOV() const
 	{
 		return FOV;
@@ -126,7 +150,7 @@ public:
 	}
 
 private:
-	glm::mat4 createProjectionMatrix(cv::Mat cameraMatrix, cv::Vec3d rvec, cv::Vec3d tvec, int width, int height) {
+	glm::mat4 createViewMatrix(cv::Mat cameraMatrix, cv::Vec3d rvec, cv::Vec3d tvec, int width, int height) {
 		// Convert rotation vector to rotation matrix
 		cv::Mat rotationMatrix;
 		cv::Rodrigues(rvec, rotationMatrix);
@@ -184,6 +208,7 @@ private:
 	bool estimatePose;
 	std::string cameraParams;				//Refactoring можно убрать строку с адресом фаила параметров т.к. он не нужен после чтения этих параметров
 	cv::Mat camMatrix, distCoeffs;
+	cv::Mat undistortionMap1, undistortionMap2;
 	bool showRejected;
 
 	cv::aruco::DetectorParameters detectorParams;
