@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/string_cast.hpp> // For glm::value_ptr и glm::to_string
 #include "aruco_utilities.hpp"
 
 struct Markers
@@ -13,7 +14,7 @@ struct Markers
 	std::vector<std::vector<cv::Point2f>> corners, rejected;
 	std::vector<cv::Vec3d> rvecs;
 	std::vector<cv::Vec3d> tvecs;
-	std::vector<cv::Mat> projectionMatrixes;
+	std::vector<glm::mat4> projectionMatrixes;
 };
 
 class ArucoProcessor
@@ -35,6 +36,17 @@ public:
 				std::cerr << "Invalid camera file" << std::endl;
 				throw std::runtime_error("Invalid camera parameters file");   //Refactoring !!! Add tray/catch
 			}
+
+			// Getting focal lenght from camera calibration parameters
+			double focal_length_x = camMatrix.at<double>(0, 0); // also could be camera_matrix.at<double>(1, 1); for f_y
+
+			// Calculate Field of View in radians and degrees
+			FOV = 2.0 * std::atan2(0.5 * frameSize.height, focal_length_x);
+			FOV_Deg = glm::degrees(FOV);
+			
+			//hardware way: FOV = SD - WD / FL,
+			//где FOV - поле зрения; SD - размер датчика; WD - рабочее расстояние; FL - Фокусное расстояние линз.
+
 		}
 		initializeObjPoints();
 	}
@@ -58,12 +70,13 @@ public:
 		size_t  nMarkers = markers.corners.size();
 		markers.rvecs.resize(nMarkers); 
 		markers.tvecs.resize(nMarkers);
+		markers.projectionMatrixes.resize(nMarkers);
 
 		if (estimatePose && !markers.ids.empty()) {
 			// Calculate pose for each marker
 			for (size_t i = 0; i < nMarkers; i++) {
 				solvePnP(*objPoints, markers.corners.at(i), camMatrix, distCoeffs, markers.rvecs.at(i), markers.tvecs.at(i));
-				//markers.projectionMatrixes.at(i) = createProjectionMatrix(camMatrix, markers.rvecs.at(i), markers.tvecs.at(i), frameSize.width, frameSize.height);
+				markers.projectionMatrixes.at(i) = createProjectionMatrix(camMatrix, markers.rvecs.at(i), markers.tvecs.at(i), frameSize.width, frameSize.height);
 			}
 		}
 
@@ -92,36 +105,69 @@ public:
 		return !markers.ids.empty();
 	}
 
+	const Markers& getMarkers() const
+	{
+		return markers;
+	}
+
+	const cv::Size& getFrameSize() const
+	{
+		return frameSize;
+	}
+
+	const float& getFOV() const
+	{
+		return FOV;
+	}
+
+	const float& getFOVdeg() const
+	{
+		return FOV_Deg;
+	}
+
 private:
-	cv::Mat createProjectionMatrix(cv::Mat cameraMatrix, cv::Vec3d tvec, cv::Vec3d rvec, int width, int height) {
+	glm::mat4 createProjectionMatrix(cv::Mat cameraMatrix, cv::Vec3d rvec, cv::Vec3d tvec, int width, int height) {
 		// Convert rotation vector to rotation matrix
 		cv::Mat rotationMatrix;
 		cv::Rodrigues(rvec, rotationMatrix);
+		std::cout << "Rotation Matrix:\n" << rotationMatrix << std::endl;
 
 		// Create a 4x4 transformation matrix by combining rotation and translation
-		cv::Mat transformationMatrix = cv::Mat::eye(4, 4, CV_64F);
-		rotationMatrix.copyTo(transformationMatrix.rowRange(0, 3).colRange(0, 3));
-		cv::Mat translationMat = (cv::Mat_<double>(3, 1) << tvec[0], tvec[1], tvec[2]);
-		translationMat.copyTo(transformationMatrix.rowRange(0, 3).col(3));
+		cv::Mat transformationMatrix = cv::Mat::eye(4, 4, CV_64F); // Identity matrix
+		rotationMatrix.copyTo(transformationMatrix(cv::Rect(0, 0, 3, 3))); // Copy rotation part
 
-		// Combine camera matrix and transformation matrix
-		cv::Mat viewMatrix = cameraMatrix * transformationMatrix.inv();
+		// Copy translation vector into the transformation matrix
+		transformationMatrix.at<double>(0, 3) = tvec[0];
+		transformationMatrix.at<double>(1, 3) = tvec[1];
+		transformationMatrix.at<double>(2, 3) = tvec[2];
+		//rotationMatrix.copyTo(transformationMatrix.rowRange(0, 3).colRange(0, 3));	
+		//cv::Mat translationMat = (cv::Mat_<double>(3, 1) << tvec[0], tvec[1], tvec[2]);
+		//translationMat.copyTo(transformationMatrix.rowRange(0, 3).col(3));
+		std::cout << "Transformation Matrix:\n" << transformationMatrix << std::endl;
+
+
+		//------------ my eperiments -----------
+		//glm::mat4 glmTransformationMatrix;
+		glm::mat4 glmTransformationMatrix = glm::make_mat4x4(transformationMatrix.ptr<double>());
+		//memcpy(glm::value_ptr(glmTransformationMatrix), transformationMatrix.data, sizeof(double) * 16);
+		std::cout << "view:\n" << glm::to_string(glmTransformationMatrix) << "\n\n";    //убрать
+
+		// constant
+		glm::mat4 INVERSE_MATRIX	(1.0, 0.0, 0.0, 0.0,
+									0.0, -1.0, 0.0, 0.0,
+									0.0, 0.0, -1.0, 0.0,
+									0.0, 0.0, 0.0, 1.0);
+		glmTransformationMatrix = glmTransformationMatrix * INVERSE_MATRIX;
+		glmTransformationMatrix = glm::transpose(glmTransformationMatrix);
+
+		return glmTransformationMatrix;
+		//-------------------------------------
+
 
 		// Create OpenGL-style projection matrix
 		glm::mat4 projectionMatrix = glm::perspective(glm::radians(FOV), float(width) / float(height), nearPlane, farPlane);
 
-		// Convert OpenCV view matrix to glm
-		glm::mat4 glmViewMatrix;
-		memcpy(glm::value_ptr(glmViewMatrix), viewMatrix.data, sizeof(float) * 16);
-
-		// Combine projection and view matrices
-		glm::mat4 glmProjectionMatrix = projectionMatrix * glmViewMatrix;
-
-		// Convert glm projection matrix to OpenCV
-		cv::Mat resultProjectionMatrix(4, 4, CV_32F);
-		memcpy(resultProjectionMatrix.data, glm::value_ptr(glmProjectionMatrix), sizeof(float) * 16);
-
-		return resultProjectionMatrix;
+		return projectionMatrix;
 	}
 
 	void initializeObjPoints() {
@@ -146,12 +192,10 @@ private:
 	//cv::Mat objPoints = cv::Mat(4, 1, CV_32FC3);
 	std::unique_ptr<cv::Mat> objPoints;
 	Markers markers;
-
-	int frameWidth = 640;
-	int frameHeight = 480;
 	cv::Size frameSize;
 	// Примерные значения для FOV, nearPlane и farPlane
-	const float FOV = 60.0f;       // Угол обзора в градусах
+	float FOV = 0.0f;       // Угол обзора в градусах
+	float FOV_Deg = 0.0f;
 	const float nearPlane = 0.1f;  // Ближняя плоскость отсечения
 	const float farPlane = 100.0f; // Дальняя плоскость отсечения
 };

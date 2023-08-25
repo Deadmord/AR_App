@@ -1,7 +1,7 @@
 #include "GWindow.h"
 
 GWindow::GWindow(unsigned int WinID, unsigned int WinWidth, unsigned int WinHeight, unsigned int WinPosX, unsigned int WinPosY, const std::string& name, GLFWmonitor* monitor, glm::vec4 bgColor)
-    :wndID(WinID), WinWidth(WinWidth), WinHeight(WinHeight), lastX(WinWidth / 2.0f), lastY(WinHeight / 2.0f), camera(Camera(glm::vec3(2.5f, 2.5f, 10.0f))), bgColor(bgColor)
+    :wndID(WinID), WinWidth(WinWidth), WinHeight(WinHeight), lastX(WinWidth / 2.0f), lastY(WinHeight / 2.0f), camera(Camera(camInitPosition)), bgColor(bgColor)
 {
     window = glfwCreateWindow(WinWidth, WinHeight, name.c_str(), monitor, NULL);
     if (window == NULL)
@@ -130,10 +130,13 @@ void GWindow::renderFrame(float deltaTime)
             }
             else
             {
-                //------------------- aruco ------------------
-                bool result = arucoProcessorPtr->detectMarkers(frameVideo, frameVideoAruco);
-                //--------------------------------------------
-                glTexImage2D(GL_TEXTURE_2D, 0, textures[index].internalformat, textures[index].width, textures[index].height, 0, textures[index].format, GL_UNSIGNED_BYTE, frameVideoAruco.data);
+                //check stream videoframe for aruco markers
+                if (textures[index].isStream && arucoProcessorPtr->detectMarkers(frameVideo, frameVideoAruco))
+                {
+                    glTexImage2D(GL_TEXTURE_2D, 0, textures[index].internalformat, textures[index].width, textures[index].height, 0, textures[index].format, GL_UNSIGNED_BYTE, frameVideoAruco.data);
+                }
+                else
+                glTexImage2D(GL_TEXTURE_2D, 0, textures[index].internalformat, textures[index].width, textures[index].height, 0, textures[index].format, GL_UNSIGNED_BYTE, frameVideo.data);
             }
         }
         if (textures[index].isImg)
@@ -157,19 +160,53 @@ void GWindow::renderFrame(float deltaTime)
         const GLsizei objSize = GeometryObjects::objSize[index];
         for (GLsizei i = 0; i < objState.size(); i++)
         {
-            model = glm::mat4(1.0f);
-            model = glm::translate(model, objState[i].positions);
-            float angle = objState[i].angle;
-            model = glm::rotate(model, glm::radians(angle), objState[i].axisRotation);
-            model = glm::rotate(model, glm::radians(objState[i].speed * (float)glfwGetTime()), objState[i].axisRotation);
-            view = glm::mat4(1.0f);
-            view = camera.GetViewMatrix();
-            projection = glm::perspective(glm::radians(camera.Zoom), (float)WinWidth / (float)WinHeight, 0.1f, 100.0f);
-            shaders[index]->setCordTrans("model", glm::value_ptr(model));
-            shaders[index]->setCordTrans("view", glm::value_ptr(view));
-            shaders[index]->setCordTrans("projection", glm::value_ptr(projection));
-            shaders[index]->setColorMask("colorMask", objState[i].colorMask);
-            glDrawElements(GL_TRIANGLES, objSize, GL_UNSIGNED_INT, 0);
+            if(index==1)
+            { 
+                model = glm::mat4(1.0f);
+                model = glm::translate(model, objState[i].positions);
+                std::cout << "model:\n" << glm::to_string(model) << "\n\n";    //убрать
+                float angle = objState[i].angle;
+                model = glm::rotate(model, glm::radians(angle), objState[i].axisRotation);
+                model = glm::rotate(model, glm::radians(objState[i].speed * (float)glfwGetTime()), objState[i].axisRotation);
+                
+                view = glm::mat4(1.0f);
+                view = camera.GetViewMatrix();
+                if (!arucoProcessorPtr->getMarkers().ids.empty())
+                {
+                    view = arucoProcessorPtr->getMarkers().projectionMatrixes[0];
+                    std::cout << "model:\n" << glm::to_string(model) << "\n\n";    //убрать
+                }
+                //std::cout << "view:\n" << glm::to_string(view) << "\n\n";    //убрать
+                projection = glm::perspective(arucoProcessorPtr->getFOV(), (float)WinWidth / (float)WinHeight, 0.1f, 100.0f); //что это вообще тут делает? нужно убрать в arucoProcessor
+                //projection = glm::perspective(glm::radians(camera.Zoom), (float)WinWidth / (float)WinHeight, 0.1f, 100.0f);
+                //projection = glm::perspective(glm::radians(42.0f), (float)WinWidth / (float)WinHeight, 0.1f, 100.0f);
+                std::cout << "projection:\n" << glm::to_string(projection) << "\n\n";    //убрать
+                shaders[index]->setCordTrans("model", glm::value_ptr(model));
+                shaders[index]->setCordTrans("view", glm::value_ptr(view));
+                shaders[index]->setCordTrans("projection", glm::value_ptr(projection));
+                shaders[index]->setColorMask("colorMask", objState[i].colorMask);
+                glDrawElements(GL_TRIANGLES, objSize, GL_UNSIGNED_INT, 0);
+            }
+            else
+            {
+                model = glm::mat4(1.0f);
+                model = glm::translate(model, objState[i].positions);
+                std::cout << "model:\n" << glm::to_string(model) << "\n\n";    //убрать
+                float angle = objState[i].angle;
+                model = glm::rotate(model, glm::radians(angle), objState[i].axisRotation);
+                model = glm::rotate(model, glm::radians(objState[i].speed * (float)glfwGetTime()), objState[i].axisRotation);
+                view = glm::mat4(1.0f);
+                view = camera.GetViewMatrix();
+                std::cout << "view:\n" << glm::to_string(view) << "\n\n";    //убрать
+                projection = glm::perspective(glm::radians(camera.Zoom), (float)WinWidth / (float)WinHeight, 0.1f, 100.0f);
+                std::cout << "projection:\n" << glm::to_string(projection) << "\n\n";    //убрать
+                shaders[index]->setCordTrans("model", glm::value_ptr(model));
+                shaders[index]->setCordTrans("view", glm::value_ptr(view));
+                shaders[index]->setCordTrans("projection", glm::value_ptr(projection));
+                shaders[index]->setColorMask("colorMask", objState[i].colorMask);
+                glDrawElements(GL_TRIANGLES, objSize, GL_UNSIGNED_INT, 0);
+            }
+
         }
 
         if (!index) glClear(GL_DEPTH_BUFFER_BIT);	// first object is background

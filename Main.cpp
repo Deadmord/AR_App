@@ -22,9 +22,9 @@ struct MonitorData
 //*********************** Settings ***********************
 // ----------------------- ArUco --------------------------
 namespace arUcoSettingsNamespace {
-    float markerLength = 0.035f;
+    float markerLength = 1.0f;    // 0.035f;
     cv::aruco::PredefinedDictionaryType dictionaryId = cv::aruco::DICT_6X6_250;
-    std::string cameraParams = "camera_paramsUSB01.yml";
+    std::string cameraParams = "camera_params/camera_params03.yml";
     bool showRejected = true;
 }
 // -------------- Windows background color ----------------
@@ -67,9 +67,9 @@ int main()
 
     // ------------------ Windows init ---------------------
     MonitorData& data = monitors[0];
-    GWindow window_1(0, data.monitor_Width/2, data.monitor_Height/2, data.monitor_X, data.monitor_Y, "OpenGL window 1", NULL, BG_CLR_W1);
-    GWindow window_2(1, data.monitor_Width/2, data.monitor_Height/2, data.monitor_X + data.monitor_Width/2, data.monitor_Y, "OpenGL window 2", NULL, BG_CLR_W2);
-    GWindow window_3(2, data.monitor_Width/2, data.monitor_Height/2, data.monitor_X, data.monitor_Y + data.monitor_Height/2, "OpenGL window 3", NULL, BG_CLR_W3);
+    GWindow window_1(0, 1280, 720, data.monitor_X, data.monitor_Y, "OpenGL window 1", NULL, BG_CLR_W1);
+    GWindow window_2(1, 1280, 720, data.monitor_X + data.monitor_Width/2, data.monitor_Y, "OpenGL window 2", NULL, BG_CLR_W2);
+    GWindow window_3(2, 640, 480, data.monitor_X, data.monitor_Y + data.monitor_Height/2, "OpenGL window 3", NULL, BG_CLR_W3);
     
     
     //***************************** Shaders *****************************
@@ -100,7 +100,7 @@ int main()
     shaderProgBgrWin_3.setInt("texture", 0);
     // ------------------------------------
     window_1.generateGeometryBuffers(3);
-    window_1.setupGeometryObject(0, 0, verticesSurfHalf, indicesSurf, &initStateSurfW1);
+    window_1.setupGeometryObject(0, 0, verticesSurfFull, indicesSurf, &initStateSurfW3);
     window_1.setupGeometryObject(0, 1, verticesCube, indicesCube, &initStateCube);
     window_1.setupGeometryObject(0, 2, verticesOrigin, indicesOrigin, &initStateOrigin);
     
@@ -115,15 +115,15 @@ int main()
     window_3.setupGeometryObject(2, 2, verticesOrigin, indicesOrigin, &initStateOrigin);
     // ------------------------------------
     //window_1.makeContextCurrent();
-    window_1.setupVideoTexture(0, 0, GL_RGB, GL_BGR);                           // set camera stream for virtual screans
+    window_1.setupVideoTexture(0, 1, GL_RGB, GL_BGR);                           // set camera stream for virtual screans
     window_1.setupVideoTexture(1, std::string("video/lines(540p).mp4"), GL_RGB, GL_BGR); //set video texture for cube object
     window_1.setupImgTexture(2, std::string("img/white.jpg"), GL_RGB, GL_RGB);
 
-    window_2.setupVideoTexture(0, 0, GL_RGB, GL_BGR);                           // set camera stream for virtual screans
+    window_2.setupVideoTexture(0, 1, GL_RGB, GL_BGR);                           // set camera stream for virtual screans
     window_2.setupVideoTexture(1, std::string("video/video (1080p).mp4"), GL_RGB, GL_BGR); //set video texture for cube object
     window_2.setupImgTexture(2, std::string("img/white.jpg"), GL_RGB, GL_RGB);
 
-    window_3.setupVideoTexture(0, 1, GL_RGB, GL_BGR);                           // set camera stream for virtual screans
+    window_3.setupVideoTexture(0, 0, GL_RGB, GL_BGR);                           // set camera stream for virtual screans
     window_3.setupImgTexture(1, std::string("img/white.jpg"), GL_RGB, GL_RGB);
     window_3.setupImgTexture(2, std::string("img/white.jpg"), GL_RGB, GL_RGB);
     // ------------------------------------
