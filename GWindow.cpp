@@ -51,10 +51,9 @@ void GWindow::setupGeometryObject(GLuint objIndex, const std::vector<float>& obj
 {
     glfwMakeContextCurrent(window);
     geometryObjects.addObject(objIndex, objVBO.size(), objVBO.data(), objEBO.size(), objEBO.data(), objState);
-    
 }
 
-void GWindow::setupImgTexture(GLuint index, const std::string& imgTexture, GLenum internalformat, GLenum format)
+void GWindow::setupImgTexture(GLuint index, const std::string& imgTexture, GLenum internalformat, GLenum format, bool isBackground, bool showOnMarker)
 {
     textures[index].isImg = true;
     textures[index].filePath = imgTexture;
@@ -62,6 +61,8 @@ void GWindow::setupImgTexture(GLuint index, const std::string& imgTexture, GLenu
     textures[index].data = stbi_load(imgTexture.c_str(), &textures[index].width, &textures[index].height, &textures[index].nrChannels, 0);
     textures[index].internalformat = internalformat;
     textures[index].format = format;
+    textures[index].isBackground = isBackground;
+    textures[index].showOnMarker = showOnMarker;
 
     //---------------------- video texture -------------------
     if (!textures[index].data)
@@ -99,9 +100,6 @@ void GWindow::renderFrame(float deltaTime)
     {
         shaders[index]->use();
         geometryObjects.bindVertexArray(index);
-        glm::mat4 model = glm::mat4(1.0f);
-        glm::mat4 view = glm::mat4(1.0f);
-        glm::mat4 projection;
 
         if (textures[index].isStream || textures[index].isVideo)
         {
@@ -158,63 +156,25 @@ void GWindow::renderFrame(float deltaTime)
             glTexImage2D(GL_TEXTURE_2D, 0, textures[index].internalformat, textures[index].width, textures[index].height, 0, textures[index].format, GL_UNSIGNED_BYTE, textures[index].data);
         }
 
-        // ------------- render objects copies from objState list ---------------
-        std::shared_ptr <const std::vector<InitState>> objState = geometryObjects.getObjStatePtr(index);
-
-        const GLsizei objSize = geometryObjects.getObjSize(index);
-        for (GLsizei i = 0; i < objState->size(); i++)
+        glm::mat4 view = glm::mat4(1.0f);
+        glm::mat4 projection = glm::mat4(1.0f);
+        projection = arucoProcessorPtr->getProjectionMat();
+        //projection = glm::perspective(arucoProcessorPtr->getFOV(), (float)WinWidth / (float)WinHeight, 0.1f, 100.0f); //что это вообще тут делает? нужно убрать в arucoProcessor
+        //projection = glm::perspective(glm::radians(camera.Zoom), (float)WinWidth / (float)WinHeight, 0.1f, 100.0f);
+        //projection = glm::perspective(glm::radians(42.0f), (float)WinWidth / (float)WinHeight, 0.1f, 100.0f);
+        
+        if (textures[index].showOnMarker && !arucoProcessorPtr->getMarkers().ids.empty())
         {
-            if(index==1)
-            { 
-                model = glm::mat4(1.0f);
-                model = glm::translate(model, (*objState)[i].positions);
-                std::cout << "model:\n" << glm::to_string(model) << "\n\n";    //убрать
-                float angle = (*objState)[i].angle;
-                model = glm::rotate(model, glm::radians(angle), (*objState)[i].axisRotation);
-                model = glm::rotate(model, glm::radians((*objState)[i].speed * (float)glfwGetTime()), (*objState)[i].axisRotation);
-                
-                view = glm::mat4(1.0f);
-                view = camera.GetViewMatrix();
-                if (!arucoProcessorPtr->getMarkers().ids.empty())
-                {
-                    view = arucoProcessorPtr->getMarkers().viewMatrixes[0];
-                    std::cout << "model:\n" << glm::to_string(model) << "\n\n";    //убрать
-                }
-                //std::cout << "view:\n" << glm::to_string(view) << "\n\n";    //убрать
-                projection = arucoProcessorPtr->getProjectionMat();
-                //projection = glm::perspective(arucoProcessorPtr->getFOV(), (float)WinWidth / (float)WinHeight, 0.1f, 100.0f); //что это вообще тут делает? нужно убрать в arucoProcessor
-                //projection = glm::perspective(glm::radians(camera.Zoom), (float)WinWidth / (float)WinHeight, 0.1f, 100.0f);
-                //projection = glm::perspective(glm::radians(42.0f), (float)WinWidth / (float)WinHeight, 0.1f, 100.0f);
-                std::cout << "projection:\n" << glm::to_string(projection) << "\n\n";    //убрать
-                shaders[index]->setCordTrans("model", glm::value_ptr(model));
-                shaders[index]->setCordTrans("view", glm::value_ptr(view));
-                shaders[index]->setCordTrans("projection", glm::value_ptr(projection));
-                shaders[index]->setColorMask("colorMask", (*objState)[i].colorMask);
-                glDrawElements(GL_TRIANGLES, objSize, GL_UNSIGNED_INT, 0);
-            }
-            else
+            for (glm::mat4 view : arucoProcessorPtr->getMarkers().viewMatrixes)
             {
-                model = glm::mat4(1.0f);
-                model = glm::translate(model, (*objState)[i].positions);
-                std::cout << "model:\n" << glm::to_string(model) << "\n\n";    //убрать
-                float angle = (*objState)[i].angle;
-                model = glm::rotate(model, glm::radians(angle), (*objState)[i].axisRotation);
-                model = glm::rotate(model, glm::radians((*objState)[i].speed * (float)glfwGetTime()), (*objState)[i].axisRotation);
-                view = glm::mat4(1.0f);
-                view = camera.GetViewMatrix();
-                std::cout << "view:\n" << glm::to_string(view) << "\n\n";    //убрать
-                projection = glm::perspective(glm::radians(camera.Zoom), (float)WinWidth / (float)WinHeight, 0.1f, 100.0f);
-                std::cout << "projection:\n" << glm::to_string(projection) << "\n\n";    //убрать
-                shaders[index]->setCordTrans("model", glm::value_ptr(model));
-                shaders[index]->setCordTrans("view", glm::value_ptr(view));
-                shaders[index]->setCordTrans("projection", glm::value_ptr(projection));
-                shaders[index]->setColorMask("colorMask", (*objState)[i].colorMask);
-                glDrawElements(GL_TRIANGLES, objSize, GL_UNSIGNED_INT, 0);
+                drowObject(index, view, projection, textures[index].isBackground);
             }
-
         }
-
-        if (!index) glClear(GL_DEPTH_BUFFER_BIT);	// first object is background
+        else
+        {
+            view = camera.GetViewMatrix();
+            drowObject(index, view, projection, textures[index].isBackground);
+        }
     }
     // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
     // -------------------------------------------------------------------------------
