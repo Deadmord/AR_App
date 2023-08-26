@@ -37,20 +37,20 @@ GWindow::GWindow(unsigned int WinID, unsigned int WinWidth, unsigned int WinHeig
 
 }
 
-void GWindow::generateGeometryBuffers(GLsizei size)
+void GWindow::addGeometryBuffers(GLsizei size)
 {
     glfwMakeContextCurrent(window);
-    GeometryObjects::setSize(size);
-    GeometryObjects::initObjectTexture(false);
+    geometryObjects.setSize(size);
+    geometryObjects.initObjectTexture(false);
     textures.resize(size);
     shaders.resize(size);
     objectListSize = size;
 }
 
-void GWindow::setupGeometryObject(GLuint objIndex, const std::vector<float>& VBO, const std::vector<unsigned int>& EBO, const std::vector<InitState>* objStatePtr)
+void GWindow::setupGeometryObject(GLuint objIndex, const std::vector<float>& objVBO, const std::vector<unsigned int>& objEBO, const std::vector<InitState>& objState)
 {
     glfwMakeContextCurrent(window);
-    GeometryObjects::addObject(wndID, objIndex, VBO.size(), VBO.data(), EBO.size(), EBO.data(), objStatePtr);
+    geometryObjects.addObject(objIndex, objVBO.size(), objVBO.data(), objEBO.size(), objEBO.data(), objState);
     
 }
 
@@ -98,7 +98,7 @@ void GWindow::renderFrame(float deltaTime)
     for (GLsizei index{ 0 }; index < objectListSize; index++)
     {
         shaders[index]->use();
-        glBindVertexArray(GeometryObjects::VAO[index]);
+        geometryObjects.bindVertexArray(index);
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 view = glm::mat4(1.0f);
         glm::mat4 projection;
@@ -159,23 +159,19 @@ void GWindow::renderFrame(float deltaTime)
         }
 
         // ------------- render objects copies from objState list ---------------
-        const std::vector<InitState>& objState = (!wndID ? *GeometryObjects::objStatePtrs0[index]
-            : wndID == 1 ? *GeometryObjects::objStatePtrs1[index]
-            : wndID == 2 ? *GeometryObjects::objStatePtrs2[index]
-            : *GeometryObjects::objStatePtrs3[index]);
-        //const std::vector<InitState>& objState = (!wndID ? *GeometryObjects::objStatePtrs0[index] : *GeometryObjects::objStatePtrs1[index]);
-        //const std::vector<InitState> &objState = *GeometryObjects::objStatePtrs1[index];
-        const GLsizei objSize = GeometryObjects::objSize[index];
-        for (GLsizei i = 0; i < objState.size(); i++)
+        std::shared_ptr <const std::vector<InitState>> objState = geometryObjects.getObjStatePtr(index);
+
+        const GLsizei objSize = geometryObjects.getObjSize(index);
+        for (GLsizei i = 0; i < objState->size(); i++)
         {
             if(index==1)
             { 
                 model = glm::mat4(1.0f);
-                model = glm::translate(model, objState[i].positions);
+                model = glm::translate(model, (*objState)[i].positions);
                 std::cout << "model:\n" << glm::to_string(model) << "\n\n";    //убрать
-                float angle = objState[i].angle;
-                model = glm::rotate(model, glm::radians(angle), objState[i].axisRotation);
-                model = glm::rotate(model, glm::radians(objState[i].speed * (float)glfwGetTime()), objState[i].axisRotation);
+                float angle = (*objState)[i].angle;
+                model = glm::rotate(model, glm::radians(angle), (*objState)[i].axisRotation);
+                model = glm::rotate(model, glm::radians((*objState)[i].speed * (float)glfwGetTime()), (*objState)[i].axisRotation);
                 
                 view = glm::mat4(1.0f);
                 view = camera.GetViewMatrix();
@@ -192,17 +188,17 @@ void GWindow::renderFrame(float deltaTime)
                 shaders[index]->setCordTrans("model", glm::value_ptr(model));
                 shaders[index]->setCordTrans("view", glm::value_ptr(view));
                 shaders[index]->setCordTrans("projection", glm::value_ptr(projection));
-                shaders[index]->setColorMask("colorMask", objState[i].colorMask);
+                shaders[index]->setColorMask("colorMask", (*objState)[i].colorMask);
                 glDrawElements(GL_TRIANGLES, objSize, GL_UNSIGNED_INT, 0);
             }
             else
             {
                 model = glm::mat4(1.0f);
-                model = glm::translate(model, objState[i].positions);
+                model = glm::translate(model, (*objState)[i].positions);
                 std::cout << "model:\n" << glm::to_string(model) << "\n\n";    //убрать
-                float angle = objState[i].angle;
-                model = glm::rotate(model, glm::radians(angle), objState[i].axisRotation);
-                model = glm::rotate(model, glm::radians(objState[i].speed * (float)glfwGetTime()), objState[i].axisRotation);
+                float angle = (*objState)[i].angle;
+                model = glm::rotate(model, glm::radians(angle), (*objState)[i].axisRotation);
+                model = glm::rotate(model, glm::radians((*objState)[i].speed * (float)glfwGetTime()), (*objState)[i].axisRotation);
                 view = glm::mat4(1.0f);
                 view = camera.GetViewMatrix();
                 std::cout << "view:\n" << glm::to_string(view) << "\n\n";    //убрать
@@ -211,7 +207,7 @@ void GWindow::renderFrame(float deltaTime)
                 shaders[index]->setCordTrans("model", glm::value_ptr(model));
                 shaders[index]->setCordTrans("view", glm::value_ptr(view));
                 shaders[index]->setCordTrans("projection", glm::value_ptr(projection));
-                shaders[index]->setColorMask("colorMask", objState[i].colorMask);
+                shaders[index]->setColorMask("colorMask", (*objState)[i].colorMask);
                 glDrawElements(GL_TRIANGLES, objSize, GL_UNSIGNED_INT, 0);
             }
 

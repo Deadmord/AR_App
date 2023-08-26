@@ -1,36 +1,25 @@
 #include "geometryObjects.h"
-std::vector<GLuint> GeometryObjects::VAO;
-std::vector<GLuint> GeometryObjects::VBO;
-std::vector<GLuint> GeometryObjects::EBO;
-std::vector<GLsizei> GeometryObjects::objSize;
-std::vector<const std::vector<InitState>*> GeometryObjects::objStatePtrs0; // !!!! Убрать это все! Костыль. Обьект должен быть одни в не зависимости от окна.
-std::vector<const std::vector<InitState>*> GeometryObjects::objStatePtrs1;
-std::vector<const std::vector<InitState>*> GeometryObjects::objStatePtrs2;
-std::vector<const std::vector<InitState>*> GeometryObjects::objStatePtrs3;
 
 void GeometryObjects::setSize(GLsizei size)
 {
     VAO.resize(size);
     VBO.resize(size);
     EBO.resize(size);
-    objSize.resize(size);
-    objStatePtrs0.resize(size);         // !!!! Убрать это все! Костыль. Обьект должен быть одни в не зависимости от окна.
-    objStatePtrs1.resize(size);
-    objStatePtrs2.resize(size);
-    objStatePtrs3.resize(size);
+    objSizes.resize(size);
+    objStatePtrs.resize(size);
 
     glGenVertexArrays(size, VAO.data());
     glGenBuffers(size, VBO.data());
     glGenBuffers(size, EBO.data());
 }
 
-void GeometryObjects::addObject(GLuint wndIndex, GLuint objIndex, GLsizeiptr sizeVBO, const void* dataVBO, GLsizeiptr sizeEBO, const void* dataEBO, const std::vector<InitState>* objStatePtr)
+void GeometryObjects::addObject(GLuint objIndex, GLsizeiptr sizeVBO, const void* dataVBO, GLsizeiptr sizeEBO, const void* dataEBO, const std::vector<InitState>& objState)
 {
-    glBindVertexArray(GeometryObjects::VAO[objIndex]);
-    glBindBuffer(GL_ARRAY_BUFFER, GeometryObjects::VBO[objIndex]);
+    glBindVertexArray(VAO[objIndex]);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[objIndex]);
     glBufferData(GL_ARRAY_BUFFER, sizeVBO * sizeof(float), dataVBO, GL_STATIC_DRAW);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, GeometryObjects::EBO[objIndex]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[objIndex]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeEBO * sizeof(unsigned int), dataEBO, GL_STATIC_DRAW);
 
     // position attribute
@@ -53,13 +42,8 @@ void GeometryObjects::addObject(GLuint wndIndex, GLuint objIndex, GLsizeiptr siz
     // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
     // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
     glBindVertexArray(0);
-    objSize[objIndex] = sizeEBO;
-
-    //!wndIndex ? objStatePtrs0[objIndex] = objStatePtr : objStatePtrs1[objIndex] = objStatePtr; 
-    if (wndIndex == 0) objStatePtrs0[objIndex] = objStatePtr;                           // !!!! Убрать это все! Костыль. Обьект должен быть одни в не зависимости от окна.
-    if (wndIndex == 1) objStatePtrs1[objIndex] = objStatePtr;
-    if (wndIndex == 2) objStatePtrs2[objIndex] = objStatePtr;
-    if (wndIndex == 3) objStatePtrs3[objIndex] = objStatePtr;
+    objSizes[objIndex] = sizeEBO;           // store the object size
+    objStatePtrs[objIndex] = std::make_shared<const std::vector<InitState>>(objState);   // store the object state   
 }
 
 void GeometryObjects::initObjectTexture(bool linePolygonMode)
@@ -81,4 +65,19 @@ void GeometryObjects::initObjectTexture(bool linePolygonMode)
     {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     }
+}
+
+void GeometryObjects::bindVertexArray(GLsizei objIndex)
+{
+    glBindVertexArray(VAO[objIndex]);
+}
+
+std::shared_ptr<const std::vector<InitState>> GeometryObjects::getObjStatePtr(GLsizei objIndex) const
+{
+    return objStatePtrs[objIndex];
+}
+
+GLsizei GeometryObjects::getObjSize(GLsizei objIndex)
+{
+    return objSizes[objIndex];
 }

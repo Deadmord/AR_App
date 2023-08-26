@@ -53,12 +53,12 @@ public:
 	}
 
 	// Generates OpenGL vertex array and buffer objects arrays with the specified size.
-	void generateGeometryBuffers(GLsizei size);
+	void addGeometryBuffers(GLsizei size);
 
 	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
 	// Vertex Array Object sould has next form: float[] {PosX, PosY, PosZ, ColR, ColG, ColB, TextX, TextY, ...}.
 	// Element Buffer Object should include indices of triangle vertices in the correct sequence.
-	void setupGeometryObject(GLuint objIndex, const std::vector<float>& VBO, const std::vector<unsigned int>& EBO, const std::vector<InitState>* objStatePtr);
+	void setupGeometryObject(GLuint objIndex, const std::vector<float>& objVBO, const std::vector<unsigned int>& objEBO, const std::vector<InitState>& objState);
 
 	// Open texture file and bind with object
 	template<typename T>
@@ -156,6 +156,7 @@ private:
 	GLuint WinWidth = 800; 
 	GLuint WinHeight = 600;
 	glm::vec4 bgColor;
+	GeometryObjects geometryObjects;
 	std::vector<TextureData> textures;
 	std::vector<Shader*> shaders;
 	GLsizei objectListSize = 0;
