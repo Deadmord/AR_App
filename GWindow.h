@@ -58,7 +58,7 @@ public:
 	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
 	// Vertex Array Object sould has next form: float[] {PosX, PosY, PosZ, ColR, ColG, ColB, TextX, TextY, ...}.
 	// Element Buffer Object should include indices of triangle vertices in the correct sequence.
-	void setupGeometryObject(GLuint wndIndex, GLuint objIndex, const std::vector<float>& VBO, const std::vector<unsigned int>& EBO, const std::vector<InitState>* objStatePtr);
+	void setupGeometryObject(GLuint objIndex, const std::vector<float>& VBO, const std::vector<unsigned int>& EBO, const std::vector<InitState>* objStatePtr);
 
 	// Open texture file and bind with object
 	template<typename T>

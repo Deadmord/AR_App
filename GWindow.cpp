@@ -47,10 +47,10 @@ void GWindow::generateGeometryBuffers(GLsizei size)
     objectListSize = size;
 }
 
-void GWindow::setupGeometryObject(GLuint wndIndex, GLuint objIndex, const std::vector<float>& VBO, const std::vector<unsigned int>& EBO, const std::vector<InitState>* objStatePtr)
+void GWindow::setupGeometryObject(GLuint objIndex, const std::vector<float>& VBO, const std::vector<unsigned int>& EBO, const std::vector<InitState>* objStatePtr)
 {
     glfwMakeContextCurrent(window);
-    GeometryObjects::addObject(wndIndex, objIndex, VBO.size(), VBO.data(), EBO.size(), EBO.data(), objStatePtr);
+    GeometryObjects::addObject(wndID, objIndex, VBO.size(), VBO.data(), EBO.size(), EBO.data(), objStatePtr);
     
 }
 
