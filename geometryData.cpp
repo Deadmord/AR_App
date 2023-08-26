@@ -24,24 +24,27 @@ std::vector<unsigned int> indicesSurf = {  // note that we start from 0!
 };
 
 //--------------- positions ------------------ axisRotation ------ angle -- speed ------- colorMask --------------
-std::vector<InitState> initStateSurfW1 =
+std::vector<InitState> initStateSurfTwoHalfC1 =
 {
     {   glm::vec3(-0.5f, 0.0f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -4.0f,  0.0f, glm::vec3(1.2f, 0.8f,  0.8f)    },
     {   glm::vec3(0.5f,  0.0f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f),  4.0f,  0.0f, glm::vec3(1.2f, 1.2f,  0.8f)    }
 };
-std::vector<InitState> initStateSurfW2 =
+std::vector<InitState> initStateSurfTwoHalfC2 =
 {
     {   glm::vec3(-0.5f, 0.0f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -4.0f,  0.0f, glm::vec3(0.8f, 1.2f,  1.2f)    },
     {   glm::vec3(0.5f,  0.0f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f),  4.0f,  0.0f, glm::vec3(0.8f, 0.8f,  1.2f)    }
 };
-std::vector<InitState> initStateSurfW3 =
+std::vector<InitState> initStateSurfFullScr =
 {
     {   glm::vec3(0.0f, 0.0f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f,  0.0f, glm::vec3(1.0f, 1.0f,  1.0f)    }
 };
-std::vector<InitState> initStateSurfW4 =
+std::vector<InitState> initStateSurfLeftHalf =
 {
-    {   glm::vec3(-0.5f, 0.0f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -4.0f,  0.0f, glm::vec3(1.0f, 1.0f,  1.0f)    },
-    {   glm::vec3(0.5f,  0.0f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f),  4.0f,  0.0f, glm::vec3(1.0f, 1.0f,  1.0f)    }
+    {   glm::vec3(-0.5f, 0.0f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f,  0.0f, glm::vec3(1.0f, 1.0f,  1.0f)    }
+};
+std::vector<InitState> initStateSurfRghtHalf =
+{
+    {   glm::vec3(0.5f,  0.0f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f),  0.0f,  0.0f, glm::vec3(1.0f, 1.0f,  1.0f)    }
 };
 
 
@@ -127,7 +130,7 @@ std::vector<unsigned int> indicesCube = {  // note that we start from 0!
     21, 22, 23                                                       
 };
 //--------------- positions ------------------ axisRotation ------ angle -- speed ------- colorMask --------------
-std::vector<InitState> initStateCube =
+std::vector<InitState> initStateCubes =
 {
     {   glm::vec3( 0.0f, 0.0f, 0.5f), glm::vec3(0.0f, 0.0f, 1.0f),  0.0f,  0.0f, glm::vec3(1.0f, 1.0f, 1.0f)    },
     {   glm::vec3( 1.0f, 1.0f, 1.0f), glm::vec3(0.3f, 1.0f, 0.2f),  0.0f,  10.0f, glm::vec3(1.0f, 1.0f, 1.0f)    },
@@ -136,7 +139,7 @@ std::vector<InitState> initStateCube =
     {   glm::vec3(-1.0f, 1.0f, 2.5f), glm::vec3(0.1f, 1.0f, 0.9f),  30.0f, 45.0f, glm::vec3(3.0f, 3.0f, 3.0f)    }
 };
 
-std::vector<InitState> initStateCubeEmpt =
+std::vector<InitState> initStateCube =
 {
     {   glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f),  0.0f,  0.0f, glm::vec3(1.0f, 1.0f, 1.0f)    }
 };
