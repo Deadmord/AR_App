@@ -159,7 +159,6 @@ void GWindow::renderFrame(float deltaTime)
         glm::mat4 view = glm::mat4(1.0f);
         glm::mat4 projection = glm::mat4(1.0f);
         projection = arucoProcessorPtr->getProjectionMat();
-        //projection = glm::perspective(arucoProcessorPtr->getFOV(), (float)WinWidth / (float)WinHeight, 0.1f, 100.0f); //что это вообще тут делает? нужно убрать в arucoProcessor
         //projection = glm::perspective(glm::radians(camera.Zoom), (float)WinWidth / (float)WinHeight, 0.1f, 100.0f);
         //projection = glm::perspective(glm::radians(42.0f), (float)WinWidth / (float)WinHeight, 0.1f, 100.0f);
         

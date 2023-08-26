@@ -59,7 +59,7 @@ bool ArucoProcessor::detectMarkers(const cv::Mat& frame, cv::Mat& frameCopy)
 		// Calculate pose for each marker
 		for (size_t i = 0; i < nMarkers; i++) {
 			solvePnP(*objPoints, markers.corners.at(i), camMatrix, distCoeffs, markers.rvecs.at(i), markers.tvecs.at(i));
-			markers.viewMatrixes.at(i) = createViewMatrix(camMatrix, markers.rvecs.at(i), markers.tvecs.at(i), frameSize.width, frameSize.height);
+			markers.viewMatrixes.at(i) = createViewMatrix(camMatrix, markers.rvecs.at(i), markers.tvecs.at(i));
 		}
 	}
 
@@ -133,7 +133,7 @@ const float& ArucoProcessor::getFOVdeg() const
 	return FOV_Deg;
 }
 
-glm::mat4 ArucoProcessor::createViewMatrix(cv::Mat cameraMatrix, cv::Vec3d rvec, cv::Vec3d tvec, int width, int height) {
+glm::mat4 ArucoProcessor::createViewMatrix(cv::Mat cameraMatrix, cv::Vec3d rvec, cv::Vec3d tvec) {
 	// Convert rotation vector to rotation matrix
 	cv::Mat rotationMatrix;
 	cv::Rodrigues(rvec, rotationMatrix);

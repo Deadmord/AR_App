@@ -39,7 +39,7 @@ struct TextureData
 	uchar*			data;
 };
 
-const int		WINDOW_PANEL_HEIGHT = 30;				// 30px for window panel
+const int		WINDOW_PANEL_HEIGHT = 0;				// 30px for window panel
 const glm::vec4 BG_CLR	(0.2f, 0.3f, 0.3f, 1.0f);		//default bg color
 const glm::vec3 camInitPosition	(5.0f, 4.0f, 20.0f);	//Camera start position
 
@@ -77,11 +77,14 @@ public:
 		//cv::VideoCapture vid_captureCamera
 		textures[index].vidCapture = cv::VideoCapture(videoTexture);
 
-		//------------ for aruco -------------------need refactoring this!!
+		//----------- Init ArUco and set resolution -----------
 		if (textures[index].isStream) //&& turn aruco flag
 		{
-			textures[index].vidCapture.set(cv::CAP_PROP_FRAME_WIDTH, WinWidth);
-			textures[index].vidCapture.set(cv::CAP_PROP_FRAME_HEIGHT, WinHeight);
+			// ArUco init
+			arucoProcessorPtr = std::make_unique<ArucoProcessor>(arUcoSettingsNamespace::markerLength, arUcoSettingsNamespace::dictionaryId, cameraParams, arUcoSettingsNamespace::showRejected);
+
+			textures[index].vidCapture.set(cv::CAP_PROP_FRAME_WIDTH, arucoProcessorPtr->getFrameSize().width);
+			textures[index].vidCapture.set(cv::CAP_PROP_FRAME_HEIGHT, arucoProcessorPtr->getFrameSize().height);
 		}
 		//------------------------------------------
 
@@ -113,13 +116,6 @@ public:
 				textures[index].data = frameVideo.data;
 				textures[index].isOpened = true;
 			}
-		}
-
-		if (textures[index].isOpened && textures[index].isStream)
-		{
-			//--------------- ArUco init ======================
-			arucoProcessorPtr = std::make_unique<ArucoProcessor>(arUcoSettingsNamespace::markerLength, arUcoSettingsNamespace::dictionaryId, cameraParams, arUcoSettingsNamespace::showRejected);
-			//--------------------------------------------
 		}
 	}
 
