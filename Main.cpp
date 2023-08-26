@@ -21,14 +21,17 @@ struct MonitorData
 
 //*********************** Settings ***********************
 // ---------------------- Cameras ------------------------
-const int defaultCamera = 1;
-const int usbCamera = 0;
+const int defaultCamera = 0;
+const int usbCamera = 1;
 // ----------------------- ArUco -------------------------
 namespace arUcoSettingsNamespace {
     float markerLength = 1.0f;    // 0.035f;
     cv::aruco::PredefinedDictionaryType dictionaryId = cv::aruco::DICT_6X6_250;
     std::string defaultCameraParams = "camera_params/camera_params03.yml";
     std::string usbCameraParams = "camera_params/camera_paramsUSB01.yml";
+    //std::string defaultCameraParams = "camera_params/camera_paramsUSB01.yml";
+    //std::string usbCameraParams = "camera_params/camera_params03.yml";
+    
     bool showRejected = true;
 }
 // -------------- Windows background color ----------------
@@ -71,9 +74,9 @@ int main()
 
     // ------------------ Windows init ---------------------
     MonitorData& data = monitors[0];
-    GWindow window_1(0, 1280, 720, data.monitor_X, data.monitor_Y, "OpenGL window 1", NULL, BG_CLR_W1);
-    GWindow window_2(1, 1280, 720, data.monitor_X + data.monitor_Width/2, data.monitor_Y, "OpenGL window 2", NULL, BG_CLR_W2);
-    GWindow window_3(2, 640, 480, data.monitor_X, data.monitor_Y + data.monitor_Height/2, "OpenGL window 3", NULL, BG_CLR_W3);
+    GWindow window_1(0, data.monitor_Width/2, data.monitor_Height/2, data.monitor_X, data.monitor_Y, "OpenGL window 1", NULL, BG_CLR_W1);
+    GWindow window_2(1, data.monitor_Width/2, data.monitor_Height/2, data.monitor_X + data.monitor_Width/2, data.monitor_Y, "OpenGL window 2", NULL, BG_CLR_W2);
+    GWindow window_3(2, data.monitor_Width/2, data.monitor_Height/2, data.monitor_X, data.monitor_Y + data.monitor_Height/2, "OpenGL window 3", NULL, BG_CLR_W3);
     
     
     //***************************** Shaders *****************************
