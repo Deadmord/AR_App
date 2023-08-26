@@ -130,8 +130,16 @@ void GWindow::renderFrame(float deltaTime)
             }
             else
             {
+                //calc and apply distortion correction, very heavy hendling!!!
+                //cv::Mat undistortedFrame;
+                //cv::undistort(frameVideo, undistortedFrame, arucoProcessorPtr->getCameraMat(), arucoProcessorPtr->getDistortCoeff());
+
+                //only apply distortion maps, mach more faster!!!
+                cv::Mat undistortedFrame;
+                cv::remap(frameVideo, undistortedFrame, arucoProcessorPtr->getUndistortMap1(), arucoProcessorPtr->getUndistortMap2(), cv::INTER_LINEAR);
+
                 //check stream videoframe for aruco markers
-                if (textures[index].isStream && arucoProcessorPtr->detectMarkers(frameVideo, frameVideoAruco))
+                if (textures[index].isStream && arucoProcessorPtr->detectMarkers(undistortedFrame, frameVideoAruco))
                 {
                     glTexImage2D(GL_TEXTURE_2D, 0, textures[index].internalformat, textures[index].width, textures[index].height, 0, textures[index].format, GL_UNSIGNED_BYTE, frameVideoAruco.data);
                 }
@@ -173,7 +181,7 @@ void GWindow::renderFrame(float deltaTime)
                 view = camera.GetViewMatrix();
                 if (!arucoProcessorPtr->getMarkers().ids.empty())
                 {
-                    view = arucoProcessorPtr->getMarkers().projectionMatrixes[0];
+                    view = arucoProcessorPtr->getMarkers().viewMatrixes[0];
                     std::cout << "model:\n" << glm::to_string(model) << "\n\n";    //убрать
                 }
                 //std::cout << "view:\n" << glm::to_string(view) << "\n\n";    //убрать

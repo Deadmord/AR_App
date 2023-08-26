@@ -1,100 +1,113 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    <Filter Include="Controllers">
+      <UniqueIdentifier>{ae23ed28-8a6f-477f-b6dd-63f07bba1fa2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    <Filter Include="Core">
+      <UniqueIdentifier>{019f9231-f3a2-438a-8a72-e110d5bdeebc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules">
+      <UniqueIdentifier>{da906698-5b28-4fe4-a635-04a39a25a32e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Helpers">
+      <UniqueIdentifier>{fe70d537-aa0d-4c05-b773-cfbc872d14a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework">
+      <UniqueIdentifier>{a28ed084-7ddc-499e-bcdf-3c9808a56ff9}</UniqueIdentifier>
     </Filter>
     <Filter Include="Resource Files">
+      <UniqueIdentifier>{54539050-daf1-4b66-a703-58fd2501be67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Module Aruco">
-      <UniqueIdentifier>{9e83ec19-17c2-4bd0-afb5-3abd440a2aee}</UniqueIdentifier>
+    <Filter Include="Modules\ArUco">
+      <UniqueIdentifier>{c4d477ca-565d-4312-9114-3b661f031eb7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\Virtual camera">
+      <UniqueIdentifier>{b18116a2-4bbc-4e09-bd95-cd2f47b95ff5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="glad.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="shader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="stb_image_implementation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GWindow.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="AppState.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="RTCounter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="geometryData.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="geometryObjects.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Helpers</Filter>
     </ClCompile>
     <ClCompile Include="aruco\ArucoProcessor.cpp">
-      <Filter>Module Aruco</Filter>
+      <Filter>Modules\ArUco</Filter>
+    </ClCompile>
+    <ClCompile Include="camera.cpp">
+      <Filter>Modules\Virtual camera</Filter>
+    </ClCompile>
+    <ClCompile Include="geometryData.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geometryObjects.cpp">
+      <Filter>Controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="stb_image_implementation.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="glad.c">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="GWindow.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="shader.cpp">
+      <Filter>Controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="appState.cpp">
+      <Filter>Helpers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="shader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="stb_image.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GWindow.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="AppState.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="appState.h">
+      <Filter>Helpers</Filter>
     </ClInclude>
     <ClInclude Include="RTCounter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="geometryData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="geometryObjects.h">
-      <Filter>Header Files</Filter>
+      <Filter>Helpers</Filter>
     </ClInclude>
     <ClInclude Include="aruco\aruco_utilities.hpp">
-      <Filter>Module Aruco</Filter>
+      <Filter>Modules\ArUco</Filter>
     </ClInclude>
     <ClInclude Include="aruco\ArucoProcessor.h">
-      <Filter>Module Aruco</Filter>
+      <Filter>Modules\ArUco</Filter>
+    </ClInclude>
+    <ClInclude Include="camera.h">
+      <Filter>Modules\Virtual camera</Filter>
+    </ClInclude>
+    <ClInclude Include="geometryData.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geometryObjects.h">
+      <Filter>Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_image.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="GWindow.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="shader.h">
+      <Filter>Controllers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="shader.fs">
-      <Filter>Resource Files</Filter>
+      <Filter>Shader Files</Filter>
     </Text>
     <Text Include="shaderObj.vs">
-      <Filter>Resource Files</Filter>
+      <Filter>Shader Files</Filter>
     </Text>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaderBgr.vs">
-      <Filter>Resource Files</Filter>
+      <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>
 </Project>
