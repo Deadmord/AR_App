@@ -1,5 +1,12 @@
 #include "ArucoProcessor.h"
 
+// constant
+glm::mat4 INVERSE_MATRIX
+	(1.0, 0.0, 0.0, 0.0,
+	0.0, -1.0, 0.0, 0.0,
+	0.0, 0.0, -1.0, 0.0,
+	0.0, 0.0, 0.0, 1.0);
+
 ArucoProcessor::ArucoProcessor(float markerLength, cv::aruco::PredefinedDictionaryType dictionaryId, std::string cameraParams, bool showRejected)
 	:markerLength(markerLength), showRejected(showRejected), objPoints(std::make_unique<cv::Mat>(4, 1, CV_32FC3))
 {
@@ -146,6 +153,8 @@ glm::mat4 ArucoProcessor::createViewMatrix(cv::Mat cameraMatrix, cv::Vec3d rvec,
 	glmTransformationMatrix = glm::transpose(glmTransformationMatrix);
 
 	return glmTransformationMatrix;
+
+	//std::cout << "Transformation Matrix:\n" << glm::to_string(glmTransformationMatrix) << "\n\n";    //Print matrix example
 }
 
 inline glm::mat4 ArucoProcessor::createProjectionMatrix(float FOV, cv::Size frameSize, float nearPlane, float farPlane)

@@ -20,11 +20,15 @@ struct MonitorData
 };
 
 //*********************** Settings ***********************
-// ----------------------- ArUco --------------------------
+// ---------------------- Cameras ------------------------
+const int defaultCamera = 1;
+const int usbCamera = 0;
+// ----------------------- ArUco -------------------------
 namespace arUcoSettingsNamespace {
     float markerLength = 1.0f;    // 0.035f;
     cv::aruco::PredefinedDictionaryType dictionaryId = cv::aruco::DICT_6X6_250;
-    std::string cameraParams = "camera_params/camera_params03.yml";
+    std::string defaultCameraParams = "camera_params/camera_params03.yml";
+    std::string usbCameraParams = "camera_params/camera_paramsUSB01.yml";
     bool showRejected = true;
 }
 // -------------- Windows background color ----------------
@@ -115,16 +119,16 @@ int main()
     window_3.setupGeometryObject(2, verticesOrigin, indicesOrigin, initStateOrigin);
     // ------------------------------------
     //window_1.makeContextCurrent();
-    window_1.setupVideoTexture(0, 1, GL_RGB, GL_BGR);                           // set camera stream for virtual screans
-    window_1.setupVideoTexture(1, std::string("video/lines(540p).mp4"), GL_RGB, GL_BGR); //set video texture for cube object
+    window_1.setupVideoTexture(0, defaultCamera, GL_RGB, GL_BGR, true, false, arUcoSettingsNamespace::defaultCameraParams);                           // set camera stream for virtual screans
+    window_1.setupVideoTexture(1, std::string("video/lines(540p).mp4"), GL_RGB, GL_BGR, false, true, ""); //set video texture for cube object
     window_1.setupImgTexture(2, std::string("img/white.jpg"), GL_RGB, GL_RGB);
 
-    window_2.setupVideoTexture(0, 1, GL_RGB, GL_BGR);                           // set camera stream for virtual screans
-    window_2.setupVideoTexture(1, std::string("video/video (1080p).mp4"), GL_RGB, GL_BGR); //set video texture for cube object
+    window_2.setupVideoTexture(0, defaultCamera, GL_RGB, GL_BGR, true, false, arUcoSettingsNamespace::defaultCameraParams);                           // set camera stream for virtual screans
+    window_2.setupVideoTexture(1, std::string("video/video (1080p).mp4"), GL_RGB, GL_BGR, false, true, ""); //set video texture for cube object
     window_2.setupImgTexture(2, std::string("img/white.jpg"), GL_RGB, GL_RGB);
 
-    window_3.setupVideoTexture(0, 0, GL_RGB, GL_BGR);                           // set camera stream for virtual screans
-    window_3.setupImgTexture(1, std::string("img/white.jpg"), GL_RGB, GL_RGB);
+    window_3.setupVideoTexture(0, usbCamera, GL_RGB, GL_BGR, true, false, arUcoSettingsNamespace::usbCameraParams);                           // set camera stream for virtual screans
+    window_3.setupImgTexture(1, std::string("img/white.jpg"), GL_RGB, GL_RGB, false, true);
     window_3.setupImgTexture(2, std::string("img/white.jpg"), GL_RGB, GL_RGB);
     // ------------------------------------
     window_1.setupShaderProgram(0, &shaderProgBgrWin_1);

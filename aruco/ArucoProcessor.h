@@ -8,13 +8,6 @@
 #include <glm/gtx/string_cast.hpp> // For glm::value_ptr è glm::to_string
 #include "aruco_utilities.hpp"
 
-// constant
-glm::mat4 INVERSE_MATRIX
-	(1.0, 0.0, 0.0, 0.0,
-	0.0, -1.0, 0.0, 0.0,
-	0.0, 0.0, -1.0, 0.0,
-	0.0, 0.0, 0.0, 1.0);
-
 struct Markers
 {
 	std::vector<int> ids;
