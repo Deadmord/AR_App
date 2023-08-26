@@ -181,7 +181,8 @@ void GWindow::renderFrame(float deltaTime)
                     std::cout << "model:\n" << glm::to_string(model) << "\n\n";    //убрать
                 }
                 //std::cout << "view:\n" << glm::to_string(view) << "\n\n";    //убрать
-                projection = glm::perspective(arucoProcessorPtr->getFOV(), (float)WinWidth / (float)WinHeight, 0.1f, 100.0f); //что это вообще тут делает? нужно убрать в arucoProcessor
+                projection = arucoProcessorPtr->getProjectionMat();
+                //projection = glm::perspective(arucoProcessorPtr->getFOV(), (float)WinWidth / (float)WinHeight, 0.1f, 100.0f); //что это вообще тут делает? нужно убрать в arucoProcessor
                 //projection = glm::perspective(glm::radians(camera.Zoom), (float)WinWidth / (float)WinHeight, 0.1f, 100.0f);
                 //projection = glm::perspective(glm::radians(42.0f), (float)WinWidth / (float)WinHeight, 0.1f, 100.0f);
                 std::cout << "projection:\n" << glm::to_string(projection) << "\n\n";    //убрать
