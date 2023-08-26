@@ -99,20 +99,20 @@ int main()
     shaderProgBgrWin_3.use();
     shaderProgBgrWin_3.setInt("texture", 0);
     // ------------------------------------
-    window_1.generateGeometryBuffers(3);
-    window_1.setupGeometryObject(0, verticesSurfFull, indicesSurf, &initStateSurfFullScr);
-    window_1.setupGeometryObject(1, verticesCube, indicesCube, &initStateCubes);
-    window_1.setupGeometryObject(2, verticesOrigin, indicesOrigin, &initStateOrigin);
+    window_1.addGeometryBuffers(3);
+    window_1.setupGeometryObject(0, verticesSurfFull, indicesSurf, initStateSurfFullScr);
+    window_1.setupGeometryObject(1, verticesCube, indicesCube, initStateCubes);
+    window_1.setupGeometryObject(2, verticesOrigin, indicesOrigin, initStateOrigin);
     
-    window_2.generateGeometryBuffers(3);
-    window_2.setupGeometryObject(0, verticesSurfHalf, indicesSurf, &initStateSurfTwoHalfC2);
-    window_2.setupGeometryObject(1, verticesCube, indicesCube, &initStateCubes);
-    window_2.setupGeometryObject(2, verticesOrigin, indicesOrigin, &initStateOrigin);
+    window_2.addGeometryBuffers(3);
+    window_2.setupGeometryObject(0, verticesSurfHalf, indicesSurf, initStateSurfTwoHalfC2);
+    window_2.setupGeometryObject(1, verticesCube, indicesCube, initStateCubes);
+    window_2.setupGeometryObject(2, verticesOrigin, indicesOrigin, initStateOrigin);
 
-    window_3.generateGeometryBuffers(3);
-    window_3.setupGeometryObject(0, verticesSurfFull, indicesSurf, &initStateSurfFullScr);
-    window_3.setupGeometryObject(1, verticesCube, indicesCube, &initStateCube);
-    window_3.setupGeometryObject(2, verticesOrigin, indicesOrigin, &initStateOrigin);
+    window_3.addGeometryBuffers(3);
+    window_3.setupGeometryObject(0, verticesSurfFull, indicesSurf, initStateSurfFullScr);
+    window_3.setupGeometryObject(1, verticesCube, indicesCube, initStateCube);
+    window_3.setupGeometryObject(2, verticesOrigin, indicesOrigin, initStateOrigin);
     // ------------------------------------
     //window_1.makeContextCurrent();
     window_1.setupVideoTexture(0, 1, GL_RGB, GL_BGR);                           // set camera stream for virtual screans
