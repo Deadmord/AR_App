@@ -87,6 +87,8 @@ void GWindow::setupShaderProgram(GLuint index, Shader* shaderProgPtr)
 
 void GWindow::renderFrame(float deltaTime)
 {
+    RTCounter::startTimer(wndID);
+
     glfwMakeContextCurrent(window);
 
     // input hendling
@@ -128,6 +130,9 @@ void GWindow::renderFrame(float deltaTime)
             }
             else
             {
+                if (textures[index].isStream)
+                showInFrame(frameVideo, cv::Size(WinWidth, WinHeight), arucoProcessorPtr->getFrameSize(), RTCounter::getFPS(wndID));
+
                 //calc and apply distortion correction, very heavy hendling!!!
                 //cv::Mat undistortedFrame;
                 //cv::undistort(frameVideo, undistortedFrame, arucoProcessorPtr->getCameraMat(), arucoProcessorPtr->getDistortCoeff());
@@ -179,6 +184,8 @@ void GWindow::renderFrame(float deltaTime)
     // -------------------------------------------------------------------------------
     glfwSwapBuffers(window);
     glfwPollEvents();
+
+    RTCounter::stopTimer(wndID);
 }
 
 void GWindow::makeContextCurrent()
