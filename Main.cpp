@@ -11,7 +11,6 @@
 
 #include "shader.h"
 #include "geometryData.h"
-#include "RTCounter.h"
 
 struct MonitorData
 {
@@ -21,8 +20,8 @@ struct MonitorData
 
 //*********************** Settings ***********************
 // ---------------------- Cameras ------------------------
-const int defaultCamera = 0;
-const int usbCamera = 1;
+const int defaultCamera = 1;
+const int usbCamera = 0;
 // ----------------------- ArUco -------------------------
 namespace arUcoSettingsNamespace {
     float markerLength = 1.0f;    // 0.035f;

@@ -2,6 +2,7 @@
 #include "camera.h"
 #include "shader.h"
 #include <iostream>
+#include <sstream>
 #include <vector>
 #include <GLFW/glfw3.h>
 #include <opencv2/opencv.hpp>
@@ -12,6 +13,7 @@
 #include "geometryObjects.h"
 #include "geometryData.h"
 #include "aruco/ArucoProcessor.h"
+#include "RTCounter.h"
 
 // declaration of global settings
 namespace arUcoSettingsNamespace {
@@ -156,6 +158,23 @@ public:
 	//GLFWwindow* getWindowPtr();		//dont use anymore, replace with "operator GLFWwindow*"
 
 private:
+	void showInFrame(const cv::Mat& frame, cv::Size WindSize, cv::Size frameSize, float FPS)
+	{
+		std::ostringstream vector_to_marker;
+
+		vector_to_marker.str(std::string());
+		vector_to_marker << std::setprecision(4) << "WindwRes: " << std::setw(2) << WindSize.width << " x " << WindSize.height;
+		cv::putText(frame, vector_to_marker.str(), cv::Point(10, 25), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(32, 32, 240), 2);
+
+		vector_to_marker.str(std::string());
+		vector_to_marker << std::setprecision(4) << "FrameRes: " << std::setw(4) << frameSize.width << " x " << frameSize.height;
+		cv::putText(frame, vector_to_marker.str(), cv::Point(250, 25), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(32, 240, 32), 2);
+
+		vector_to_marker.str(std::string());
+		vector_to_marker << std::setprecision(4) << "FPS: " << std::setw(6) << FPS;
+		cv::putText(frame, vector_to_marker.str(), cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(220, 16, 220), 2);
+	}
+
 	static void framebufferSizeCallbackWrapper(GLFWwindow* window, int width, int height);
 	static void mouseButtonCallbackWrapper(GLFWwindow* window, int button, int action, int mods);
 	static void mouseCursorCallbackWrapper(GLFWwindow* window, double xpos, double ypos);
