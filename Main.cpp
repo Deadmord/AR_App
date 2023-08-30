@@ -26,7 +26,7 @@ const int usbCamera = 0;
 namespace arUcoSettingsNamespace {
     float markerLength = 1.0f;    // 0.035f;
     cv::aruco::PredefinedDictionaryType dictionaryId = cv::aruco::DICT_6X6_250;
-    std::string defaultCameraParams = "camera_params/camera_params03.yml";
+    std::string defaultCameraParams = "camera_params/camera_parameters_2.yml";
     std::string usbCameraParams = "camera_params/camera_paramsUSB01.yml";
     //std::string defaultCameraParams = "camera_params/camera_paramsUSB01.yml";
     //std::string usbCameraParams = "camera_params/camera_params03.yml";

@@ -72,12 +72,16 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\src\OpenGL\Libraries\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\src\OpenGL\Libraries\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\AR_App\build\include;C:\AR_App\OpenGL\Libraries\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\AR_App\build\x64\vc17\lib;C:\AR_App\OpenGL\Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>C:\src\OpenGL\Libraries\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\src\OpenGL\Libraries\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>C:\AR_App\build\include;C:\AR_App\OpenGL\Libraries\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\AR_App\build\x64\vc17\lib;C:\AR_App\OpenGL\Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -89,6 +93,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;opencv_world480d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
