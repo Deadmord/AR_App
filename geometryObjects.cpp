@@ -1,6 +1,6 @@
 #include "geometryObjects.h"
 
-void GeometryObjects::setSize(GLsizei size)
+void GeometryObjects::setSize(GLsizei& size)
 {
     VAO.resize(size);
     VBO.resize(size);
@@ -67,17 +67,17 @@ void GeometryObjects::initObjectTexture(bool linePolygonMode)
     }
 }
 
-void GeometryObjects::bindVertexArray(GLsizei objIndex)
+void GeometryObjects::bindVertexArray(GLsizei& objIndex)
 {
     glBindVertexArray(VAO[objIndex]);
 }
 
-std::shared_ptr<const std::vector<InitState>> GeometryObjects::getObjStatePtr(GLsizei objIndex) const
+std::shared_ptr<const std::vector<InitState>> GeometryObjects::getObjStatePtr(GLsizei& objIndex) const
 {
     return objStatePtrs[objIndex];
 }
 
-GLsizei GeometryObjects::getObjSize(GLsizei objIndex)
+GLsizei GeometryObjects::getObjSize(GLsizei& objIndex)
 {
     return objSizes[objIndex];
 }

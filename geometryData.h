@@ -1,15 +1,7 @@
 #pragma once
 #include <vector>
 #include <glm/glm.hpp>
-
-struct InitState
-{
-	glm::vec3	positions;
-	glm::vec3	axisRotation;
-	float		angle;
-	float		speed;
-	glm::vec3	colorMask;
-};
+#include "Structs.h"
 
 extern std::vector<float> verticesSurfHalf;
 extern std::vector<float> verticesSurfFull;

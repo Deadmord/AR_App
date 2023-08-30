@@ -11,36 +11,30 @@
 
 #include "shader.h"
 #include "geometryData.h"
-
-struct MonitorData
-{
-    GLFWmonitor* monitor;
-    int monitor_X, monitor_Y, monitor_Width, monitor_Height;
-};
+#include "Structs.h"
 
 //*********************** Settings ***********************
 // ---------------------- Cameras ------------------------
 const int defaultCamera = 1;
 const int usbCamera = 0;
 // ----------------------- ArUco -------------------------
-namespace arUcoSettingsNamespace {
-    float markerLength = 1.0f;    // 0.035f;
-    cv::aruco::PredefinedDictionaryType dictionaryId = cv::aruco::DICT_6X6_250;
-    std::string defaultCameraParams = "camera_params/camera_parameters_2.yml";
-    std::string usbCameraParams = "camera_params/camera_paramsUSB01.yml";
-    //std::string defaultCameraParams = "camera_params/camera_paramsUSB01.yml";
-    //std::string usbCameraParams = "camera_params/camera_params03.yml";
-    
-    bool showRejected = true;
-}
+
 // -------------- Windows background color ----------------
 const glm::vec4 BG_CLR_W1 = glm::vec4(0.2f, 0.3f, 0.2f, 1.0f);	//window 1 
 const glm::vec4 BG_CLR_W2 = glm::vec4(0.2f, 0.2f, 0.3f, 1.0f);	//window 2 
 const glm::vec4 BG_CLR_W3 = glm::vec4(0.3f, 0.2f, 0.2f, 1.0f);	//window 3 
 const glm::vec4 BG_CLR_W4 = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);	//window 4 
 
+
 int main()
 {
+    ArUcoSettings arUcoSettings;
+    arUcoSettings.markerLength = 1.0f;
+    arUcoSettings.dictionaryId = cv::aruco::DICT_6X6_250;
+    arUcoSettings.defaultCameraParams = "camera_params/camera_parameters_2.yml";
+    arUcoSettings.usbCameraParams = "camera_params/camera_paramsUSB01.yml";
+    arUcoSettings.showRejected = true;
+
     //******************** Initialisation ********************
     // ----------------------- GLFW --------------------------
     glfwInit();
@@ -51,7 +45,7 @@ int main()
 #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
-
+  
     // ----------------- Monitors state ----------------------
     int monitorsCount{};
     GLFWmonitor** monitorsPtr = glfwGetMonitors(&monitorsCount);
@@ -121,15 +115,15 @@ int main()
     window_3.setupGeometryObject(2, verticesOrigin, indicesOrigin, initStateOrigin);
     // ------------------------------------
     //window_1.makeContextCurrent();
-    window_1.setupVideoTexture(0, defaultCamera, GL_RGB, GL_BGR, true, false, arUcoSettingsNamespace::defaultCameraParams);                           // set camera stream for virtual screans
-    window_1.setupVideoTexture(1, std::string("video/lines(540p).mp4"), GL_RGB, GL_BGR, false, true, ""); //set video texture for cube object
+    window_1.setupVideoTexture(0, defaultCamera, GL_RGB, GL_BGR, arUcoSettings, true, false, arUcoSettings.defaultCameraParams);                           // set camera stream for virtual screans
+    window_1.setupVideoTexture(1, std::string("video/lines(540p).mp4"), GL_RGB, GL_BGR, arUcoSettings, false, true, ""); //set video texture for cube object
     window_1.setupImgTexture(2, std::string("img/white.jpg"), GL_RGB, GL_RGB);
 
-    window_2.setupVideoTexture(0, defaultCamera, GL_RGB, GL_BGR, true, false, arUcoSettingsNamespace::defaultCameraParams);                           // set camera stream for virtual screans
-    window_2.setupVideoTexture(1, std::string("video/video (1080p).mp4"), GL_RGB, GL_BGR, false, true, ""); //set video texture for cube object
+    window_2.setupVideoTexture(0, defaultCamera, GL_RGB, GL_BGR, arUcoSettings, true, false, arUcoSettings.defaultCameraParams);                           // set camera stream for virtual screans
+    window_2.setupVideoTexture(1, std::string("video/video (1080p).mp4"), GL_RGB, GL_BGR, arUcoSettings, false, true, ""); //set video texture for cube object
     window_2.setupImgTexture(2, std::string("img/white.jpg"), GL_RGB, GL_RGB);
 
-    window_3.setupVideoTexture(0, usbCamera, GL_RGB, GL_BGR, true, false, arUcoSettingsNamespace::usbCameraParams);                           // set camera stream for virtual screans
+    window_3.setupVideoTexture(0, usbCamera, GL_RGB, GL_BGR, arUcoSettings, true, false, arUcoSettings.usbCameraParams);                           // set camera stream for virtual screans
     window_3.setupImgTexture(1, std::string("img/white.jpg"), GL_RGB, GL_RGB, false, true);
     window_3.setupImgTexture(2, std::string("img/white.jpg"), GL_RGB, GL_RGB);
     // ------------------------------------

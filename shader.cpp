@@ -91,7 +91,7 @@ void Shader::setCordTrans(const std::string& name, glm::f32* valuePtr) const
     glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, valuePtr);
 }
 
-void Shader::checkCompileErrors(unsigned int shader, std::string type)
+void Shader::checkCompileErrors(unsigned int& shader, std::string type)
 {
     int success;
     char infoLog[1024];

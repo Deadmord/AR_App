@@ -14,33 +14,9 @@
 #include "geometryData.h"
 #include "aruco/ArucoProcessor.h"
 #include "RTCounter.h"
+#include "Structs.h"
 
 // declaration of global settings
-namespace arUcoSettingsNamespace {
-	extern float markerLength;
-	extern cv::aruco::PredefinedDictionaryType dictionaryId;
-	extern bool showRejected;
-}
-
-struct TextureData
-{
-	bool			isOpened = false;
-	bool			isImg = false;
-	bool			isVideo = false;
-	bool			isStream = false;
-	bool			isBackground = false;
-	bool			showOnMarker = false;
-	std::string		filePath;
-	GLint			streamIndex = 0;
-	GLint			width;
-	GLint			height;
-	GLint			nrChannels = 3;
-	GLenum			internalformat;
-	GLenum			format;
-	cv::VideoCapture vidCapture;
-	uchar*			data;
-};
-
 const int		WINDOW_PANEL_HEIGHT = 0;				// 30px for window panel
 const glm::vec4 BG_CLR	(0.2f, 0.3f, 0.3f, 1.0f);		//default bg color
 const glm::vec3 camInitPosition	(5.0f, 4.0f, 20.0f);	//Camera start position
@@ -66,7 +42,7 @@ public:
 	// Open texture file and bind with object
 	template<typename T>
 	requires std::same_as<T, int> || std::same_as<T, std::string>
-	inline void setupVideoTexture(GLuint index, const T & videoTexture, GLenum internalformat, GLenum format, bool isBackground = false, bool showOnMarker = false, std::string cameraParams = nullptr)
+	inline void setupVideoTexture(GLuint index, const T & videoTexture, GLenum internalformat, GLenum format,ArUcoSettings& arUcoSettings, bool isBackground = false, bool showOnMarker = false, std::string cameraParams = nullptr)
 	{
 		if constexpr (std::is_same_v<T, int>) {
 			textures[index].isStream = true;
@@ -83,7 +59,7 @@ public:
 		if (textures[index].isStream) //&& turn aruco flag
 		{
 			// ArUco init
-			arucoProcessorPtr = std::make_unique<ArucoProcessor>(arUcoSettingsNamespace::markerLength, arUcoSettingsNamespace::dictionaryId, cameraParams, arUcoSettingsNamespace::showRejected);
+			arucoProcessorPtr = std::make_unique<ArucoProcessor>(arUcoSettings.markerLength, arUcoSettings.dictionaryId, cameraParams, arUcoSettings.showRejected);
 
 			textures[index].vidCapture.set(cv::CAP_PROP_FRAME_WIDTH, arucoProcessorPtr->getFrameSize().width);
 			textures[index].vidCapture.set(cv::CAP_PROP_FRAME_HEIGHT, arucoProcessorPtr->getFrameSize().height);
@@ -127,53 +103,14 @@ public:
 
 	void renderFrame(float deltaTime);
 
-	void drowObject(GLsizei objIndex, glm::mat4& viewMat, glm::mat4& projectionMat, bool background = false)
-	{
-		glm::mat4 model	= glm::mat4(1.0f);
+	void drowObject(GLsizei objIndex, glm::mat4& viewMat, glm::mat4& projectionMat, bool background = false);
 
-		// ------------- render objects copies from objState list ---------------
-		std::shared_ptr <const std::vector<InitState>> objState = geometryObjects.getObjStatePtr(objIndex);
-
-		const GLsizei objSize = geometryObjects.getObjSize(objIndex);
-		for (GLsizei i = 0; i < objState->size(); i++)
-		{
-			model = glm::mat4(1.0f);
-			model = glm::translate(model, (*objState)[i].positions);
-			float angle = (*objState)[i].angle;
-			model = glm::rotate(model, glm::radians(angle), (*objState)[i].axisRotation);
-			model = glm::rotate(model, glm::radians((*objState)[i].speed * (float)glfwGetTime()), (*objState)[i].axisRotation);
-
-			shaders[objIndex]->setCordTrans("model", glm::value_ptr(model));
-			shaders[objIndex]->setCordTrans("view", glm::value_ptr(viewMat));
-			shaders[objIndex]->setCordTrans("projection", glm::value_ptr(projectionMat));
-			shaders[objIndex]->setColorMask("colorMask", (*objState)[i].colorMask);
-			glDrawElements(GL_TRIANGLES, objSize, GL_UNSIGNED_INT, 0);
-
-		}
-
-		if (background) glClear(GL_DEPTH_BUFFER_BIT);	// first object is background
-	}
 
 	void makeContextCurrent();		//remove it or make private
 	//GLFWwindow* getWindowPtr();		//dont use anymore, replace with "operator GLFWwindow*"
 
 private:
-	void showInFrame(const cv::Mat& frame, cv::Size WindSize, cv::Size frameSize, float FPS)
-	{
-		std::ostringstream vector_to_marker;
-
-		vector_to_marker.str(std::string());
-		vector_to_marker << std::setprecision(4) << "WindwRes: " << std::setw(2) << WindSize.width << " x " << WindSize.height;
-		cv::putText(frame, vector_to_marker.str(), cv::Point(10, 25), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(32, 32, 240), 2);
-
-		vector_to_marker.str(std::string());
-		vector_to_marker << std::setprecision(4) << "FrameRes: " << std::setw(4) << frameSize.width << " x " << frameSize.height;
-		cv::putText(frame, vector_to_marker.str(), cv::Point(250, 25), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(32, 240, 32), 2);
-
-		vector_to_marker.str(std::string());
-		vector_to_marker << std::setprecision(4) << "FPS: " << std::setw(6) << FPS;
-		cv::putText(frame, vector_to_marker.str(), cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(220, 16, 220), 2);
-	}
+	void showInFrame(const cv::Mat& frame, cv::Size WindSize, cv::Size frameSize, float FPS);
 
 	static void framebufferSizeCallbackWrapper(GLFWwindow* window, int width, int height);
 	static void mouseButtonCallbackWrapper(GLFWwindow* window, int button, int action, int mods);

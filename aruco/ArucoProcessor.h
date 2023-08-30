@@ -7,50 +7,30 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/string_cast.hpp> // For glm::value_ptr è glm::to_string
 #include "aruco_utilities.hpp"
-
-struct Markers
-{
-	std::vector<int> ids;
-	std::vector<std::vector<cv::Point2f>> corners, rejected;
-	std::vector<cv::Vec3d> rvecs;
-	std::vector<cv::Vec3d> tvecs;
-	std::vector<glm::mat4> viewMatrixes;
-};
+#include "../Structs.h"
 
 class ArucoProcessor
 {
 public:
 	ArucoProcessor(float markerLength, cv::aruco::PredefinedDictionaryType dictionaryId = cv::aruco::DICT_6X6_250, std::string cameraParams = nullptr, bool showRejected = false);
-
 	~ArucoProcessor() = default;
 	ArucoProcessor(const ArucoProcessor&) = default;
 	ArucoProcessor& operator=(const ArucoProcessor&) = default;
 
 	bool detectMarkers(const cv::Mat& frame, cv::Mat& frameCopy);
-
 	const Markers& getMarkers() const;
-
 	const cv::Size& getFrameSize() const;
-
 	const glm::mat4& getProjectionMat() const;
-
 	const cv::Mat& getCameraMat() const;
-
 	const cv::Mat& getDistortCoeff() const;
-
 	const cv::Mat& getUndistortMap1() const;
-
 	const cv::Mat& getUndistortMap2() const;
-
 	const float& getFOV() const;
-
 	const float& getFOVdeg() const;
 
 private:
 	glm::mat4 createViewMatrix(cv::Mat cameraMatrix, cv::Vec3d rvec, cv::Vec3d tvec);
-
 	glm::mat4 createProjectionMatrix(float FOV, cv::Size frameSize, float nearPlane = 0.1f, float farPlane = 100.0f);
-
 	void initializeObjPoints();
 
 private:

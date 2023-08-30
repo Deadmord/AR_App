@@ -96,6 +96,9 @@
     <ClInclude Include="shader.h">
       <Filter>Controllers</Filter>
     </ClInclude>
+    <ClInclude Include="Structs.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="shader.fs">
