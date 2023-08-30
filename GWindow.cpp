@@ -88,6 +88,9 @@ void GWindow::setupShaderProgram(GLuint index, Shader* shaderProgPtr)
 void GWindow::renderFrame(float deltaTime)
 {
     RTCounter::startTimer(wndID);
+    //RTCounter::startTimer((4 * 1) + wndID);     // For debagging perfomance. Remove it !!!
+    //RTCounter::startTimer((4 * 2) + wndID);
+    //RTCounter::startTimer((4 * 3) + wndID);
 
     glfwMakeContextCurrent(window);
 
@@ -100,6 +103,7 @@ void GWindow::renderFrame(float deltaTime)
 
     for (GLsizei index{ 0 }; index < objectListSize; index++)
     {
+        RTCounter::startTimer((index + 1) * 4 + wndID);      // For debugging perfomance, remove it!!!
         shaders[index]->use();
         geometryObjects.bindVertexArray(index);
 
@@ -131,7 +135,7 @@ void GWindow::renderFrame(float deltaTime)
             else
             {
                 if (textures[index].isStream)
-                showInFrame(frameVideo, cv::Size(WinWidth, WinHeight), arucoProcessorPtr->getFrameSize(), RTCounter::getFPS(wndID));
+                    showInFrame(frameVideo, cv::Size(WinWidth, WinHeight), arucoProcessorPtr->getFrameSize(), RTCounter::getFPS(wndID), { RTCounter::getDeltaTime((4*1) + wndID), RTCounter::getDeltaTime((4*2) + wndID), RTCounter::getDeltaTime((4*3) + wndID), RTCounter::getDeltaTime(wndID) });
 
                 //calc and apply distortion correction, very heavy hendling!!!
                 //cv::Mat undistortedFrame;
@@ -160,7 +164,6 @@ void GWindow::renderFrame(float deltaTime)
             }
             glTexImage2D(GL_TEXTURE_2D, 0, textures[index].internalformat, textures[index].width, textures[index].height, 0, textures[index].format, GL_UNSIGNED_BYTE, textures[index].data);
         }
-
         glm::mat4 view = glm::mat4(1.0f);
         glm::mat4 projection = glm::mat4(1.0f);
         projection = arucoProcessorPtr->getProjectionMat();
@@ -179,6 +182,7 @@ void GWindow::renderFrame(float deltaTime)
             view = camera.GetViewMatrix();
             drowObject(index, view, projection, textures[index].isBackground);
         }
+        RTCounter::stopTimer((index + 1) * 4 + wndID);      // For debugging perfomance, remove it!!!
     }
     // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
     // -------------------------------------------------------------------------------
