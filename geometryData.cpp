@@ -26,13 +26,13 @@ std::vector<unsigned int> indicesSurf = {  // note that we start from 0!
 //--------------- positions ------------------ axisRotation ------ angle -- speed ------- colorMask --------------
 std::vector<InitState> initStateSurfTwoHalfC1 =
 {
-    {   glm::vec3(-0.5f, 0.0f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -4.0f,  0.0f, glm::vec3(1.2f, 0.8f,  0.8f)    },
-    {   glm::vec3(0.5f,  0.0f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f),  4.0f,  0.0f, glm::vec3(1.2f, 1.2f,  0.8f)    }
+    {   glm::vec3(-0.5f, 0.0f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -4.0f,  0.0f, glm::vec3(1.0f, 1.0f,  1.0f)    },
+    {   glm::vec3(0.5f,  0.0f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f),  4.0f,  0.0f, glm::vec3(0.6f, 0.6f,  1.4f)    }
 };
 std::vector<InitState> initStateSurfTwoHalfC2 =
 {
-    {   glm::vec3(-0.5f, 0.0f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -4.0f,  0.0f, glm::vec3(0.8f, 1.2f,  1.2f)    },
-    {   glm::vec3(0.5f,  0.0f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f),  4.0f,  0.0f, glm::vec3(0.8f, 0.8f,  1.2f)    }
+    {   glm::vec3(-0.5f, 0.0f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -4.0f,  0.0f, glm::vec3(1.4f, 0.8f,  0.8f)    },
+    {   glm::vec3(0.5f,  0.0f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f),  4.0f,  0.0f, glm::vec3(0.8f, 1.4f,  0.8f)    }
 };
 std::vector<InitState> initStateSurfFullScr =
 {
@@ -141,7 +141,7 @@ std::vector<InitState> initStateCubes =
 
 std::vector<InitState> initStateCube =
 {
-    {   glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f),  0.0f,  0.0f, glm::vec3(1.0f, 1.0f, 1.0f)    }
+    {   glm::vec3(0.0f, 0.0f, 0.5f), glm::vec3(0.0f, 0.0f, 1.0f),  0.0f,  0.0f, glm::vec3(0.8f, 0.8f, 0.8f)    }
 };
 
 
