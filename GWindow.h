@@ -157,9 +157,9 @@ public:
 			throw std::runtime_error("Error: Video stream can't be open");   //Refactoring !!! Add tray/catch
 		}
 
-
+		cv::Mat frameVideo, frameVideoAruco;
 		while (textures[textureIndex].isOpened) {
-			cv::Mat frameVideo, frameVideoAruco;
+			RTCounter::startTimer((textureIndex + 1) * 4 + wndID);      // For debugging perfomance, remove it!!!
 			bool isSuccessStream = textures[textureIndex].vidCapture.read(frameVideo);
 			//while (inputVideo.grab()) {           использовать для асинхронного захвата видео кадра, наверное лучше разместить в конце метода и сделать исинхронной чтобы выполнялась пока обрабатывается остальные потоки.
 			//    inputVideo.retrieve(image);
@@ -201,6 +201,7 @@ public:
 				}
 					
 			}
+			RTCounter::stopTimer((textureIndex + 1) * 4 + wndID);      // For debugging perfomance, remove it!!!
 		}
 	}
 

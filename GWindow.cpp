@@ -103,67 +103,26 @@ void GWindow::renderFrame(float deltaTime)
 
     for (GLsizei index{ 0 }; index < objectListSize; index++)
     {
-        RTCounter::startTimer((index + 1) * 4 + wndID);      // For debugging perfomance, remove it!!!
         shaders[index]->use();
         geometryObjects.bindVertexArray(index);
 
         if (textures[index].isStream || textures[index].isVideo)
         {
-            //// checking
-            //if (!textures[index].vidCapture.isOpened())		//может быть заменить на textures[index].isOpened ?
-            //{
-            //    std::cout << "Error: Video stream can't be open" << std::endl;
-            //    textures[index].isOpened = false;
-            //    break;
-            //}
-            //cv::Mat frameVideo, frameVideoAruco;
-            //bool isSuccessStream = textures[index].vidCapture.read(frameVideo);
-            //    //while (inputVideo.grab()) {           использовать для асинхронного захвата видео кадра, наверное лучше разместить в конце метода и сделать исинхронной чтобы выполнялась пока обрабатывается остальные потоки.
-            //    //    inputVideo.retrieve(image);
-            //    //}
-            //if (!isSuccessStream && textures[index].isVideo)
-            //{
-            //    textures[index].vidCapture.set(cv::CAP_PROP_POS_FRAMES, 0); // return to file begin
-            //    isSuccessStream = textures[index].vidCapture.read(frameVideo);
-            //}
-            //if (!isSuccessStream)
-            //{
-            //    std::cout << "Error: Video stream can't be read or disconnect! Source: " << textures[index].streamIndex << textures[index].filePath << std::endl;
-            //    textures[index].isOpened = false;
-            //    break;
-            //}
-            //else
-            //{
-            //    if (textures[index].isStream)
-            //        showInFrame(frameVideo, cv::Size(WinWidth, WinHeight), arucoProcessorPtr->getFrameSize(), RTCounter::getFPS(wndID), { RTCounter::getDeltaTime((4*1) + wndID), RTCounter::getDeltaTime((4*2) + wndID), RTCounter::getDeltaTime((4*3) + wndID), RTCounter::getDeltaTime(wndID) });
-
-            //    //calc and apply distortion correction, very heavy hendling!!!
-            //    //cv::Mat undistortedFrame;
-            //    //cv::undistort(frameVideo, undistortedFrame, arucoProcessorPtr->getCameraMat(), arucoProcessorPtr->getDistortCoeff());
-
-            //    //only apply distortion maps, mach more faster!!!
-            //    //cv::Mat undistortedFrame;
-            //    //cv::remap(frameVideo, undistortedFrame, arucoProcessorPtr->getUndistortMap1(), arucoProcessorPtr->getUndistortMap2(), cv::INTER_LINEAR);
-
-            //    //check stream videoframe for aruco markers
-            //    if (textures[index].isStream && arucoProcessorPtr->detectMarkers(frameVideo, frameVideoAruco))
-            //    {
-            //        glTexImage2D(GL_TEXTURE_2D, 0, textures[index].internalformat, textures[index].width, textures[index].height, 0, textures[index].format, GL_UNSIGNED_BYTE, frameVideoAruco.data);
-            //    }
-            //    else
-            //    glTexImage2D(GL_TEXTURE_2D, 0, textures[index].internalformat, textures[index].width, textures[index].height, 0, textures[index].format, GL_UNSIGNED_BYTE, frameVideo.data);
-            //}
-            //check stream videoframe for aruco markers
-            if (textures[index].isOpened)		//может быть заменить на textures[index].isOpened ?
+            if (!textures[index].isOpened)
             {
-                std::lock_guard<std::mutex> lock(frameMutex);
+                std::cout << "Error: Video stream can't be read or disconnect! Source: " << textures[index].filePath << textures[index].streamIndex << std::endl;
+                break;
+            }
+            else
+            {
+                std::lock_guard<std::mutex> lock(frameMutex);       // read frame witch is shared by independed thread
                 glTexImage2D(GL_TEXTURE_2D, 0, textures[index].internalformat, textures[index].width, textures[index].height, 0, textures[index].format, GL_UNSIGNED_BYTE, textures[index].frame.data);
             }
         }
         if (textures[index].isImg)
         {
             // checking
-            if (!textures[index].isOpened)		//может быть заменить на textures[index].isOpened ?
+            if (!textures[index].isOpened)
             {
                 std::cout << "Error: Img can't be open" << std::endl;
                 break;
@@ -188,7 +147,6 @@ void GWindow::renderFrame(float deltaTime)
             view = camera.GetViewMatrix();
             drowObject(index, view, projection, textures[index].isBackground);
         }
-        RTCounter::stopTimer((index + 1) * 4 + wndID);      // For debugging perfomance, remove it!!!
     }
     // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
     // -------------------------------------------------------------------------------
