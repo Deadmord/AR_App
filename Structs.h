@@ -74,3 +74,5 @@ struct InitState
 	float		speed;
 	glm::vec3	colorMask;
 };
+
+inline int		WINDOW_PANEL_HEIGHT = 0;				// 30px for window panel

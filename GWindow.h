@@ -17,7 +17,6 @@
 #include "Structs.h"
 
 // declaration of global settings
-const int		WINDOW_PANEL_HEIGHT = 0;				// 30px for window panel
 const glm::vec4 BG_CLR	(0.2f, 0.3f, 0.3f, 1.0f);		//default bg color
 const glm::vec3 camInitPosition	(5.0f, 4.0f, 20.0f);	//Camera start position
 

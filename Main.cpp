@@ -12,6 +12,7 @@
 #include "shader.h"
 #include "geometryData.h"
 #include "Structs.h"
+#include "WindowManager.h"
 
 //*********************** Settings ***********************
 // ---------------------- Cameras ------------------------
@@ -37,6 +38,9 @@ int main()
 
     //******************** Initialisation ********************
     // ----------------------- GLFW --------------------------
+
+
+
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
@@ -71,6 +75,9 @@ int main()
     GWindow window_2(1, data.monitor_Width/2, data.monitor_Height/2, data.monitor_X + data.monitor_Width/2, data.monitor_Y, "OpenGL window 2", NULL, BG_CLR_W2);
     GWindow window_3(2, data.monitor_Width/2, data.monitor_Height/2, data.monitor_X, data.monitor_Y + data.monitor_Height/2, "OpenGL window 3", NULL, BG_CLR_W3);
     
+    WindowManager window1(data.monitor_Width / 2, data.monitor_Height / 2, data.monitor_X, data.monitor_Y, "OpenGL window 1", NULL);
+    WindowManager window2(data.monitor_Width / 2, data.monitor_Height / 2, data.monitor_X + data.monitor_Width / 2, data.monitor_Y, "OpenGL window 2", NULL);
+    WindowManager window3(data.monitor_Width / 2, data.monitor_Height / 2, data.monitor_X, data.monitor_Y + data.monitor_Height / 2, "OpenGL window 3", NULL);
     
     //***************************** Shaders *****************************
     // 
@@ -139,7 +146,7 @@ int main()
     window_3.setupShaderProgram(1, &shaderProgObjWin_3);
     window_3.setupShaderProgram(2, &shaderProgObjWin_3);
 
-    while (!glfwWindowShouldClose(window_1) && !glfwWindowShouldClose(window_2) && !glfwWindowShouldClose(window_3))
+    while (!window1.Close() && !window2.Close() && !window3.Close())
     {
         window_1.renderFrame(RTCounter::getDeltaTime());
         window_2.renderFrame(RTCounter::getDeltaTime());
@@ -152,7 +159,7 @@ int main()
     // ------------------ check if auto caled and !!! include in destructor !!! ----------------
     //vid_captureCamera.release();
     //vid_captureVideo.release();
-    glfwTerminate();
+    
 
 	return 0;
 }
