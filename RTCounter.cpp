@@ -1,6 +1,7 @@
 #include "RTCounter.h"
 
-const unsigned int NUMBER_STOPWATCHS = 10;
+const unsigned int NUMBER_STOPWATCHS = 64;
+const size_t RTCounter::windowSize = 25;
 
 float RTCounter::deltaTime = 0.0f;
 float RTCounter::lastFrameTime = 0.0f;

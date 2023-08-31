@@ -3,13 +3,17 @@
 #include <iomanip>
 #include <GLFW/glfw3.h>
 #include <vector>
+#include <deque>
 
 struct FrameTiming
 {
 	float startTime;
 	float stopTime;
-	float deltaTime;
+	float avrDeltaTime;
 	float FPS;
+
+	float sum;
+	std::deque<float> dTimes;
 };
 
 class RTCounter
@@ -31,8 +35,16 @@ public:
 		if (timerNumber < stopwatch.size())
 		{
 			stopwatch[timerNumber].stopTime = static_cast<float>(glfwGetTime());
-			stopwatch[timerNumber].deltaTime = stopwatch[timerNumber].stopTime - stopwatch[timerNumber].startTime;
-			stopwatch[timerNumber].FPS = 1.0f / stopwatch[timerNumber].deltaTime;
+			float dTime = stopwatch[timerNumber].stopTime - stopwatch[timerNumber].startTime;
+			stopwatch[timerNumber].dTimes.push_back(dTime);
+			stopwatch[timerNumber].sum += dTime;
+
+			if (stopwatch[timerNumber].dTimes.size() > windowSize) {
+				stopwatch[timerNumber].sum -= stopwatch[timerNumber].dTimes.front();
+				stopwatch[timerNumber].dTimes.pop_front();
+			}
+			stopwatch[timerNumber].avrDeltaTime = stopwatch[timerNumber].sum / stopwatch[timerNumber].dTimes.size();
+			stopwatch[timerNumber].FPS = 1.0f / stopwatch[timerNumber].avrDeltaTime;
 		}
 		else
 			std::cout << "Error: Timer doesnt exist!";
@@ -43,6 +55,17 @@ public:
 		if (timerNumber < stopwatch.size())
 		{
 			return stopwatch[timerNumber].FPS;
+		}
+		else
+			std::cout << "Error: Timer doesnt exist!";
+		return 0.0f;
+	}
+
+	static float getDeltaTime(GLuint timerNumber)
+	{
+		if (timerNumber < stopwatch.size())
+		{
+			return stopwatch[timerNumber].avrDeltaTime;
 		}
 		else
 			std::cout << "Error: Timer doesnt exist!";
@@ -76,6 +99,7 @@ private:
 	static float deltaTime;	// Time between current frame and last frame
 	static float lastFrameTime; // Time of last frame
 	static float lastPrintTime; // Time of last print FPS
+	const static size_t windowSize;
 	static std::vector<FrameTiming> stopwatch;
 };
 

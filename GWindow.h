@@ -158,7 +158,7 @@ public:
 	//GLFWwindow* getWindowPtr();		//dont use anymore, replace with "operator GLFWwindow*"
 
 private:
-	void showInFrame(const cv::Mat& frame, cv::Size WindSize, cv::Size frameSize, float FPS)
+	void showInFrame(const cv::Mat& frame, cv::Size WindSize, cv::Size frameSize, float FPS, std::initializer_list<float> dTimes)
 	{
 		std::ostringstream vector_to_marker;
 
@@ -172,7 +172,16 @@ private:
 
 		vector_to_marker.str(std::string());
 		vector_to_marker << std::setprecision(4) << "FPS: " << std::setw(6) << FPS;
-		cv::putText(frame, vector_to_marker.str(), cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(220, 16, 220), 2);
+		cv::putText(frame, vector_to_marker.str(), cv::Point(500, 25), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(240, 32, 32), 2);
+
+		int shift{0};
+		for (float dTime : dTimes)
+		{
+			vector_to_marker.str(std::string());
+			vector_to_marker << std::setprecision(4) << "OperationTime: " << std::setw(4) << dTime;
+			cv::putText(frame, vector_to_marker.str(), cv::Point(10, 50 + shift), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(220, 16, 220), 2);
+			shift += 25;
+		}
 	}
 
 	static void framebufferSizeCallbackWrapper(GLFWwindow* window, int width, int height);
