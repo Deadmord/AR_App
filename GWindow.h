@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <thread>
 #include <GLFW/glfw3.h>
 #include <opencv2/opencv.hpp>
 #include <glm/glm.hpp>
@@ -35,10 +36,12 @@ struct TextureData
 	GLint			width;
 	GLint			height;
 	GLint			nrChannels = 3;
-	GLenum			internalformat;
-	GLenum			format;
+	GLenum			internalformat = 0;
+	GLenum			format = 0;
 	cv::VideoCapture vidCapture;
-	uchar*			data;
+	cv::Mat			frame;
+	uchar*			data = nullptr;
+	std::thread		captureThread;
 };
 
 const int		WINDOW_PANEL_HEIGHT = 0;				// 30px for window panel
@@ -70,6 +73,7 @@ public:
 	{
 		if constexpr (std::is_same_v<T, int>) {
 			textures[index].isStream = true;
+			textures[index].filePath = "Live camera: ";
 			textures[index].streamIndex = videoTexture;
 		}
 		else if constexpr (std::is_same_v<T, std::string>) {
@@ -117,6 +121,17 @@ public:
 				std::cout << "Video stream opened successfully!" << std::endl;
 				textures[index].data = frameVideo.data;
 				textures[index].isOpened = true;
+
+				//int index1 = 1;
+				//captureFrames(index);
+				//std::thread captureThread([index1]() {captureFrames(index1); });
+				//std::thread captureThread([index](int capturedIndex) {
+				//captureFrames(capturedIndex);
+				//}, index);
+				//std::thread captureThread(&GWindow::captureFrames, this, index);
+				//captureThread.join();
+				//captureThread.detach();
+				textures[index].captureThread = std::thread(&GWindow::captureFrames, this, index);
 			}
 		}
 	}
@@ -124,6 +139,62 @@ public:
 	void setupImgTexture(GLuint index, const std::string& imgTexture, GLenum internalformat, GLenum format, bool isBackground = false, bool showOnMarker = false);
 
 	void setupShaderProgram(GLuint index, Shader* shaderProgPtr);
+
+	void captureFrames(GLuint textureIndex) {
+		// checking
+		if (!textures[textureIndex].vidCapture.isOpened())		//может быть заменить на textures[index].isOpened ?
+		{
+			std::cout << "Error: Video stream can't be open. Texture:" << textures[textureIndex].filePath << textures[textureIndex].streamIndex << std::endl;
+			textures[textureIndex].isOpened = false;
+			throw std::runtime_error("Error: Video stream can't be open");   //Refactoring !!! Add tray/catch
+		}
+
+
+		while (textures[textureIndex].isOpened) {
+			cv::Mat frameVideo, frameVideoAruco;
+			bool isSuccessStream = textures[textureIndex].vidCapture.read(frameVideo);
+			//while (inputVideo.grab()) {           использовать для асинхронного захвата видео кадра, наверное лучше разместить в конце метода и сделать исинхронной чтобы выполнялась пока обрабатывается остальные потоки.
+			//    inputVideo.retrieve(image);
+			//}
+			if (!isSuccessStream && textures[textureIndex].isVideo)
+			{
+				textures[textureIndex].vidCapture.set(cv::CAP_PROP_POS_FRAMES, 0); // return to file begin
+				isSuccessStream = textures[textureIndex].vidCapture.read(frameVideo);
+			}
+			if (!isSuccessStream)
+			{
+				std::cout << "Error: Video stream can't be read or disconnect! Source: " << textures[textureIndex].filePath << textures[textureIndex].streamIndex << std::endl;
+				textures[textureIndex].isOpened = false;
+				break;
+			}
+			else
+			{
+				if (textures[textureIndex].isStream)
+					showInFrame(frameVideo, cv::Size(WinWidth, WinHeight), arucoProcessorPtr->getFrameSize(), RTCounter::getFPS(wndID), { RTCounter::getDeltaTime((4 * 1) + wndID), RTCounter::getDeltaTime((4 * 2) + wndID), RTCounter::getDeltaTime((4 * 3) + wndID), RTCounter::getDeltaTime(wndID) });
+
+				//calc and apply distortion correction, very heavy hendling!!!
+				//cv::Mat undistortedFrame;
+				//cv::undistort(frameVideo, undistortedFrame, arucoProcessorPtr->getCameraMat(), arucoProcessorPtr->getDistortCoeff());
+
+				//only apply distortion maps, mach more faster!!!
+				//cv::Mat undistortedFrame;
+				//cv::remap(frameVideo, undistortedFrame, arucoProcessorPtr->getUndistortMap1(), arucoProcessorPtr->getUndistortMap2(), cv::INTER_LINEAR);
+
+				//check stream videoframe for aruco markers
+				if (textures[textureIndex].isStream && arucoProcessorPtr->detectMarkers(frameVideo, frameVideoAruco))
+				{
+					std::lock_guard<std::mutex> lock(frameMutex);
+					textures[textureIndex].frame = frameVideoAruco;
+				}
+				else
+				{
+					std::lock_guard<std::mutex> lock(frameMutex);
+					textures[textureIndex].frame = frameVideo;
+				}
+					
+			}
+		}
+	}
 
 	void renderFrame(float deltaTime);
 
@@ -213,6 +284,7 @@ private:
 	glm::vec4 bgColor;
 	GeometryObjects geometryObjects;
 	std::vector<TextureData> textures;
+	std::mutex		frameMutex;
 	std::vector<Shader*> shaders;
 	GLsizei objectListSize = 0;
 	std::unique_ptr<ArucoProcessor> arucoProcessorPtr;
