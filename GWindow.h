@@ -52,7 +52,15 @@ class GWindow
 {
 public:
 	GWindow(unsigned int WinID, unsigned int WinWidth, unsigned int WinHeight, unsigned int WinPosX, unsigned int WinPosY, const std::string& name, GLFWmonitor* monitor, glm::vec4 bgColor = BG_CLR);
-	~GWindow(){}
+	~GWindow()
+	{
+		for (auto& texture : textures) {
+			texture.isOpened = false;
+			if (texture.captureThread.joinable()) {
+				texture.captureThread.join();
+			}
+		}
+	}
 	operator GLFWwindow* () const
 	{
 		return window;
