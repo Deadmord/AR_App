@@ -28,6 +28,7 @@ struct TextureData
 	bool			isImg = false;
 	bool			isVideo = false;
 	bool			isStream = false;
+	bool			rotate = false;
 	bool			isBackground = false;
 	bool			showOnMarker = false;
 	std::string		filePath;
@@ -66,7 +67,7 @@ public:
 	// Open texture file and bind with object
 	template<typename T>
 	requires std::same_as<T, int> || std::same_as<T, std::string>
-	inline void setupVideoTexture(GLuint index, const T & videoTexture, GLenum internalformat, GLenum format, bool isBackground = false, bool showOnMarker = false, std::string cameraParams = nullptr)
+	inline void setupVideoTexture(GLuint index, const T & videoTexture, GLenum internalformat, GLenum format, bool rotate = false, bool isBackground = false, bool showOnMarker = false, std::string cameraParams = nullptr)
 	{
 		if constexpr (std::is_same_v<T, int>) {
 			textures[index].isStream = true;
@@ -95,7 +96,7 @@ public:
 
 		textures[index].internalformat = internalformat;
 		textures[index].format = format;
-
+		textures[index].rotate = rotate;
 		textures[index].isBackground = isBackground;
 		textures[index].showOnMarker = showOnMarker;
 

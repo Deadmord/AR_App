@@ -134,6 +134,9 @@ void GWindow::renderFrame(float deltaTime)
             }
             else
             {
+                if(textures[index].rotate)
+                    cv::rotate(frameVideo, frameVideo, cv::ROTATE_180);
+
                 if (textures[index].isStream)
                     showInFrame(frameVideo, cv::Size(WinWidth, WinHeight), arucoProcessorPtr->getFrameSize(), RTCounter::getFPS(wndID), { RTCounter::getDeltaTime((4*1) + wndID), RTCounter::getDeltaTime((4*2) + wndID), RTCounter::getDeltaTime((4*3) + wndID), RTCounter::getDeltaTime(wndID) });
 
