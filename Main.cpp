@@ -117,7 +117,7 @@ int main()
     
     window_2.addGeometryBuffers(3);
     window_2.setupGeometryObject(0, verticesSurfFull, indicesSurf, initStateSurfFullScr);
-    window_2.setupGeometryObject(1, verticesCube, indicesCube, initStateCubes);
+    window_2.setupGeometryObject(1, verticesCubeWithBorder, indicesCubeWithBorder, initStateCubeWithBorder);
     window_2.setupGeometryObject(2, verticesOrigin, indicesOrigin, initStateOrigin);
 
     window_3.addGeometryBuffers(3);
