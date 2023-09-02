@@ -122,7 +122,7 @@ int main()
 
     window_3.addGeometryBuffers(3);
     window_3.setupGeometryObject(0, verticesSurfFull, indicesSurf, initStateSurfFullScr);
-    window_3.setupGeometryObject(1, verticesCube, indicesCube, initStateCube);
+    window_3.setupGeometryObject(1, verticesCubeWithBorder, indicesCubeWithBorder, initStateCubeWithBorder);
     window_3.setupGeometryObject(2, verticesOrigin, indicesOrigin, initStateOrigin);
     // ------------------------------------
     //window_1.makeContextCurrent();
@@ -135,7 +135,7 @@ int main()
     window_2.setupImgTexture(2, std::string("img/white.jpg"), GL_RGB, GL_RGB);
 
     window_3.setupVideoTexture(0, usbCamera_3, GL_RGB, GL_BGR, false, true, false, arUcoSettingsNamespace::usbCam03Params);                           // set camera stream for virtual screans
-    window_3.setupImgTexture(1, std::string("img/white.jpg"), GL_RGB, GL_RGB, false, true);
+    window_3.setupImgTexture(1, std::string("img/border.png"), GL_RGB, GL_RGB, false, true);
     window_3.setupImgTexture(2, std::string("img/white.jpg"), GL_RGB, GL_RGB);
     // ------------------------------------
     window_1.setupShaderProgram(0, &shaderProgBgrWin_1);
