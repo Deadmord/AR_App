@@ -32,7 +32,7 @@ ArucoProcessor::ArucoProcessor(float markerLength, cv::aruco::PredefinedDictiona
 		double focal_length_x = camMatrix.at<double>(0, 0); // also could be camera_matrix.at<double>(1, 1); for f_y
 
 		// Calculate Field of View in radians and degrees
-		FOV = 2.0 * std::atan2(0.5 * frameSize.height, focal_length_x);
+		FOV = 2.0f * std::atan2(0.5f * frameSize.height, focal_length_x);
 		FOV_Deg = glm::degrees(FOV);
 
 		//hardware way: FOV = SD - WD / FL,
