@@ -1,8 +1,8 @@
 #pragma once
 #include <iostream>
 
-#include "GWindow.h"
 #include <glad/glad.h>
+#include "GWindow.h"
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -12,7 +12,7 @@
 #include "shader.h"
 #include "geometryData.h"
 #include "Structs.h"
-#include "WindowManager.h"
+#include "GWindowCore.h"
 
 //*********************** Settings ***********************
 // ---------------------- Cameras ------------------------
@@ -71,25 +71,21 @@ int main()
 
     // ------------------ Windows init ---------------------
     MonitorData& data = monitors[0];
-    GWindow window_1(0, data.monitor_Width/2, data.monitor_Height/2, data.monitor_X, data.monitor_Y, "OpenGL window 1", NULL, BG_CLR_W1);
-    GWindow window_2(1, data.monitor_Width/2, data.monitor_Height/2, data.monitor_X + data.monitor_Width/2, data.monitor_Y, "OpenGL window 2", NULL, BG_CLR_W2);
-    GWindow window_3(2, data.monitor_Width/2, data.monitor_Height/2, data.monitor_X, data.monitor_Y + data.monitor_Height/2, "OpenGL window 3", NULL, BG_CLR_W3);
-    
-    WindowManager window1(data.monitor_Width / 2, data.monitor_Height / 2, data.monitor_X, data.monitor_Y, "OpenGL window 1", NULL);
-    WindowManager window2(data.monitor_Width / 2, data.monitor_Height / 2, data.monitor_X + data.monitor_Width / 2, data.monitor_Y, "OpenGL window 2", NULL);
-    WindowManager window3(data.monitor_Width / 2, data.monitor_Height / 2, data.monitor_X, data.monitor_Y + data.monitor_Height / 2, "OpenGL window 3", NULL);
-    
+    GWindowCore window1(0, data.monitor_Width / 2, data.monitor_Height / 2, data.monitor_X, data.monitor_Y, "OpenGL window 1", NULL, BG_CLR_W1);
+    GWindowCore window2(1, data.monitor_Width / 2, data.monitor_Height / 2, data.monitor_X + data.monitor_Width / 2, data.monitor_Y, "OpenGL window 2", NULL, BG_CLR_W2);
+    GWindowCore window3(2, data.monitor_Width / 2, data.monitor_Height / 2, data.monitor_X, data.monitor_Y + data.monitor_Height / 2, "OpenGL window 3", NULL, BG_CLR_W3);
+
     //***************************** Shaders *****************************
     // 
         // build and compile our shader programs
     // ------------------------------------
-    //window_1.makeContextCurrent();
-    Shader shaderProgObjWin_1(window_1, "shaderObj.vs", "shader.fs");
-    Shader shaderProgBgrWin_1(window_1, "shaderBgr.vs", "shader.fs");
-    Shader shaderProgObjWin_2(window_2, "shaderObj.vs", "shader.fs");
-    Shader shaderProgBgrWin_2(window_2, "shaderBgr.vs", "shader.fs");
-    Shader shaderProgObjWin_3(window_3, "shaderObj.vs", "shader.fs");
-    Shader shaderProgBgrWin_3(window_3, "shaderBgr.vs", "shader.fs");
+    Shader shaderProgObjWin_1(window1, "shaderObj.vs", "shader.fs");
+    Shader shaderProgBgrWin_1(window1, "shaderBgr.vs", "shader.fs");
+    Shader shaderProgObjWin_2(window2, "shaderObj.vs", "shader.fs");
+    Shader shaderProgBgrWin_2(window2, "shaderBgr.vs", "shader.fs");
+    Shader shaderProgObjWin_3(window3, "shaderObj.vs", "shader.fs");
+    Shader shaderProgBgrWin_3(window3, "shaderBgr.vs", "shader.fs");
+
     // ------------------------------------
     shaderProgObjWin_1.use();
     shaderProgObjWin_1.setInt("texture", 0);
@@ -105,52 +101,53 @@ int main()
     shaderProgObjWin_3.setInt("texture", 0);
     shaderProgBgrWin_3.use();
     shaderProgBgrWin_3.setInt("texture", 0);
+
     // ------------------------------------
-    window_1.addGeometryBuffers(3);
-    window_1.setupGeometryObject(0, verticesSurfFull, indicesSurf, initStateSurfFullScr);
-    window_1.setupGeometryObject(1, verticesCube, indicesCube, initStateCubes);
-    window_1.setupGeometryObject(2, verticesOrigin, indicesOrigin, initStateOrigin);
-    
-    window_2.addGeometryBuffers(3);
-    window_2.setupGeometryObject(0, verticesSurfHalf, indicesSurf, initStateSurfTwoHalfC2);
-    window_2.setupGeometryObject(1, verticesCube, indicesCube, initStateCubes);
-    window_2.setupGeometryObject(2, verticesOrigin, indicesOrigin, initStateOrigin);
+    window1.addGeometryBuffers(3);
+    window1.setupGeometryObject(0, verticesSurfFull, indicesSurf, initStateSurfFullScr);
+    window1.setupGeometryObject(1, verticesCube, indicesCube, initStateCubes);
+    window1.setupGeometryObject(2, verticesOrigin, indicesOrigin, initStateOrigin);
 
-    window_3.addGeometryBuffers(3);
-    window_3.setupGeometryObject(0, verticesSurfFull, indicesSurf, initStateSurfFullScr);
-    window_3.setupGeometryObject(1, verticesCube, indicesCube, initStateCube);
-    window_3.setupGeometryObject(2, verticesOrigin, indicesOrigin, initStateOrigin);
+    window2.addGeometryBuffers(3);
+    window2.setupGeometryObject(0, verticesSurfHalf, indicesSurf, initStateSurfTwoHalfC2);
+    window2.setupGeometryObject(1, verticesCube, indicesCube, initStateCubes);
+    window2.setupGeometryObject(2, verticesOrigin, indicesOrigin, initStateOrigin);
+
+    window3.addGeometryBuffers(3);
+    window3.setupGeometryObject(0, verticesSurfFull, indicesSurf, initStateSurfFullScr);
+    window3.setupGeometryObject(1, verticesCube, indicesCube, initStateCube);
+    window3.setupGeometryObject(2, verticesOrigin, indicesOrigin, initStateOrigin);
+    // ------------------------------------ 
+    window1.textureManager.setupVideoTexture(0, defaultCamera, GL_RGB, GL_BGR, arUcoSettings, true, false, arUcoSettings.defaultCameraParams);                           // set camera stream for virtual screans
+    window1.textureManager.setupImgTexture(2, std::string("img/white.jpg"), GL_RGB, GL_RGB);
+    window1.textureManager.setupVideoTexture(1, std::string("video/lines(540p).mp4"), GL_RGB, GL_BGR, arUcoSettings, false, true, ""); //set video texture for cube object
+
+    window2.textureManager.setupVideoTexture(0, defaultCamera, GL_RGB, GL_BGR, arUcoSettings, true, false, arUcoSettings.defaultCameraParams);                           // set camera stream for virtual screans
+    window2.textureManager.setupVideoTexture(1, std::string("video/video (1080p).mp4"), GL_RGB, GL_BGR, arUcoSettings, false, true, ""); //set video texture for cube object
+    window2.textureManager.setupImgTexture(2, std::string("img/white.jpg"), GL_RGB, GL_RGB);
+
+    window3.textureManager.setupVideoTexture(0, usbCamera, GL_RGB, GL_BGR, arUcoSettings, true, false, arUcoSettings.usbCameraParams);                           // set camera stream for virtual screans
+    window3.textureManager.setupImgTexture(1, std::string("img/white.jpg"), GL_RGB, GL_RGB, false, true);
+    window3.textureManager.setupImgTexture(2, std::string("img/white.jpg"), GL_RGB, GL_RGB);
+
     // ------------------------------------
-    //window_1.makeContextCurrent();
-    window_1.setupVideoTexture(0, defaultCamera, GL_RGB, GL_BGR, arUcoSettings, true, false, arUcoSettings.defaultCameraParams);                           // set camera stream for virtual screans
-    window_1.setupVideoTexture(1, std::string("video/lines(540p).mp4"), GL_RGB, GL_BGR, arUcoSettings, false, true, ""); //set video texture for cube object
-    window_1.setupImgTexture(2, std::string("img/white.jpg"), GL_RGB, GL_RGB);
+    window1.setupShaderProgram(0, &shaderProgBgrWin_1);
+    window1.setupShaderProgram(1, &shaderProgObjWin_1);
+    window1.setupShaderProgram(2, &shaderProgObjWin_1);
 
-    window_2.setupVideoTexture(0, defaultCamera, GL_RGB, GL_BGR, arUcoSettings, true, false, arUcoSettings.defaultCameraParams);                           // set camera stream for virtual screans
-    window_2.setupVideoTexture(1, std::string("video/video (1080p).mp4"), GL_RGB, GL_BGR, arUcoSettings, false, true, ""); //set video texture for cube object
-    window_2.setupImgTexture(2, std::string("img/white.jpg"), GL_RGB, GL_RGB);
+    window2.setupShaderProgram(0, &shaderProgBgrWin_2);
+    window2.setupShaderProgram(1, &shaderProgObjWin_2);
+    window2.setupShaderProgram(2, &shaderProgObjWin_2);
 
-    window_3.setupVideoTexture(0, usbCamera, GL_RGB, GL_BGR, arUcoSettings, true, false, arUcoSettings.usbCameraParams);                           // set camera stream for virtual screans
-    window_3.setupImgTexture(1, std::string("img/white.jpg"), GL_RGB, GL_RGB, false, true);
-    window_3.setupImgTexture(2, std::string("img/white.jpg"), GL_RGB, GL_RGB);
-    // ------------------------------------
-    window_1.setupShaderProgram(0, &shaderProgBgrWin_1);
-    window_1.setupShaderProgram(1, &shaderProgObjWin_1);
-    window_1.setupShaderProgram(2, &shaderProgObjWin_1);
+    window3.setupShaderProgram(0, &shaderProgBgrWin_3);
+    window3.setupShaderProgram(1, &shaderProgObjWin_3);
+    window3.setupShaderProgram(2, &shaderProgObjWin_3);
 
-    window_2.setupShaderProgram(0, &shaderProgBgrWin_2);
-    window_2.setupShaderProgram(1, &shaderProgObjWin_2);
-    window_2.setupShaderProgram(2, &shaderProgObjWin_2);
-
-    window_3.setupShaderProgram(0, &shaderProgBgrWin_3);
-    window_3.setupShaderProgram(1, &shaderProgObjWin_3);
-    window_3.setupShaderProgram(2, &shaderProgObjWin_3);
-
-    while (!window1.Close() && !window2.Close() && !window3.Close())
+    while (!glfwWindowShouldClose(window1) && !glfwWindowShouldClose(window2) && !glfwWindowShouldClose(window3))
     {
-        window_1.renderFrame(RTCounter::getDeltaTime());
-        window_2.renderFrame(RTCounter::getDeltaTime());
-        window_3.renderFrame(RTCounter::getDeltaTime());
+        window1.renderFrame(RTCounter::getDeltaTime());
+        window2.renderFrame(RTCounter::getDeltaTime());
+        window3.renderFrame(RTCounter::getDeltaTime());
 
         RTCounter::updateTimer();
         RTCounter::printFPS_Console();

@@ -1,7 +1,7 @@
 #include "GWindow.h"
 
 GWindow::GWindow(unsigned int WinID, unsigned int WinWidth, unsigned int WinHeight, unsigned int WinPosX, unsigned int WinPosY, const std::string& name, GLFWmonitor* monitor, glm::vec4 bgColor)
-    :wndID(WinID), WinWidth(WinWidth), WinHeight(WinHeight), lastX(WinWidth / 2.0f), lastY(WinHeight / 2.0f), camera(Camera(camInitPosition)), bgColor(bgColor)
+    :wndID(WinID), WinWidth(WinWidth), WinHeight(WinHeight), lastX(WinWidth / 2.0f), lastY(WinHeight / 2.0f), camera(Camera(camInitPositionGwindow)), bgColor(bgColor)
 {
     window = glfwCreateWindow(WinWidth, WinHeight, name.c_str(), monitor, NULL);
     if (window == NULL)
@@ -16,9 +16,6 @@ GWindow::GWindow(unsigned int WinID, unsigned int WinWidth, unsigned int WinHeig
     glfwSetMouseButtonCallback(window, mouseButtonCallbackWrapper);
     glfwSetCursorPosCallback(window, mouseCursorCallbackWrapper);
     glfwSetScrollCallback(window, scrollCallbackWrapper);
-
-    // tell GLFW to capture our mouse
-    //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
@@ -138,7 +135,7 @@ void GWindow::renderFrame(float deltaTime)
                 //cv::undistort(frameVideo, undistortedFrame, arucoProcessorPtr->getCameraMat(), arucoProcessorPtr->getDistortCoeff());
 
                 //only apply distortion maps, mach more faster!!!
-                cv::Mat undistortedFrame;
+                cv::Mat undistortedFrame; 
                 cv::remap(frameVideo, undistortedFrame, arucoProcessorPtr->getUndistortMap1(), arucoProcessorPtr->getUndistortMap2(), cv::INTER_LINEAR);
 
                 //check stream videoframe for aruco markers

@@ -22,6 +22,7 @@ struct TextureData
 	GLenum			format;
 	cv::VideoCapture vidCapture;
 	uchar* data;
+	GLuint textureID;
 };
 
 struct MonitorData

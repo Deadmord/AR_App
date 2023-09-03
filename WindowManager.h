@@ -16,7 +16,7 @@ private:
 	static int windowCount;
 
 public:
-	WindowManager(const int& width, const int& height, unsigned int WinPosX, unsigned int WinPosY, const char* title, GLFWwindow* share = nullptr);
+	WindowManager(unsigned int width, unsigned int height, unsigned int WinPosX, unsigned int WinPosY, const char* title, GLFWwindow* share = nullptr);
 	static void FramebufferSizeCallback(GLFWwindow* window, int new_width, int new_height);
 	void MakeContextCurrent();
 	bool Close() const;

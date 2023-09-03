@@ -4,7 +4,7 @@
 bool WindowManager::glfwInitialized{false};
 int WindowManager::windowCount{0};
 
-WindowManager::WindowManager(const int& width, const int& height, unsigned int WinPosX, unsigned int WinPosY, const char* title, GLFWwindow* share) {
+WindowManager::WindowManager(unsigned int width, unsigned int height, unsigned int WinPosX, unsigned int WinPosY, const char* title, GLFWwindow* share) {
 	if (!glfwInitialized) {
 		if (!glfwInit()) {
 			std::cerr << "Failed to initialize GLFW" << std::endl;

@@ -148,6 +148,9 @@
     <ClCompile Include="appState.cpp" />
     <ClCompile Include="aruco\ArucoProcessor.cpp" />
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="FrameAnalyzer.cpp" />
+    <ClCompile Include="GWindowCore.cpp" />
+    <ClCompile Include="InputHandler.cpp" />
     <ClCompile Include="RTCounter.cpp" />
     <ClCompile Include="geometryData.cpp" />
     <ClCompile Include="geometryObjects.cpp" />
@@ -164,6 +167,9 @@
     <ClInclude Include="aruco\ArucoProcessor.h" />
     <ClInclude Include="aruco\aruco_utilities.hpp" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="FrameAnalyzer.h" />
+    <ClInclude Include="GWindowCore.h" />
+    <ClInclude Include="InputHandler.h" />
     <ClInclude Include="RTCounter.h" />
     <ClInclude Include="geometryData.h" />
     <ClInclude Include="geometryObjects.h" />

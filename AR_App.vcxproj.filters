@@ -64,10 +64,19 @@
     <ClCompile Include="appState.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
-    <ClCompile Include="WindowManager.cpp">
+    <ClCompile Include="GWindowCore.cpp">
       <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="TextureManager.cpp">
+      <Filter>Controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowManager.cpp">
+      <Filter>Controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="InputHandler.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameAnalyzer.cpp">
       <Filter>Core</Filter>
     </ClCompile>
   </ItemGroup>
@@ -105,10 +114,19 @@
     <ClInclude Include="Structs.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
-    <ClInclude Include="WindowManager.h">
+    <ClInclude Include="GWindowCore.h">
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="TextureManager.h">
+      <Filter>Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowManager.h">
+      <Filter>Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="InputHandler.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameAnalyzer.h">
       <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>

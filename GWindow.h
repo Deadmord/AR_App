@@ -17,13 +17,13 @@
 #include "Structs.h"
 
 // declaration of global settings
-const glm::vec4 BG_CLR	(0.2f, 0.3f, 0.3f, 1.0f);		//default bg color
-const glm::vec3 camInitPosition	(5.0f, 4.0f, 20.0f);	//Camera start position
+const glm::vec4 BG_CLR_GWINDOW	(0.2f, 0.3f, 0.3f, 1.0f);		//default bg color
+const glm::vec3 camInitPositionGwindow(5.0f, 4.0f, 20.0f);	//Camera start position
 
 class GWindow
 {
 public:
-	GWindow(unsigned int WinID, unsigned int WinWidth, unsigned int WinHeight, unsigned int WinPosX, unsigned int WinPosY, const std::string& name, GLFWmonitor* monitor, glm::vec4 bgColor = BG_CLR);
+	GWindow(unsigned int WinID, unsigned int WinWidth, unsigned int WinHeight, unsigned int WinPosX, unsigned int WinPosY, const std::string& name, GLFWmonitor* monitor, glm::vec4 bgColor = BG_CLR_GWINDOW);
 	~GWindow(){}
 	operator GLFWwindow* () const
 	{
