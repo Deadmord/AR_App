@@ -55,28 +55,25 @@
     <ClCompile Include="Main.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="GWindow.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
     <ClCompile Include="shader.cpp">
       <Filter>Controllers</Filter>
     </ClCompile>
     <ClCompile Include="appState.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
-    <ClCompile Include="GWindowCore.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="TextureManager.cpp">
-      <Filter>Controllers</Filter>
-    </ClCompile>
-    <ClCompile Include="WindowManager.cpp">
-      <Filter>Controllers</Filter>
-    </ClCompile>
     <ClCompile Include="InputHandler.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="FrameAnalyzer.cpp">
+    <ClCompile Include="FrameManager.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="GWindowCore.cpp">
+      <Filter>Controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowManager.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureManager.cpp">
       <Filter>Core</Filter>
     </ClCompile>
   </ItemGroup>
@@ -105,28 +102,25 @@
     <ClInclude Include="stb_image.h">
       <Filter>Framework</Filter>
     </ClInclude>
-    <ClInclude Include="GWindow.h">
-      <Filter>Core</Filter>
-    </ClInclude>
     <ClInclude Include="shader.h">
       <Filter>Controllers</Filter>
     </ClInclude>
     <ClInclude Include="Structs.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
-    <ClInclude Include="GWindowCore.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="TextureManager.h">
-      <Filter>Controllers</Filter>
-    </ClInclude>
-    <ClInclude Include="WindowManager.h">
-      <Filter>Controllers</Filter>
-    </ClInclude>
     <ClInclude Include="InputHandler.h">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="FrameAnalyzer.h">
+    <ClInclude Include="FrameManager.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="GWindowCore.h">
+      <Filter>Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowManager.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureManager.h">
       <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>

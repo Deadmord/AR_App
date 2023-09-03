@@ -10,7 +10,7 @@
 
 #include "InputHandler.h"
 #include "RTCounter.h"
-#include "FrameAnalyzer.h"
+#include "FrameManager.h"
 
 const glm::vec4 BG_CLR(0.2f, 0.3f, 0.3f, 1.0f);		//default bg color
 
@@ -39,7 +39,7 @@ public:
 
 	TextureManager textureManager;
 	InputHandler inputHandler;
-	FrameAnalyzer frameAnalyzer;
+	FrameManager frameManager;
 private:	
 	GLuint wndID = 0;
 	GLuint WinWidth = 800;
