@@ -40,6 +40,7 @@ struct TextureData
 	GLenum			format;
 	cv::VideoCapture vidCapture;
 	uchar*			data;
+	std::shared_ptr<std::vector<int>> markerIds;
 };
 
 const int		WINDOW_PANEL_HEIGHT = 0;				// 30px for window panel
@@ -67,7 +68,7 @@ public:
 	// Open texture file and bind with object
 	template<typename T>
 	requires std::same_as<T, int> || std::same_as<T, std::string>
-	inline void setupVideoTexture(GLuint index, const T & videoTexture, GLenum internalformat, GLenum format, bool rotate = false, bool isBackground = false, bool showOnMarker = false, std::string cameraParams = nullptr)
+	inline void setupVideoTexture(GLuint index, const T & videoTexture, GLenum internalformat, GLenum format, bool rotate = false, bool isBackground = false, bool showOnMarker = false, std::shared_ptr<std::vector<int>> markerIds = nullptr, std::string cameraParams = nullptr)
 	{
 		if constexpr (std::is_same_v<T, int>) {
 			textures[index].isStream = true;
@@ -99,6 +100,7 @@ public:
 		textures[index].rotate = rotate;
 		textures[index].isBackground = isBackground;
 		textures[index].showOnMarker = showOnMarker;
+		textures[index].markerIds = markerIds;
 
 		//---------------------- video texture -------------------
 		if (!textures[index].vidCapture.isOpened())
@@ -122,7 +124,7 @@ public:
 		}
 	}
 
-	void setupImgTexture(GLuint index, const std::string& imgTexture, GLenum internalformat, GLenum format, bool isBackground = false, bool showOnMarker = false);
+	void setupImgTexture(GLuint index, const std::string& imgTexture, GLenum internalformat, GLenum format, bool isBackground = false, bool showOnMarker = false, std::shared_ptr<std::vector<int>> markerIds = nullptr);
 
 	void setupShaderProgram(GLuint index, Shader* shaderProgPtr);
 

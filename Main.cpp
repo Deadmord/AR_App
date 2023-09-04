@@ -29,7 +29,10 @@ namespace arUcoSettingsNamespace {
     float markerLength = 1.0f;    // 0.035f;
     cv::aruco::PredefinedDictionaryType dictionaryId = cv::aruco::DICT_6X6_250;
     std::string defaultCameraParams = "camera_params/camera_params03.yml";
-    std::string usbCameraParams = "camera_params/camera_paramsUSB01.yml";
+    std::string usbCam00Params = "camera_params/camera_paramsUSB01.yml";
+    std::string usbCam01Params = "camera_params/camera_paramsUSBsetCam02new.yml";
+    std::string usbCam02Params = "camera_params/camera_paramsUSBsetCam02new.yml";
+    std::string usbCam03Params = "camera_params/camera_paramsUSBsetCam02new.yml";
     //std::string defaultCameraParams = "camera_params/camera_paramsUSB01.yml";
     //std::string usbCameraParams = "camera_params/camera_params03.yml";
     
@@ -40,6 +43,34 @@ const glm::vec4 BG_CLR_W1 = glm::vec4(0.2f, 0.3f, 0.2f, 1.0f);	//window 1
 const glm::vec4 BG_CLR_W2 = glm::vec4(0.2f, 0.2f, 0.3f, 1.0f);	//window 2 
 const glm::vec4 BG_CLR_W3 = glm::vec4(0.3f, 0.2f, 0.2f, 1.0f);	//window 3 
 const glm::vec4 BG_CLR_W4 = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);	//window 4 
+
+//------------- helper: set geometry objects --------------
+void loadObjects(GWindow& window, Shader& shaderProgObjWin, Shader& shaderProgBgrWin, int cameraNum, std::string& cameraParams, bool rotateCamera = false)
+{
+    shaderProgObjWin.use();
+    shaderProgObjWin.setInt("texture", 0);
+    shaderProgBgrWin.use();
+    shaderProgBgrWin.setInt("texture", 0);
+
+    window.addGeometryBuffers(5);
+    window.setupGeometryObject(0, verticesSurfFull, indicesSurf, initStateSurfFullScr);
+    window.setupGeometryObject(1, verticesOrigin, indicesOrigin, initStateOrigin);
+    window.setupGeometryObject(2, verticesCubeWithBorder, indicesCubeWithBorder, initStateCubeWithBorder);
+    window.setupGeometryObject(3, verticesCube, indicesCube, initStateCubes);
+    window.setupGeometryObject(4, verticesSurfWall, indicesSurfWall, initStateSurfWall);
+
+    window.setupVideoTexture(0, cameraNum, GL_RGB, GL_BGR, rotateCamera, true, false, nullptr, cameraParams);          // set camera stream for virtual screans
+    window.setupImgTexture(1, std::string("img/white.jpg"), GL_RGB, GL_RGB);
+    window.setupImgTexture(2, std::string("img/border.png"), GL_RGB, GL_RGB, false, true, std::make_shared<std::vector<int>>(markerIdsCubeWithBorder));
+    window.setupVideoTexture(3, std::string("video/video (1080p).mp4"), GL_RGB, GL_BGR, false, false, true, std::make_shared<std::vector<int>>(markerIdsCubes), ""); //set video texture for cube object
+    window.setupImgTexture(4, std::string("img/krasnii-kover-13.jpg"), GL_RGB, GL_RGB, false, true, std::make_shared<std::vector<int>>(markerIdsSurfWall));
+
+    window.setupShaderProgram(0, &shaderProgBgrWin);
+    window.setupShaderProgram(1, &shaderProgObjWin);
+    window.setupShaderProgram(2, &shaderProgObjWin);
+    window.setupShaderProgram(3, &shaderProgObjWin);
+    window.setupShaderProgram(4, &shaderProgObjWin);
+}
 
 int main()
 {
@@ -75,11 +106,11 @@ int main()
 
     // ------------------ Windows init ---------------------
     MonitorData& data = monitors[0];
-    GWindow window_1(0, data.monitor_Width/2, data.monitor_Width /4 *3/4, data.monitor_X + data.monitor_Width *1/4, data.monitor_Y, "OpenGL center window", NULL, BG_CLR_W1);
-    GWindow window_2(1, data.monitor_Width/4, data.monitor_Width /4 *3/4, data.monitor_X, data.monitor_Y, "OpenGL left window", NULL, BG_CLR_W2);
-    GWindow window_3(2, data.monitor_Width/4, data.monitor_Width /4 *3/4, data.monitor_X + data.monitor_Width *3/4, data.monitor_Y, "OpenGL right window", NULL, BG_CLR_W3);
-    
-    
+    GWindow window_1(0, data.monitor_Width/2, data.monitor_Width /2 *3/4, data.monitor_X + data.monitor_Width *1/2, data.monitor_Y, "OpenGL center left window", NULL, BG_CLR_W1);
+    GWindow window_2(1, data.monitor_Width/2, data.monitor_Width /2 *3/4, data.monitor_X + data.monitor_Width * 1/1, data.monitor_Y, "OpenGL center right window", NULL, BG_CLR_W1);
+    GWindow window_3(2, data.monitor_Width/2, data.monitor_Width /2 *3/4, data.monitor_X, data.monitor_Y, "OpenGL left window", NULL, BG_CLR_W2);
+    GWindow window_4(3, data.monitor_Width/2, data.monitor_Width /2 *3/4, data.monitor_X + data.monitor_Width *3/2, data.monitor_Y, "OpenGL right window", NULL, BG_CLR_W3);
+   
     //***************************** Shaders *****************************
     // 
         // build and compile our shader programs
@@ -91,67 +122,79 @@ int main()
     Shader shaderProgBgrWin_2(window_2, "shaderBgr.vs", "shader.fs");
     Shader shaderProgObjWin_3(window_3, "shaderObj.vs", "shader.fs");
     Shader shaderProgBgrWin_3(window_3, "shaderBgr.vs", "shader.fs");
-    // ------------------------------------
-    shaderProgObjWin_1.use();
-    shaderProgObjWin_1.setInt("texture", 0);
-    shaderProgBgrWin_1.use();
-    shaderProgBgrWin_1.setInt("texture", 0);
+    Shader shaderProgObjWin_4(window_4, "shaderObj.vs", "shader.fs");
+    Shader shaderProgBgrWin_4(window_4, "shaderBgr.vs", "shader.fs");
 
-    shaderProgObjWin_2.use();
-    shaderProgObjWin_2.setInt("texture", 0);
-    shaderProgBgrWin_2.use();
-    shaderProgBgrWin_2.setInt("texture", 0); 
+    loadObjects(window_1, shaderProgObjWin_1, shaderProgBgrWin_1, usbCamera_1, arUcoSettingsNamespace::usbCam01Params);
+    loadObjects(window_2, shaderProgObjWin_2, shaderProgBgrWin_2, usbCamera_1, arUcoSettingsNamespace::usbCam01Params);
+    loadObjects(window_3, shaderProgObjWin_3, shaderProgBgrWin_3, usbCamera_2, arUcoSettingsNamespace::usbCam02Params, true);
+    loadObjects(window_4, shaderProgObjWin_4, shaderProgBgrWin_4, usbCamera_3, arUcoSettingsNamespace::usbCam03Params);
 
-    shaderProgObjWin_3.use();
-    shaderProgObjWin_3.setInt("texture", 0);
-    shaderProgBgrWin_3.use();
-    shaderProgBgrWin_3.setInt("texture", 0);
-    // ------------------------------------
-    window_1.addGeometryBuffers(3);
-    window_1.setupGeometryObject(0, verticesSurfHalf, indicesSurf, initStateSurfTwoHalfC2);
-    window_1.setupGeometryObject(1, verticesCube, indicesCube, initStateCubes);
-    window_1.setupGeometryObject(2, verticesOrigin, indicesOrigin, initStateOrigin);
-    
-    window_2.addGeometryBuffers(3);
-    window_2.setupGeometryObject(0, verticesSurfFull, indicesSurf, initStateSurfFullScr);
-    window_2.setupGeometryObject(1, verticesCube, indicesCube, initStateCubes);
-    window_2.setupGeometryObject(2, verticesOrigin, indicesOrigin, initStateOrigin);
+    //// ------------------------------------
+    //shaderProgObjWin_1.use();
+    //shaderProgObjWin_1.setInt("texture", 0);
+    //shaderProgBgrWin_1.use();
+    //shaderProgBgrWin_1.setInt("texture", 0);
 
-    window_3.addGeometryBuffers(3);
-    window_3.setupGeometryObject(0, verticesSurfFull, indicesSurf, initStateSurfFullScr);
-    window_3.setupGeometryObject(1, verticesCube, indicesCube, initStateCube);
-    window_3.setupGeometryObject(2, verticesOrigin, indicesOrigin, initStateOrigin);
-    // ------------------------------------
-    //window_1.makeContextCurrent();
-    window_1.setupVideoTexture(0, usbCamera_1, GL_RGB, GL_BGR, false, true, false, arUcoSettingsNamespace::usbCameraParams);                           // set camera stream for virtual screans
-    window_1.setupVideoTexture(1, std::string("video/lines(540p).mp4"), GL_RGB, GL_BGR, false, false, true, ""); //set video texture for cube object
-    window_1.setupImgTexture(2, std::string("img/white.jpg"), GL_RGB, GL_RGB);
+    //shaderProgObjWin_2.use();
+    //shaderProgObjWin_2.setInt("texture", 0);
+    //shaderProgBgrWin_2.use();
+    //shaderProgBgrWin_2.setInt("texture", 0); 
 
-    window_2.setupVideoTexture(0, usbCamera_2, GL_RGB, GL_BGR, true, true, false, arUcoSettingsNamespace::usbCameraParams);                           // set camera stream for virtual screans
-    window_2.setupVideoTexture(1, std::string("video/video (1080p).mp4"), GL_RGB, GL_BGR, false, false, true, ""); //set video texture for cube object
-    window_2.setupImgTexture(2, std::string("img/white.jpg"), GL_RGB, GL_RGB);
+    //shaderProgObjWin_3.use();
+    //shaderProgObjWin_3.setInt("texture", 0);
+    //shaderProgBgrWin_3.use();
+    //shaderProgBgrWin_3.setInt("texture", 0);
+    //// ------------------------------------
+    //window_1.addGeometryBuffers(3);
+    //window_1.setupGeometryObject(0, verticesSurfHalf, indicesSurf, initStateSurfTwoHalfC2);
+    //window_1.setupGeometryObject(1, verticesCube, indicesCube, initStateCubes);
+    //window_1.setupGeometryObject(2, verticesOrigin, indicesOrigin, initStateOrigin);
+    //
+    //window_2.addGeometryBuffers(3);
+    //window_2.setupGeometryObject(0, verticesSurfFull, indicesSurf, initStateSurfFullScr);
+    //window_2.setupGeometryObject(1, verticesCube, indicesCube, initStateCube);
+    //window_2.setupGeometryObject(2, verticesOrigin, indicesOrigin, initStateOrigin);
 
-    window_3.setupVideoTexture(0, usbCamera_3, GL_RGB, GL_BGR, false, true, false, arUcoSettingsNamespace::usbCameraParams);                           // set camera stream for virtual screans
-    window_3.setupImgTexture(1, std::string("img/white.jpg"), GL_RGB, GL_RGB, false, true);
-    window_3.setupImgTexture(2, std::string("img/white.jpg"), GL_RGB, GL_RGB);
-    // ------------------------------------
-    window_1.setupShaderProgram(0, &shaderProgBgrWin_1);
-    window_1.setupShaderProgram(1, &shaderProgObjWin_1);
-    window_1.setupShaderProgram(2, &shaderProgObjWin_1);
+    //window_3.addGeometryBuffers(4);
+    //window_3.setupGeometryObject(0, verticesSurfFull, indicesSurf, initStateSurfFullScr);
+    //window_3.setupGeometryObject(1, verticesCubeWithBorder, indicesCubeWithBorder, initStateCubeWithBorder);
+    //window_3.setupGeometryObject(2, verticesOrigin, indicesOrigin, initStateOrigin);
+    //window_3.setupGeometryObject(3, verticesSurfWall, indicesSurfWall, initStateSurfWall);
+    //// ------------------------------------
+    ////window_1.makeContextCurrent();
+    //window_1.setupVideoTexture(0, usbCamera_1, GL_RGB, GL_BGR, false, true, false, nullptr, arUcoSettingsNamespace::usbCam01Params);                           // set camera stream for virtual screans
+    //window_1.setupVideoTexture(1, std::string("video/lines(540p).mp4"), GL_RGB, GL_BGR, false, false, true, nullptr, ""); //set video texture for cube object
+    //window_1.setupImgTexture(2, std::string("img/white.jpg"), GL_RGB, GL_RGB);
 
-    window_2.setupShaderProgram(0, &shaderProgBgrWin_2);
-    window_2.setupShaderProgram(1, &shaderProgObjWin_2);
-    window_2.setupShaderProgram(2, &shaderProgObjWin_2);
+    //window_2.setupVideoTexture(0, usbCamera_2, GL_RGB, GL_BGR, true, true, false, nullptr, arUcoSettingsNamespace::usbCam02Params);                           // set camera stream for virtual screans
+    //window_2.setupVideoTexture(1, std::string("video/video (1080p).mp4"), GL_RGB, GL_BGR, false, false, true, std::make_shared<std::vector<int>>(markerIdsCube), ""); //set video texture for cube object
+    //window_2.setupImgTexture(2, std::string("img/white.jpg"), GL_RGB, GL_RGB);
 
-    window_3.setupShaderProgram(0, &shaderProgBgrWin_3);
-    window_3.setupShaderProgram(1, &shaderProgObjWin_3);
-    window_3.setupShaderProgram(2, &shaderProgObjWin_3);
+    //window_3.setupVideoTexture(0, usbCamera_3, GL_RGB, GL_BGR, false, true, false, nullptr, arUcoSettingsNamespace::usbCam03Params);                           // set camera stream for virtual screans
+    //window_3.setupImgTexture(1, std::string("img/border.png"), GL_RGB, GL_RGB, false, true, std::make_shared<std::vector<int>>(markerIdsCubeWithBorder));
+    //window_3.setupImgTexture(2, std::string("img/white.jpg"), GL_RGB, GL_RGB);
+    //window_3.setupImgTexture(3, std::string("img/krasnii-kover-13.jpg"), GL_RGB, GL_RGB, false, true, std::make_shared<std::vector<int>>(markerIdsSurfWall));
+    //// ------------------------------------
+    //window_1.setupShaderProgram(0, &shaderProgBgrWin_1);
+    //window_1.setupShaderProgram(1, &shaderProgObjWin_1);
+    //window_1.setupShaderProgram(2, &shaderProgObjWin_1);
 
-    while (!glfwWindowShouldClose(window_1) && !glfwWindowShouldClose(window_2) && !glfwWindowShouldClose(window_3))
+    //window_2.setupShaderProgram(0, &shaderProgBgrWin_2);
+    //window_2.setupShaderProgram(1, &shaderProgObjWin_2);
+    //window_2.setupShaderProgram(2, &shaderProgObjWin_2);
+
+    //window_3.setupShaderProgram(0, &shaderProgBgrWin_3);
+    //window_3.setupShaderProgram(1, &shaderProgObjWin_3);
+    //window_3.setupShaderProgram(2, &shaderProgObjWin_3);
+    //window_3.setupShaderProgram(3, &shaderProgObjWin_3);
+
+    while (!glfwWindowShouldClose(window_1) && !glfwWindowShouldClose(window_2) && !glfwWindowShouldClose(window_3) && !glfwWindowShouldClose(window_4))
     {
         window_1.renderFrame(RTCounter::getDeltaTime());
         window_2.renderFrame(RTCounter::getDeltaTime());
         window_3.renderFrame(RTCounter::getDeltaTime());
+        window_4.renderFrame(RTCounter::getDeltaTime());
 
         RTCounter::updateTimer();
         RTCounter::printFPS_Console();

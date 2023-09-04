@@ -144,4 +144,78 @@ std::vector<InitState> initStateCube =
     {   glm::vec3(0.0f, 0.0f, 0.5f), glm::vec3(0.0f, 0.0f, 1.0f),  0.0f,  0.0f, glm::vec3(0.8f, 0.8f, 0.8f)    }
 };
 
+std::vector<int> markerIdsCubes{ 35, 36, 37, 38, 39, 40 };
+std::vector<int> markerIdsCube{ 6,7,8,9,10,11,12,13,14,15 };
 
+//---------------------- 03 cube_1.25 ------------------------------
+std::vector<float> verticesCubeWithBorder = {
+    -0.625f, -0.625f, -0.75f,  0.5f,  0.5f,  0.5f,   0.0f, 0.0f,
+     0.625f, -0.625f, -0.75f,  1.5f,  0.5f,  0.5f,   1.0f, 0.0f,
+     0.625f,  0.625f, -0.75f,  1.5f,  1.5f,  0.5f,   1.0f, 1.0f,
+    -0.625f,  0.625f, -0.75f,  0.5f,  1.5f,  0.5f,   0.0f, 1.0f,
+
+    -0.625f, -0.625f,  0.5f,  0.5f,  0.5f,  1.5f,   0.0f, 0.0f,
+     0.625f, -0.625f,  0.5f,  1.5f,  0.5f,  1.5f,   1.0f, 0.0f,
+     0.625f,  0.625f,  0.5f,  1.5f,  1.5f,  1.5f,   1.0f, 1.0f,
+    -0.625f,  0.625f,  0.5f,  0.5f,  1.5f,  1.5f,   0.0f, 1.0f,
+
+    -0.625f,  0.625f,  0.5f,  0.5f,  1.5f,  1.5f,   1.0f, 0.0f,
+    -0.625f,  0.625f, -0.75f,  0.5f,  1.5f,  0.5f,   1.0f, 1.0f,
+    -0.625f, -0.625f, -0.75f,  0.5f,  0.5f,  0.5f,   0.0f, 1.0f,
+    -0.625f, -0.625f,  0.5f,  0.5f,  0.5f,  1.5f,   0.0f, 0.0f,
+
+     0.625f,  0.625f,  0.5f,  1.5f,  1.5f,  1.5f,   1.0f, 0.0f,
+     0.625f,  0.625f, -0.75f,  1.5f,  1.5f,  0.5f,   1.0f, 1.0f,
+     0.625f, -0.625f, -0.75f,  1.5f,  0.5f,  0.5f,   0.0f, 1.0f,
+     0.625f, -0.625f,  0.5f,  1.5f,  0.5f,  1.5f,   0.0f, 0.0f,
+
+    -0.625f, -0.625f, -0.75f,  0.5f,  0.5f,  0.5f,   0.0f, 1.0f,
+     0.625f, -0.625f, -0.75f,  1.5f,  0.5f,  0.5f,   1.0f, 1.0f,
+     0.625f, -0.625f,  0.5f,  1.5f,  0.5f,  1.5f,   1.0f, 0.0f,
+    -0.625f, -0.625f,  0.5f,  0.5f,  0.5f,  1.5f,   0.0f, 0.0f,
+
+    -0.625f,  0.625f, -0.75f,  0.5f,  1.5f,  0.5f,   0.0f, 1.0f,
+     0.625f,  0.625f, -0.75f,  1.5f,  1.5f,  0.5f,   1.0f, 1.0f,
+     0.625f,  0.625f,  0.5f,  1.5f,  1.5f,  1.5f,   1.0f, 0.0f,
+    -0.625f,  0.625f,  0.5f,  0.5f,  1.5f,  1.5f,   0.0f, 0.0f,
+};
+
+std::vector<unsigned int> indicesCubeWithBorder = {  // note that we start from 0!
+    0, 1, 3,   // first triangle
+    1, 2, 3,    // second triangle
+    4, 5, 7,
+    5, 6, 7,
+    8, 9, 11,
+    9, 10, 11,
+    12, 13, 15,
+    13, 14, 15,
+    16, 17, 19,
+    17, 18, 19,
+    20, 21, 23,
+    21, 22, 23
+};
+//--------------- positions ------------------ axisRotation ------ angle -- speed ------- colorMask --------------
+std::vector<InitState> initStateCubeWithBorder =
+{
+    {   glm::vec3(0.0f, 0.0f, -0.5f), glm::vec3(0.0f, 0.0f, 1.0f),  0.0f,  0.0f, glm::vec3(0.8f, 0.8f, 0.8f)    }
+};
+
+std::vector<int> markerIdsCubeWithBorder{ 0,1,2,3,4,5 };
+
+//--------------------------------------- 04 wall texture -------------------------------------------------- 
+std::vector<float> verticesSurfWall = {
+    -8.0f,  -5.25f,  0.0f,  1.0f, 1.0f, 1.0f,   0.0f, 0.0f,
+    8.0f,   -5.25f,  0.0f,  1.0f, 1.0f, 1.0f,   1.0f, 0.0f,
+    8.0f,   5.25f,   0.0f,  1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
+    -8.0f,  5.25f,   0.0f,  1.0f, 1.0f, 1.0f,   0.0f, 1.0f,
+};
+std::vector<unsigned int> indicesSurfWall = {  // note that we start from 0!
+    0, 1, 3,   // first triangle
+    1, 2, 3,    // second triangle
+};
+//--------------- positions ------------------ axisRotation ------ angle -- speed ------- colorMask --------------
+std::vector<InitState> initStateSurfWall =
+{
+    {   glm::vec3(0.0f, 0.0f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f,  0.0f, glm::vec3(1.0f, 1.0f,  1.0f)    }
+};
+std::vector<int> markerIdsSurfWall{ 41,42 };
