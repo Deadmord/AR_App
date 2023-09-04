@@ -53,7 +53,7 @@ void GWindow::setupGeometryObject(GLuint objIndex, const std::vector<float>& obj
     geometryObjects.addObject(objIndex, objVBO.size(), objVBO.data(), objEBO.size(), objEBO.data(), objState);
 }
 
-void GWindow::setupImgTexture(GLuint index, const std::string& imgTexture, GLenum internalformat, GLenum format, bool isBackground, bool showOnMarker)
+void GWindow::setupImgTexture(GLuint index, const std::string& imgTexture, GLenum internalformat, GLenum format, bool isBackground, bool showOnMarker, std::shared_ptr<std::vector<int>> markerIds)
 {
     textures[index].isImg = true;
     textures[index].filePath = imgTexture;
@@ -63,6 +63,7 @@ void GWindow::setupImgTexture(GLuint index, const std::string& imgTexture, GLenu
     textures[index].format = format;
     textures[index].isBackground = isBackground;
     textures[index].showOnMarker = showOnMarker;
+    textures[index].markerIds = markerIds;
 
     //---------------------- video texture -------------------
     if (!textures[index].data)
@@ -173,11 +174,27 @@ void GWindow::renderFrame(float deltaTime)
         //projection = glm::perspective(glm::radians(camera.Zoom), (float)WinWidth / (float)WinHeight, 0.1f, 100.0f);
         //projection = glm::perspective(glm::radians(42.0f), (float)WinWidth / (float)WinHeight, 0.1f, 100.0f);
         
-        if (textures[index].showOnMarker && !arucoProcessorPtr->getMarkers().ids.empty())
+        if (textures[index].showOnMarker /*&& !arucoProcessorPtr->getMarkers().ids.empty()*/)
         {
-            for (glm::mat4 view : arucoProcessorPtr->getMarkers().viewMatrixes)
+            if (textures[index].markerIds == nullptr)
             {
-                drowObject(index, view, projection, textures[index].isBackground);
+                for (glm::mat4 view : arucoProcessorPtr->getMarkers().viewMatrixes)       //drow objects for all markers
+                {
+                    drowObject(index, view, projection, textures[index].isBackground);
+                }
+            }
+            else
+            {
+                for (int markerIndex{ 0 }; markerIndex < arucoProcessorPtr->getMarkers().ids.size(); markerIndex++)
+                {
+                    int target = arucoProcessorPtr->getMarkers().ids.at(markerIndex);
+                    if (std::ranges::any_of(*(textures[index].markerIds.get()), [target](int value) { return value == target; }))
+                    {
+                        view = arucoProcessorPtr->getMarkers().viewMatrixes.at(markerIndex);
+                        drowObject(index, view, projection, textures[index].isBackground);
+                    }
+
+                }
             }
         }
         else
