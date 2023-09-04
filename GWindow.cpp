@@ -138,9 +138,6 @@ void GWindow::renderFrame(float deltaTime)
                 if(textures[index].rotate)
                     cv::rotate(frameVideo, frameVideo, cv::ROTATE_180);
 
-                if (textures[index].isStream)
-                    showInFrame(frameVideo, cv::Size(WinWidth, WinHeight), arucoProcessorPtr->getFrameSize(), RTCounter::getFPS(wndID), { RTCounter::getDeltaTime((4*1) + wndID), RTCounter::getDeltaTime((4*2) + wndID), RTCounter::getDeltaTime((4*3) + wndID), RTCounter::getDeltaTime(wndID) });
-
                 //calc and apply distortion correction, very heavy hendling!!!
                 //cv::Mat undistortedFrame;
                 //cv::undistort(frameVideo, undistortedFrame, arucoProcessorPtr->getCameraMat(), arucoProcessorPtr->getDistortCoeff());
@@ -150,11 +147,18 @@ void GWindow::renderFrame(float deltaTime)
                 //cv::remap(frameVideo, undistortedFrame, arucoProcessorPtr->getUndistortMap1(), arucoProcessorPtr->getUndistortMap2(), cv::INTER_LINEAR);
 
                 //check stream videoframe for aruco markers
-                if (textures[index].isStream && arucoProcessorPtr->detectMarkers(frameVideo, frameVideoAruco))
+                //if (textures[index].isStream && arucoProcessorPtr->detectMarkers(frameVideo, frameVideoAruco))
+                //{
+                //    glTexImage2D(GL_TEXTURE_2D, 0, textures[index].internalformat, textures[index].width, textures[index].height, 0, textures[index].format, GL_UNSIGNED_BYTE, frameVideoAruco.data);
+                //}
+                //else
+                //glTexImage2D(GL_TEXTURE_2D, 0, textures[index].internalformat, textures[index].width, textures[index].height, 0, textures[index].format, GL_UNSIGNED_BYTE, frameVideo.data);
+
+                if (textures[index].isStream)
                 {
-                    glTexImage2D(GL_TEXTURE_2D, 0, textures[index].internalformat, textures[index].width, textures[index].height, 0, textures[index].format, GL_UNSIGNED_BYTE, frameVideoAruco.data);
+                    arucoProcessorPtr->detectMarkers(frameVideo, frameVideo);
+                    showInFrame(frameVideo, cv::Size(WinWidth, WinHeight), arucoProcessorPtr->getFrameSize(), RTCounter::getFPS(wndID), { RTCounter::getDeltaTime((4 * 1) + wndID), RTCounter::getDeltaTime((4 * 2) + wndID), RTCounter::getDeltaTime((4 * 3) + wndID), RTCounter::getDeltaTime(wndID) });
                 }
-                else
                 glTexImage2D(GL_TEXTURE_2D, 0, textures[index].internalformat, textures[index].width, textures[index].height, 0, textures[index].format, GL_UNSIGNED_BYTE, frameVideo.data);
             }
         }

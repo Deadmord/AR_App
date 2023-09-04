@@ -28,6 +28,7 @@ extern std::vector<float> verticesCube;
 extern std::vector<unsigned int> indicesCube;
 extern std::vector<InitState> initStateCubes;
 extern std::vector<InitState> initStateCube;
+extern std::vector<int> markerIdsCubes;
 extern std::vector<int> markerIdsCube;
 
 extern std::vector<float> verticesCubeWithBorder;

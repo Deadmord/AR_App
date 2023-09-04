@@ -62,7 +62,7 @@ void loadObjects(GWindow& window, Shader& shaderProgObjWin, Shader& shaderProgBg
     window.setupVideoTexture(0, cameraNum, GL_RGB, GL_BGR, rotateCamera, true, false, nullptr, cameraParams);          // set camera stream for virtual screans
     window.setupImgTexture(1, std::string("img/white.jpg"), GL_RGB, GL_RGB);
     window.setupImgTexture(2, std::string("img/border.png"), GL_RGB, GL_RGB, false, true, std::make_shared<std::vector<int>>(markerIdsCubeWithBorder));
-    window.setupVideoTexture(3, std::string("video/video (1080p).mp4"), GL_RGB, GL_BGR, false, false, true, nullptr, ""); //set video texture for cube object
+    window.setupVideoTexture(3, std::string("video/video (1080p).mp4"), GL_RGB, GL_BGR, false, false, true, std::make_shared<std::vector<int>>(markerIdsCubes), ""); //set video texture for cube object
     window.setupImgTexture(4, std::string("img/krasnii-kover-13.jpg"), GL_RGB, GL_RGB, false, true, std::make_shared<std::vector<int>>(markerIdsSurfWall));
 
     window.setupShaderProgram(0, &shaderProgBgrWin);

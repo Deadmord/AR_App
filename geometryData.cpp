@@ -144,6 +144,7 @@ std::vector<InitState> initStateCube =
     {   glm::vec3(0.0f, 0.0f, 0.5f), glm::vec3(0.0f, 0.0f, 1.0f),  0.0f,  0.0f, glm::vec3(0.8f, 0.8f, 0.8f)    }
 };
 
+std::vector<int> markerIdsCubes{ 35, 36, 37, 38, 39, 40 };
 std::vector<int> markerIdsCube{ 6,7,8,9,10,11,12,13,14,15 };
 
 //---------------------- 03 cube_1.25 ------------------------------
@@ -217,4 +218,4 @@ std::vector<InitState> initStateSurfWall =
 {
     {   glm::vec3(0.0f, 0.0f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f,  0.0f, glm::vec3(1.0f, 1.0f,  1.0f)    }
 };
-std::vector<int> markerIdsSurfWall{ 40 };
+std::vector<int> markerIdsSurfWall{ 41,42 };
