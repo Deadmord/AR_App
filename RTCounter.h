@@ -19,87 +19,29 @@ struct FrameTiming
 class RTCounter
 {
 public:
+	
+	static void startTimer(GLuint timerNumber);
 
-	static void startTimer(GLuint timerNumber)
-	{
-		if (timerNumber < stopwatch.size())
-		{
-			stopwatch[timerNumber].startTime = static_cast<float>(glfwGetTime());
-		}
-		else
-			std::cout << "Error: Timer doesnt exist!";
-	}
+	static void stopTimer(GLuint timerNumber);
 
-	static void stopTimer(GLuint timerNumber)
-	{
-		if (timerNumber < stopwatch.size())
-		{
-			stopwatch[timerNumber].stopTime = static_cast<float>(glfwGetTime());
-			float dTime = stopwatch[timerNumber].stopTime - stopwatch[timerNumber].startTime;
-			stopwatch[timerNumber].dTimes.push_back(dTime);
-			stopwatch[timerNumber].sum += dTime;
+	static float getFPS(GLuint timerNumber);
 
-			if (stopwatch[timerNumber].dTimes.size() > windowSize) {
-				stopwatch[timerNumber].sum -= stopwatch[timerNumber].dTimes.front();
-				stopwatch[timerNumber].dTimes.pop_front();
-			}
-			stopwatch[timerNumber].avrDeltaTime = stopwatch[timerNumber].sum / stopwatch[timerNumber].dTimes.size();
-			stopwatch[timerNumber].FPS = 1.0f / stopwatch[timerNumber].avrDeltaTime;
-		}
-		else
-			std::cout << "Error: Timer doesnt exist!";
-	}
+	static float getDeltaTime(GLuint timerNumber);
 
-	static float getFPS(GLuint timerNumber)
-	{
-		if (timerNumber < stopwatch.size())
-		{
-			return stopwatch[timerNumber].FPS;
-		}
-		else
-			std::cout << "Error: Timer doesnt exist!";
-		return 0.0f;
-	}
+	//------- methods for count FPS in mainloop ----------
 
-	static float getDeltaTime(GLuint timerNumber)
-	{
-		if (timerNumber < stopwatch.size())
-		{
-			return stopwatch[timerNumber].avrDeltaTime;
-		}
-		else
-			std::cout << "Error: Timer doesnt exist!";
-		return 0.0f;
-	}
+	static void updateTimer();
 
-	static void updateTimer()
-	{
-		// per-frame time logic
-		float currentFrame = static_cast<float>(glfwGetTime());
-		deltaTime = currentFrame - lastFrameTime;
-		lastFrameTime = currentFrame;
-	}
+	static void printFPS_Console();
 
-	static void printFPS_Console()
-	{
-		float currentTime = static_cast<float>(glfwGetTime());
-		if (currentTime - lastPrintTime >= 0.25f)
-		{
-			std::cout << '\r' << std::fixed << std::setprecision(1) << 1.0f / deltaTime << "  ";
-			lastPrintTime = currentTime;
-		}
-	}
-
-	static float getDeltaTime()
-	{
-		return deltaTime;
-	}
+	static float getDeltaTime();
 
 private:
+	const static size_t windowSize;	//setting for count avarege freq
+	static std::vector<FrameTiming> stopwatch;	//data for calculate time and freq
+
 	static float deltaTime;	// Time between current frame and last frame
 	static float lastFrameTime; // Time of last frame
 	static float lastPrintTime; // Time of last print FPS
-	const static size_t windowSize;
-	static std::vector<FrameTiming> stopwatch;
 };
 

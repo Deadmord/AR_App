@@ -130,62 +130,10 @@ public:
 
 	void renderFrame(float deltaTime);
 
-	void drowObject(GLsizei objIndex, glm::mat4& viewMat, glm::mat4& projectionMat, bool background = false)
-	{
-		glm::mat4 model	= glm::mat4(1.0f);
-
-		// ------------- render objects copies from objState list ---------------
-		std::shared_ptr <const std::vector<InitState>> objState = geometryObjects.getObjStatePtr(objIndex);
-
-		const GLsizei objSize = geometryObjects.getObjSize(objIndex);
-		for (GLsizei i = 0; i < objState->size(); i++)
-		{
-			model = glm::mat4(1.0f);
-			model = glm::translate(model, (*objState)[i].positions);
-			float angle = (*objState)[i].angle;
-			model = glm::rotate(model, glm::radians(angle), (*objState)[i].axisRotation);
-			model = glm::rotate(model, glm::radians((*objState)[i].speed * (float)glfwGetTime()), (*objState)[i].axisRotation);
-
-			shaders[objIndex]->setCordTrans("model", glm::value_ptr(model));
-			shaders[objIndex]->setCordTrans("view", glm::value_ptr(viewMat));
-			shaders[objIndex]->setCordTrans("projection", glm::value_ptr(projectionMat));
-			shaders[objIndex]->setColorMask("colorMask", (*objState)[i].colorMask);
-			glDrawElements(GL_TRIANGLES, objSize, GL_UNSIGNED_INT, 0);
-
-		}
-
-		if (background) glClear(GL_DEPTH_BUFFER_BIT);	// first object is background
-	}
-
-	void makeContextCurrent();		//remove it or make private
-	//GLFWwindow* getWindowPtr();		//dont use anymore, replace with "operator GLFWwindow*"
+	void drowObject(GLsizei objIndex, glm::mat4& viewMat, glm::mat4& projectionMat, bool background = false);
 
 private:
-	void showInFrame(const cv::Mat& frame, cv::Size WindSize, cv::Size frameSize, float FPS, std::initializer_list<float> dTimes)
-	{
-		std::ostringstream vector_to_marker;
-
-		vector_to_marker.str(std::string());
-		vector_to_marker << std::setprecision(4) << "WindwRes: " << std::setw(2) << WindSize.width << " x " << WindSize.height;
-		cv::putText(frame, vector_to_marker.str(), cv::Point(10, 25), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(32, 32, 240), 2);
-
-		vector_to_marker.str(std::string());
-		vector_to_marker << std::setprecision(4) << "FrameRes: " << std::setw(4) << frameSize.width << " x " << frameSize.height;
-		cv::putText(frame, vector_to_marker.str(), cv::Point(250, 25), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(32, 240, 32), 2);
-
-		vector_to_marker.str(std::string());
-		vector_to_marker << std::setprecision(4) << "FPS: " << std::setw(6) << FPS;
-		cv::putText(frame, vector_to_marker.str(), cv::Point(500, 25), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(240, 32, 32), 2);
-
-		int shift{0};
-		for (float dTime : dTimes)
-		{
-			vector_to_marker.str(std::string());
-			vector_to_marker << std::setprecision(4) << "OperationTime: " << std::setw(4) << dTime;
-			cv::putText(frame, vector_to_marker.str(), cv::Point(10, 50 + shift), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(220, 16, 220), 2);
-			shift += 25;
-		}
-	}
+	void showInFrame(const cv::Mat& frame, cv::Size WindSize, cv::Size frameSize, float FPS, std::initializer_list<float> dTimes);
 
 	static void framebufferSizeCallbackWrapper(GLFWwindow* window, int width, int height);
 	static void mouseButtonCallbackWrapper(GLFWwindow* window, int button, int action, int mods);
