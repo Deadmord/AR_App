@@ -106,10 +106,10 @@ int main()
 
     // ------------------ Windows init ---------------------
     MonitorData& data = monitors[0];
-    GWindow window_1(0, data.monitor_Width/2, data.monitor_Width /2 *3/4, data.monitor_X + data.monitor_Width *1/2, data.monitor_Y, "OpenGL center left window", NULL, BG_CLR_W1);
-    GWindow window_2(1, data.monitor_Width/2, data.monitor_Width /2 *3/4, data.monitor_X + data.monitor_Width * 1/1, data.monitor_Y, "OpenGL center right window", NULL, BG_CLR_W1);
-    GWindow window_3(2, data.monitor_Width/2, data.monitor_Width /2 *3/4, data.monitor_X, data.monitor_Y, "OpenGL left window", NULL, BG_CLR_W2);
-    GWindow window_4(3, data.monitor_Width/2, data.monitor_Width /2 *3/4, data.monitor_X + data.monitor_Width *3/2, data.monitor_Y, "OpenGL right window", NULL, BG_CLR_W3);
+    GWindow window_1(0, data.monitor_Width/4, data.monitor_Width /4 *3/4, data.monitor_X + data.monitor_Width *1/4, data.monitor_Y, "OpenGL center left window", NULL, BG_CLR_W1);
+    GWindow window_2(1, data.monitor_Width/4, data.monitor_Width /4 *3/4, data.monitor_X + data.monitor_Width *1/2, data.monitor_Y, "OpenGL center right window", NULL, BG_CLR_W1);
+    GWindow window_3(2, data.monitor_Width/4, data.monitor_Width /4 *3/4, data.monitor_X, data.monitor_Y, "OpenGL left window", NULL, BG_CLR_W2);
+    GWindow window_4(3, data.monitor_Width/4, data.monitor_Width /4 *3/4, data.monitor_X + data.monitor_Width *3/4, data.monitor_Y, "OpenGL right window", NULL, BG_CLR_W3);
    
     //***************************** Shaders *****************************
     // 
