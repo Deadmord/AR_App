@@ -6,27 +6,27 @@ GLObject::GLObject(const std::vector<float>& objVBO, const std::vector<unsigned 
 
 void GLObject::setupImgTexture(const std::string& imgTexture, GLenum internalformat, GLenum format, bool isBackground, bool showOnMarker, std::shared_ptr<std::vector<int>> markerIds)
 {
-    isImg = true;
-    filePath = imgTexture;
+    this->isImg = true;
+    this->filePath = imgTexture;
 
-    data = stbi_load(imgTexture.c_str(), &textures[index].width, &textures[index].height, &textures[index].nrChannels, 0);
-    internalformat = internalformat;
-    format = format;
-    isBackground = isBackground;
-    showOnMarker = showOnMarker;
-    markerIds = markerIds;
+    this->data = stbi_load(imgTexture.c_str(), &(this->width), &(this->height), &(this->nrChannels), 0);
+    this->internalformat = internalformat;
+    this->format = format;
+    this->isBackground = isBackground;
+    this->showOnMarker = showOnMarker;
+    this->markerIds = markerIds;
 
     //---------------------- video texture -------------------
-    if (!textures[index].data)
+    if (!this->data)
     {
         std::cout << "Error: Img can't be open! Source: " << imgTexture << std::endl;
     }
     else
     {
-        glTexImage2D(GL_TEXTURE_2D, 0, internalformat, textures[index].width, textures[index].height, 0, format, GL_UNSIGNED_BYTE, textures[index].data);
+        glTexImage2D(GL_TEXTURE_2D, 0, this->internalformat, this->width, this->height, 0, format, GL_UNSIGNED_BYTE, this->data);
         glGenerateMipmap(GL_TEXTURE_2D);
         std::cout << "Img opened successfully!" << std::endl;
-        textures[index].isOpened = true;
+        this->isOpened = true;
 
     }
     //stbi_image_free(data);

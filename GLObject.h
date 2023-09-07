@@ -17,42 +17,42 @@ class GLObject
 	// Open texture file and bind with object
 	template<typename T>
 		requires std::same_as<T, int> || std::same_as<T, std::string>
-	inline void setupVideoTexture(GLuint index, const T & videoTexture, GLenum internalformat, GLenum format, bool rotate = false, bool isBackground = false, bool showOnMarker = false, std::shared_ptr<std::vector<int>> markerIds = nullptr, std::string cameraParams = nullptr)
+	inline void setupVideoTexture(const T & videoTexture, GLenum internalformat, GLenum format, bool rotate = false, bool isBackground = false, bool showOnMarker = false, std::shared_ptr<std::vector<int>> markerIds = nullptr, std::string cameraParams = nullptr)
 	{
 		if constexpr (std::is_same_v<T, int>) {
-			textures[index].isStream = true;
-			textures[index].streamIndex = videoTexture;
+			this->isStream = true;
+			this->streamIndex = videoTexture;
 		}
 		else if constexpr (std::is_same_v<T, std::string>) {
-			textures[index].isVideo = true;
-			textures[index].filePath = videoTexture;
+			this->isVideo = true;
+			this->filePath = videoTexture;
 		}
 		//cv::VideoCapture vid_captureCamera
-		textures[index].vidCapture = cv::VideoCapture(videoTexture);
+		this->vidCapture = cv::VideoCapture(videoTexture);
 
 		//----------- Init ArUco and set resolution -----------
-		if (textures[index].isStream) //&& turn aruco flag
+		if (this->isStream) //&& turn aruco flag
 		{
 			// ArUco init
 			arucoProcessorPtr = std::make_unique<ArucoProcessor>(ArUcoMarkerLength, ArUcoDictionaryId, cameraParams, ArUcoShowRejected);
 
-			textures[index].vidCapture.set(cv::CAP_PROP_FRAME_WIDTH, arucoProcessorPtr->getFrameSize().width);
-			textures[index].vidCapture.set(cv::CAP_PROP_FRAME_HEIGHT, arucoProcessorPtr->getFrameSize().height);
+			this->vidCapture.set(cv::CAP_PROP_FRAME_WIDTH, arucoProcessorPtr->getFrameSize().width);
+			this->vidCapture.set(cv::CAP_PROP_FRAME_HEIGHT, arucoProcessorPtr->getFrameSize().height);
 		}
 		//------------------------------------------
 
-		textures[index].width = static_cast<int>(textures[index].vidCapture.get(cv::CAP_PROP_FRAME_WIDTH));
-		textures[index].height = static_cast<int>(textures[index].vidCapture.get(cv::CAP_PROP_FRAME_HEIGHT));
+		this->width = static_cast<int>(this->vidCapture.get(cv::CAP_PROP_FRAME_WIDTH));
+		this->height = static_cast<int>(this->vidCapture.get(cv::CAP_PROP_FRAME_HEIGHT));
 
-		textures[index].internalformat = internalformat;
-		textures[index].format = format;
-		textures[index].rotate = rotate;
-		textures[index].isBackground = isBackground;
-		textures[index].showOnMarker = showOnMarker;
-		textures[index].markerIds = markerIds;
+		this->internalformat = internalformat;
+		this->format = format;
+		this->rotate = rotate;
+		this->isBackground = isBackground;
+		this->showOnMarker = showOnMarker;
+		this->markerIds = markerIds;
 
 		//---------------------- video texture -------------------
-		if (!textures[index].vidCapture.isOpened())
+		if (!this->vidCapture.isOpened())
 		{
 			std::cout << "Error: Video stream can't be open! Source: " << videoTexture << std::endl;
 		}
@@ -60,15 +60,15 @@ class GLObject
 		{
 			cv::Mat frameVideo;
 			//Initialize a boolean to check whether frames are present or not
-			if (!textures[index].vidCapture.read(frameVideo))
+			if (!this->vidCapture.read(frameVideo))
 			{
 				std::cout << "Error: Video stream can't be read or disconnect! Source: " << videoTexture << std::endl;
 			}
 			else
 			{
 				std::cout << "Video stream opened successfully!" << std::endl;
-				textures[index].data = frameVideo.data;
-				textures[index].isOpened = true;
+				this->data = frameVideo.data;
+				this->isOpened = true;
 			}
 		}
 	}
