@@ -4,6 +4,7 @@
 #include "shader.h"				//move it up if problem
 #include "geometryObjects.h"
 #include "geometryData.h"
+#include "aruco/ArucoProcessor.h"
 
 class GLObjectManager
 {
@@ -91,11 +92,12 @@ private:
 	GLenum			internalformat;
 	GLenum			format;
 	cv::VideoCapture vidCapture;
-	uchar* data;
+	uchar*			data;
 	std::shared_ptr<std::vector<int>> markerIds;
 
 	GeometryObjects geometryObjects;
-	std::vector<TextureData> textures;
-	std::vector<Shader*> shaders;
+	Shader* shader;
+
+	std::unique_ptr<ArucoProcessor> arucoProcessorPtr;
 };
 

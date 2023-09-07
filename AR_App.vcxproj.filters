@@ -67,7 +67,9 @@
     <ClCompile Include="config.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
-    <ClCompile Include="GLObjectManager.cpp" />
+    <ClCompile Include="GLObjectManager.cpp">
+      <Filter>Controllers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="appState.h">
@@ -103,7 +105,9 @@
     <ClInclude Include="config.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
-    <ClInclude Include="GLObjectManager.h" />
+    <ClInclude Include="GLObjectManager.h">
+      <Filter>Controllers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="shader.fs">

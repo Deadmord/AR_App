@@ -11,7 +11,7 @@
 #include "stb_image.h"
 //#include "geometryObjects.h"
 //#include "geometryData.h"
-#include "aruco/ArucoProcessor.h"
+//#include "aruco/ArucoProcessor.h"
 #include "RTCounter.h"
 #include "config.h"
 
@@ -63,7 +63,5 @@ private:
 	GLuint WinHeight = 600;
 	glm::vec4 bgColor;
 	GLsizei objectListSize = 0;
-
-	std::unique_ptr<ArucoProcessor> arucoProcessorPtr;
 };
 
