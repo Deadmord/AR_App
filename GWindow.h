@@ -8,7 +8,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/string_cast.hpp> // For glm::value_ptr и glm::to_string
-#include "stb_image.h"
+//#include "stb_image.h"
 //#include "geometryObjects.h"
 //#include "geometryData.h"
 //#include "aruco/ArucoProcessor.h"
@@ -27,6 +27,11 @@ public:
 
 	// Generates OpenGL vertex array and buffer objects arrays with the specified size.
 	void addGeometryBuffers(GLsizei size);
+
+	void addGLObject(вся хурма)
+	{
+		glfwMakeContextCurrent(window);
+	}
 
 	void renderFrame(float deltaTime);
 

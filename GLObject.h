@@ -1,17 +1,18 @@
 #pragma once
 #include <GLFW/glfw3.h>
 #include <opencv2/opencv.hpp>
+#include "stb_image.h"
 #include "shader.h"				//move it up if problem
-#include "geometryObjects.h"
+#include "geometryObject.h"
 #include "geometryData.h"
 #include "aruco/ArucoProcessor.h"
 
-class GLObjectManager
+class GLObject
 {
 	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
 // Vertex Array Object sould has next form: float[] {PosX, PosY, PosZ, ColR, ColG, ColB, TextX, TextY, ...}.
 // Element Buffer Object should include indices of triangle vertices in the correct sequence.
-	void setupGeometryObject(GLuint objIndex, const std::vector<float>& objVBO, const std::vector<unsigned int>& objEBO, const std::vector<InitState>& objState);
+	GLObject(const std::vector<float>& objVBO, const std::vector<unsigned int>& objEBO, const std::vector<InitState>& objState);
 
 	// Open texture file and bind with object
 	template<typename T>
@@ -72,11 +73,15 @@ class GLObjectManager
 		}
 	}
 
-	void setupImgTexture(GLuint index, const std::string& imgTexture, GLenum internalformat, GLenum format, bool isBackground = false, bool showOnMarker = false, std::shared_ptr<std::vector<int>> markerIds = nullptr);
+	void setupImgTexture(const std::string& imgTexture, GLenum internalformat, GLenum format, bool isBackground = false, bool showOnMarker = false, std::shared_ptr<std::vector<int>> markerIds = nullptr);
 
-	void setupShaderProgram(GLuint index, Shader* shaderProgPtr);
+	void setupShaderProgram(Shader* shaderProgPtr);
 
 private:
+	GeometryObject geometryObject;
+	Shader* shader;
+
+	//Textures property
 	bool			isOpened = false;
 	bool			isImg = false;
 	bool			isVideo = false;
@@ -94,9 +99,6 @@ private:
 	cv::VideoCapture vidCapture;
 	uchar*			data;
 	std::shared_ptr<std::vector<int>> markerIds;
-
-	GeometryObjects geometryObjects;
-	Shader* shader;
 
 	std::unique_ptr<ArucoProcessor> arucoProcessorPtr;
 };

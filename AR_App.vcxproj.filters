@@ -43,7 +43,7 @@
     <ClCompile Include="geometryData.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
-    <ClCompile Include="geometryObjects.cpp">
+    <ClCompile Include="geometryObject.cpp">
       <Filter>Controllers</Filter>
     </ClCompile>
     <ClCompile Include="stb_image_implementation.cpp">
@@ -67,7 +67,7 @@
     <ClCompile Include="config.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
-    <ClCompile Include="GLObjectManager.cpp">
+    <ClCompile Include="GLObject.cpp">
       <Filter>Controllers</Filter>
     </ClCompile>
   </ItemGroup>
@@ -90,7 +90,7 @@
     <ClInclude Include="geometryData.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
-    <ClInclude Include="geometryObjects.h">
+    <ClInclude Include="geometryObject.h">
       <Filter>Controllers</Filter>
     </ClInclude>
     <ClInclude Include="stb_image.h">
@@ -105,7 +105,7 @@
     <ClInclude Include="config.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
-    <ClInclude Include="GLObjectManager.h">
+    <ClInclude Include="GLObject.h">
       <Filter>Controllers</Filter>
     </ClInclude>
   </ItemGroup>

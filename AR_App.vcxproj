@@ -144,10 +144,10 @@
     <ClCompile Include="aruco\ArucoProcessor.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="config.cpp" />
-    <ClCompile Include="GLObjectManager.cpp" />
+    <ClCompile Include="GLObject.cpp" />
     <ClCompile Include="RTCounter.cpp" />
     <ClCompile Include="geometryData.cpp" />
-    <ClCompile Include="geometryObjects.cpp" />
+    <ClCompile Include="geometryObject.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="GWindow.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -160,10 +160,10 @@
     <ClInclude Include="aruco\aruco_utilities.hpp" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="config.h" />
-    <ClInclude Include="GLObjectManager.h" />
+    <ClInclude Include="GLObject.h" />
     <ClInclude Include="RTCounter.h" />
     <ClInclude Include="geometryData.h" />
-    <ClInclude Include="geometryObjects.h" />
+    <ClInclude Include="geometryObject.h" />
     <ClInclude Include="GWindow.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="stb_image.h" />
