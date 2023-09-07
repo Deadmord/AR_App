@@ -9,6 +9,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "stb_image.h"
 
+#include "config.h"
 #include "shader.h"
 #include "geometryData.h"
 
@@ -24,20 +25,7 @@ const int defaultCamera = 3;
 const int usbCamera_1 = 0;
 const int usbCamera_2 = 1;
 const int usbCamera_3 = 2;
-// ----------------------- ArUco -------------------------
-namespace arUcoSettingsNamespace {
-    float markerLength = 1.0f;    // 0.035f;
-    cv::aruco::PredefinedDictionaryType dictionaryId = cv::aruco::DICT_6X6_250;
-    std::string defaultCameraParams = "camera_params/camera_params03.yml";
-    std::string usbCam00Params = "camera_params/camera_paramsUSB01.yml";
-    std::string usbCam01Params = "camera_params/camera_paramsUSBsetCam02new.yml";
-    std::string usbCam02Params = "camera_params/camera_paramsUSBsetCam02new.yml";
-    std::string usbCam03Params = "camera_params/camera_paramsUSBsetCam02new.yml";
-    //std::string defaultCameraParams = "camera_params/camera_paramsUSB01.yml";
-    //std::string usbCameraParams = "camera_params/camera_params03.yml";
-    
-    bool showRejected = true;
-}
+
 // -------------- Windows background color ----------------
 const glm::vec4 BG_CLR_W1 = glm::vec4(0.2f, 0.3f, 0.2f, 1.0f);	//window 1 
 const glm::vec4 BG_CLR_W2 = glm::vec4(0.2f, 0.2f, 0.3f, 1.0f);	//window 2 
@@ -125,10 +113,10 @@ int main()
     Shader shaderProgObjWin_4(window_4, "shaderObj.vs", "shader.fs");
     Shader shaderProgBgrWin_4(window_4, "shaderBgr.vs", "shader.fs");
 
-    loadObjects(window_1, shaderProgObjWin_1, shaderProgBgrWin_1, usbCamera_1, arUcoSettingsNamespace::usbCam01Params);
-    loadObjects(window_2, shaderProgObjWin_2, shaderProgBgrWin_2, usbCamera_1, arUcoSettingsNamespace::usbCam01Params);
-    loadObjects(window_3, shaderProgObjWin_3, shaderProgBgrWin_3, usbCamera_2, arUcoSettingsNamespace::usbCam02Params, true);
-    loadObjects(window_4, shaderProgObjWin_4, shaderProgBgrWin_4, usbCamera_3, arUcoSettingsNamespace::usbCam03Params);
+    loadObjects(window_1, shaderProgObjWin_1, shaderProgBgrWin_1, usbCamera_1, usbCam01Params);
+    loadObjects(window_2, shaderProgObjWin_2, shaderProgBgrWin_2, usbCamera_1, usbCam01Params);
+    loadObjects(window_3, shaderProgObjWin_3, shaderProgBgrWin_3, usbCamera_2, usbCam02Params, true);
+    loadObjects(window_4, shaderProgObjWin_4, shaderProgBgrWin_4, usbCamera_3, usbCam03Params);
 
     //// ------------------------------------
     //shaderProgObjWin_1.use();

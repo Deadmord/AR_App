@@ -14,13 +14,7 @@
 #include "geometryData.h"
 #include "aruco/ArucoProcessor.h"
 #include "RTCounter.h"
-
-// declaration of global settings
-namespace arUcoSettingsNamespace {
-	extern float markerLength;
-	extern cv::aruco::PredefinedDictionaryType dictionaryId;
-	extern bool showRejected;
-}
+#include "config.h"
 
 struct TextureData
 {
@@ -42,10 +36,6 @@ struct TextureData
 	uchar*			data;
 	std::shared_ptr<std::vector<int>> markerIds;
 };
-
-const int		WINDOW_PANEL_HEIGHT = 0;				// 30px for window panel
-const glm::vec4 BG_CLR	(0.2f, 0.3f, 0.3f, 1.0f);		//default bg color
-const glm::vec3 camInitPosition	(5.0f, 4.0f, 20.0f);	//Camera start position
 
 class GWindow
 {
@@ -85,7 +75,7 @@ public:
 		if (textures[index].isStream) //&& turn aruco flag
 		{
 			// ArUco init
-			arucoProcessorPtr = std::make_unique<ArucoProcessor>(arUcoSettingsNamespace::markerLength, arUcoSettingsNamespace::dictionaryId, cameraParams, arUcoSettingsNamespace::showRejected);
+			arucoProcessorPtr = std::make_unique<ArucoProcessor>(ArUcoMarkerLength, ArUcoDictionaryId, cameraParams, ArUcoShowRejected);
 
 			textures[index].vidCapture.set(cv::CAP_PROP_FRAME_WIDTH, arucoProcessorPtr->getFrameSize().width);
 			textures[index].vidCapture.set(cv::CAP_PROP_FRAME_HEIGHT, arucoProcessorPtr->getFrameSize().height);
