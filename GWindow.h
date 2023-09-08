@@ -4,7 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
-
+#include <filesystem>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/string_cast.hpp> // For glm::value_ptr и glm::to_string
@@ -12,6 +12,7 @@
 //#include "geometryObjects.h"
 //#include "geometryData.h"
 //#include "aruco/ArucoProcessor.h"
+#include "GLObject.h"
 #include "RTCounter.h"
 #include "config.h"
 
@@ -25,13 +26,8 @@ public:
 		return window;
 	}
 
-	// Generates OpenGL vertex array and buffer objects arrays with the specified size.
-	void addGeometryBuffers(GLsizei size);
-
-	void addGLObject(вся хурма)
-	{
-		glfwMakeContextCurrent(window);
-	}
+	void addGLObject(const std::vector<float>& objVBO, const std::vector<unsigned int>& objEBO, const std::vector<InitState>& objState, Shader* shaderProgPtr,
+		const std::string& texturePath, GLenum internalformat, GLenum format, bool linePolygonMode = false, bool rotate = false, bool isBackground = false, bool showOnMarker = false, std::shared_ptr<std::vector<int>> markerIds = nullptr, std::string cameraParams = nullptr);
 
 	void renderFrame(float deltaTime);
 
@@ -54,7 +50,6 @@ private:
 private:
 	GLFWwindow* window;
 
-public:												//remove it or make private
 	// camera
 	Camera camera;
 	float lastX = 400.0f;
@@ -62,11 +57,12 @@ public:												//remove it or make private
 	bool firstMouse = true;
 	bool leftMouseButtonPressed = false;
 
-private:
 	GLuint wndID = 0;
 	GLuint WinWidth = 800; 
 	GLuint WinHeight = 600;
 	glm::vec4 bgColor;
-	GLsizei objectListSize = 0;
+
+	std::vector<GLObject> glObjects;
+	//GLsizei objectListSize = 0;
 };
 

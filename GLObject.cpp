@@ -1,10 +1,12 @@
 #include "GLObject.h"
 
-GLObject::GLObject(const std::vector<float>& objVBO, const std::vector<unsigned int>& objEBO, const std::vector<InitState>& objState)
+GLObject::GLObject(const std::vector<float>& objVBO, const std::vector<unsigned int>& objEBO, const std::vector<InitState>& objState, bool linePolygonMode = false)
     :geometryObject(objVBO.size(), objVBO.data(), objEBO.size(), objEBO.data(), objState)
-{}
+{
+    geometryObject.initObjectTexture(linePolygonMode);
+}
 
-void GLObject::setupImgTexture(const std::string& imgTexture, GLenum internalformat, GLenum format, bool isBackground, bool showOnMarker, std::shared_ptr<std::vector<int>> markerIds)
+void GLObject::setupImgTexture(const std::string& imgTexture, GLenum internalformat, GLenum format, bool rotate = false, bool isBackground, bool showOnMarker, std::shared_ptr<std::vector<int>> markerIds)
 {
     this->isImg = true;
     this->filePath = imgTexture;
@@ -12,6 +14,7 @@ void GLObject::setupImgTexture(const std::string& imgTexture, GLenum internalfor
     this->data = stbi_load(imgTexture.c_str(), &(this->width), &(this->height), &(this->nrChannels), 0);
     this->internalformat = internalformat;
     this->format = format;
+    this->rotate = rotate;
     this->isBackground = isBackground;
     this->showOnMarker = showOnMarker;
     this->markerIds = markerIds;

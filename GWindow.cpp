@@ -37,14 +37,58 @@ GWindow::GWindow(unsigned int WinID, unsigned int WinWidth, unsigned int WinHeig
 
 }
 
-void GWindow::addGeometryBuffers(GLsizei size)
+//void GWindow::addGeometryBuffers(GLsizei size)
+//{
+//    glfwMakeContextCurrent(window);
+//    geometryObjects.setSize(size);
+//    geometryObjects.initObjectTexture(false);
+//    textures.resize(size);
+//    shaders.resize(size);
+//    objectListSize = size;
+//}
+
+inline void GWindow::addGLObject(const std::vector<float>& objVBO, const std::vector<unsigned int>& objEBO, const std::vector<InitState>& objState, Shader* shaderProgPtr, const std::string& texturePath, GLenum internalformat, GLenum format, bool linePolygonMode, bool rotate, bool isBackground, bool showOnMarker, std::shared_ptr<std::vector<int>> markerIds, std::string cameraParams)
 {
     glfwMakeContextCurrent(window);
-    geometryObjects.setSize(size);
-    geometryObjects.initObjectTexture(false);
-    textures.resize(size);
-    shaders.resize(size);
-    objectListSize = size;
+    GLObject newGLObject(objVBO, objEBO, objState, linePolygonMode);
+    newGLObject.setupShaderProgram(shaderProgPtr);
+
+    if (!texturePath.empty())
+    {
+        std::string fileExtension = std::filesystem::path(texturePath).extension().generic_string();
+        if (!fileExtension.empty())
+        {
+            if (fileExtension == ".jpg" || fileExtension == ".png" || fileExtension == ".bmp")
+            {
+                newGLObject.setupImgTexture(texturePath, internalformat, format, rotate, isBackground, showOnMarker, markerIds);
+            }
+            else if (fileExtension == ".mp4" || fileExtension == ".avi" || fileExtension == ".mov")
+            {
+                newGLObject.setupVideoTexture(texturePath, internalformat, format, rotate, isBackground, showOnMarker, markerIds, cameraParams);
+            }
+            else
+            {
+                throw std::runtime_error("Invalid file extension");   //Refactoring !!! Add tray/catch
+            }
+        }
+        else
+        {
+            int streamId = std::stoi(texturePath);
+            if (streamId >= 0 && streamId < 127)
+            {
+                newGLObject.setupVideoTexture(texturePath, internalformat, format, rotate, isBackground, showOnMarker, markerIds, cameraParams);
+            }
+            else
+            {
+                throw std::runtime_error("Invalid texture file path or stream id!");   //Refactoring !!! Add tray/catch
+            }
+        }
+    }
+    else
+    {
+        throw std::runtime_error("Invalid texture file path!");   //Refactoring !!! Add tray/catch
+    }
+    glObjects.push_back(newGLObject);
 }
 
 void GWindow::renderFrame(float deltaTime)

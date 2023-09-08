@@ -9,10 +9,11 @@
 
 class GLObject
 {
-	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+public:
+// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
 // Vertex Array Object sould has next form: float[] {PosX, PosY, PosZ, ColR, ColG, ColB, TextX, TextY, ...}.
 // Element Buffer Object should include indices of triangle vertices in the correct sequence.
-	GLObject(const std::vector<float>& objVBO, const std::vector<unsigned int>& objEBO, const std::vector<InitState>& objState);
+	GLObject(const std::vector<float>& objVBO, const std::vector<unsigned int>& objEBO, const std::vector<InitState>& objState, bool linePolygonMode = false);
 
 	// Open texture file and bind with object
 	template<typename T>
@@ -73,7 +74,7 @@ class GLObject
 		}
 	}
 
-	void setupImgTexture(const std::string& imgTexture, GLenum internalformat, GLenum format, bool isBackground = false, bool showOnMarker = false, std::shared_ptr<std::vector<int>> markerIds = nullptr);
+	void setupImgTexture(const std::string& imgTexture, GLenum internalformat, GLenum format, bool rotate = false, bool isBackground = false, bool showOnMarker = false, std::shared_ptr<std::vector<int>> markerIds = nullptr);
 
 	void setupShaderProgram(Shader* shaderProgPtr);
 
