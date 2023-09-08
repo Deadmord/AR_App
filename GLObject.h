@@ -15,6 +15,8 @@ public:
 // Element Buffer Object should include indices of triangle vertices in the correct sequence.
 	GLObject(const std::vector<float>& objVBO, const std::vector<unsigned int>& objEBO, const std::vector<InitState>& objState, bool linePolygonMode = false);
 
+	void setupShaderProgram(Shader* shaderProgPtr);
+
 	// Open texture file and bind with object
 	template<typename T>
 		requires std::same_as<T, int> || std::same_as<T, std::string>
@@ -76,7 +78,9 @@ public:
 
 	void setupImgTexture(const std::string& imgTexture, GLenum internalformat, GLenum format, bool rotate = false, bool isBackground = false, bool showOnMarker = false, std::shared_ptr<std::vector<int>> markerIds = nullptr);
 
-	void setupShaderProgram(Shader* shaderProgPtr);
+	void renderObject();
+
+	void drowObject(GLsizei objIndex, glm::mat4& viewMat, glm::mat4& projectionMat, bool background = false);
 
 private:
 	GeometryObject geometryObject;

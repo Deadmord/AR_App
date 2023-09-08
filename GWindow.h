@@ -31,7 +31,6 @@ public:
 
 	void renderFrame(float deltaTime);
 
-	void drowObject(GLsizei objIndex, glm::mat4& viewMat, glm::mat4& projectionMat, bool background = false);
 
 private:
 	void showInFrame(const cv::Mat& frame, cv::Size WindSize, cv::Size frameSize, float FPS, std::initializer_list<float> dTimes);
