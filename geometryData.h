@@ -36,9 +36,17 @@ extern std::vector<unsigned int> indicesBrdCube;
 extern std::vector<InitState> initStateBrdCube;
 extern std::vector<int> markerIdsBrdCube;
 
+extern std::vector<float> verticesSurfFace;
+extern std::vector<unsigned int> indicesSurfFace;
+extern std::vector<InitState> initStateSurfFace;
+extern std::vector<int> markerIdsSurfFace_37;
+extern std::vector<int> markerIdsSurfFace_38;
+
 extern std::vector<float> verticesSurfWall;
 extern std::vector<unsigned int> indicesSurfWall;
 extern std::vector<InitState> initStateSurfWall;
+extern std::vector<int> markerIdsSurfWall_39;
+extern std::vector<int> markerIdsSurfWall_40;
 extern std::vector<int> markerIdsSurfWall_41;
 extern std::vector<int> markerIdsSurfWall_42;
 
