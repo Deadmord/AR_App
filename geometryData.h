@@ -31,10 +31,10 @@ extern std::vector<InitState> initStateCube;
 extern std::vector<int> markerIdsCubes;
 extern std::vector<int> markerIdsCube;
 
-extern std::vector<float> verticesCubeWithBorder;
-extern std::vector<unsigned int> indicesCubeWithBorder;
-extern std::vector<InitState> initStateCubeWithBorder;
-extern std::vector<int> markerIdsCubeWithBorder;
+extern std::vector<float> verticesBrdCube;
+extern std::vector<unsigned int> indicesBrdCube;
+extern std::vector<InitState> initStateBrdCube;
+extern std::vector<int> markerIdsBrdCube;
 
 extern std::vector<float> verticesSurfWall;
 extern std::vector<unsigned int> indicesSurfWall;

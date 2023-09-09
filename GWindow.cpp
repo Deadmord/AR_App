@@ -32,58 +32,65 @@ GWindow::GWindow(unsigned int WinID, unsigned int WinWidth, unsigned int WinHeig
 
     // Set the user pointer to this instance so that it can be accessed in the static wrapper functions.
     glfwSetWindowUserPointer(window, this);
-
     std::cout << "GLFW window created successfully: " << window << std::endl;
-
 }
 
-void GWindow::addGeometryBuffers(GLsizei size)
+//void GWindow::addGeometryBuffers(GLsizei size)
+//{
+//    glfwMakeContextCurrent(window);
+//    geometryObjects.setSize(size);
+//    geometryObjects.initObjectTexture(false);
+//    textures.resize(size);
+//    shaders.resize(size);
+//    objectListSize = size;
+//}
+
+void GWindow::addGLObject(const std::vector<float>& objVBO, const std::vector<unsigned int>& objEBO, const std::vector<InitState>& objState, Shader* shaderProgPtr, const std::string& texturePath, GLenum internalformat, GLenum format, bool linePolygonMode, bool rotate, bool isBackground, bool showOnMarker, std::shared_ptr<std::vector<int>> markerIds, std::string cameraParams)
 {
     glfwMakeContextCurrent(window);
-    geometryObjects.setSize(size);
-    geometryObjects.initObjectTexture(false);
-    textures.resize(size);
-    shaders.resize(size);
-    objectListSize = size;
-}
+    GLObject newGLObject(objVBO, objEBO, objState, linePolygonMode);
+    newGLObject.setupShaderProgram(shaderProgPtr);
+    newGLObject.setupArUcoPtr(arucoProcessorPtr);
 
-void GWindow::setupGeometryObject(GLuint objIndex, const std::vector<float>& objVBO, const std::vector<unsigned int>& objEBO, const std::vector<InitState>& objState)
-{
-    glfwMakeContextCurrent(window);
-    geometryObjects.addObject(objIndex, objVBO.size(), objVBO.data(), objEBO.size(), objEBO.data(), objState);
-}
-
-void GWindow::setupImgTexture(GLuint index, const std::string& imgTexture, GLenum internalformat, GLenum format, bool isBackground, bool showOnMarker, std::shared_ptr<std::vector<int>> markerIds)
-{
-    textures[index].isImg = true;
-    textures[index].filePath = imgTexture;
-
-    textures[index].data = stbi_load(imgTexture.c_str(), &textures[index].width, &textures[index].height, &textures[index].nrChannels, 0);
-    textures[index].internalformat = internalformat;
-    textures[index].format = format;
-    textures[index].isBackground = isBackground;
-    textures[index].showOnMarker = showOnMarker;
-    textures[index].markerIds = markerIds;
-
-    //---------------------- video texture -------------------
-    if (!textures[index].data)
+    if (!texturePath.empty())
     {
-        std::cout << "Error: Img can't be open! Source: " << imgTexture << std::endl;
+        std::string fileExtension = std::filesystem::path(texturePath).extension().generic_string();
+        if (!fileExtension.empty())
+        {
+            if (fileExtension == ".jpg" || fileExtension == ".png" || fileExtension == ".bmp")
+            {
+                newGLObject.setupImgTexture(texturePath, internalformat, format, rotate, isBackground, showOnMarker, markerIds);
+            }
+            else if (fileExtension == ".mp4" || fileExtension == ".avi" || fileExtension == ".mov")
+            {
+                newGLObject.setupVideoTexture(texturePath, internalformat, format, rotate, isBackground, showOnMarker, markerIds, cameraParams);
+            }
+            else
+            {
+                std::cout << "Invalid file extension: " << texturePath << std::endl;
+                throw std::runtime_error("Invalid file extension");   //Refactoring !!! Add tray/catch
+            }
+        }
+        else
+        {
+            int streamId = std::stoi(texturePath);
+            if (streamId >= 0 && streamId < 127)
+            {
+                newGLObject.setupVideoTexture(streamId, internalformat, format, rotate, isBackground, showOnMarker, markerIds, cameraParams);
+            }
+            else
+            {
+                std::cout << "Invalid texture file path or stream id! " << texturePath << std::endl;
+                throw std::runtime_error("Invalid texture file path or stream id!");   //Refactoring !!! Add tray/catch
+            }
+        }
     }
     else
     {
-        glTexImage2D(GL_TEXTURE_2D, 0, internalformat, textures[index].width, textures[index].height, 0, format, GL_UNSIGNED_BYTE, textures[index].data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-        std::cout << "Img opened successfully!" << std::endl;
-        textures[index].isOpened = true;
-
+        std::cout << "Invalid texture file path! " << texturePath << std::endl;
+        throw std::runtime_error("Invalid texture file path!");   //Refactoring !!! Add tray/catch
     }
-    //stbi_image_free(data);
-}
-
-void GWindow::setupShaderProgram(GLuint index, Shader* shaderProgPtr)
-{
-    shaders[index] = shaderProgPtr;
+    glObjects.push_back(newGLObject);
 }
 
 void GWindow::renderFrame(float deltaTime)
@@ -102,110 +109,24 @@ void GWindow::renderFrame(float deltaTime)
     glClearColor(bgColor.r, bgColor.g, bgColor.b, bgColor.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // also clear the depth buffer now!
 
-    for (GLsizei index{ 0 }; index < objectListSize; index++)
+    for (GLsizei index{ 0 }; index < glObjects.size(); index++)
     {
         RTCounter::startTimer((index + 1) * 4 + wndID);      // For debugging perfomance, remove it!!!
-        shaders[index]->use();
-        geometryObjects.bindVertexArray(index);
 
-        if (textures[index].isStream || textures[index].isVideo)
-        {
-            // checking
-            if (!textures[index].vidCapture.isOpened())		//может быть заменить на textures[index].isOpened ?
-            {
-                std::cout << "Error: Video stream can't be open" << std::endl;
-                textures[index].isOpened = false;
-                break;
-            }
-            cv::Mat frameVideo, frameVideoAruco;
-            bool isSuccessStream = textures[index].vidCapture.read(frameVideo);
-                //while (inputVideo.grab()) {           использовать для асинхронного захвата видео кадра, наверное лучше разместить в конце метода и сделать исинхронной чтобы выполнялась пока обрабатывается остальные потоки.
-                //    inputVideo.retrieve(image);
-                //}
-            if (!isSuccessStream && textures[index].isVideo)
-            {
-                textures[index].vidCapture.set(cv::CAP_PROP_POS_FRAMES, 0); // return to file begin
-                isSuccessStream = textures[index].vidCapture.read(frameVideo);
-            }
-            if (!isSuccessStream)
-            {
-                std::cout << "Error: Video stream can't be read or disconnect! Source: " << textures[index].streamIndex << textures[index].filePath << std::endl;
-                textures[index].isOpened = false;
-                break;
-            }
-            else
-            {
-                if(textures[index].rotate)
-                    cv::rotate(frameVideo, frameVideo, cv::ROTATE_180);
+        //glObjects[index].renderObject([&](const cv::Mat& frame, cv::Size frameSize){
+        //    showInFrame(frame, cv::Size(WinWidth, WinHeight), frameSize, RTCounter::getFPS(wndID), { RTCounter::getDeltaTime((4 * 1) + wndID), RTCounter::getDeltaTime((4 * 2) + wndID), RTCounter::getDeltaTime((4 * 3) + wndID), RTCounter::getDeltaTime(wndID) }); });
 
-                //calc and apply distortion correction, very heavy hendling!!!
-                //cv::Mat undistortedFrame;
-                //cv::undistort(frameVideo, undistortedFrame, arucoProcessorPtr->getCameraMat(), arucoProcessorPtr->getDistortCoeff());
+        // Render object method reqaer camera veuw matrix and printState functions in some caces
+        // create alias for lambda function
+        using RenderCallback = std::function<void(const cv::Mat&, cv::Size)>;
 
-                //only apply distortion maps, mach more faster!!!
-                //cv::Mat undistortedFrame;
-                //cv::remap(frameVideo, undistortedFrame, arucoProcessorPtr->getUndistortMap1(), arucoProcessorPtr->getUndistortMap2(), cv::INTER_LINEAR);
+        // define lambda f()
+        RenderCallback renderCallback = [&](const cv::Mat& frame, cv::Size frameSize) {
+            showInFrame(frame, cv::Size(WinWidth, WinHeight), frameSize, RTCounter::getFPS(wndID), { RTCounter::getDeltaTime((4 * 1) + wndID), RTCounter::getDeltaTime((4 * 2) + wndID), RTCounter::getDeltaTime((4 * 3) + wndID), RTCounter::getDeltaTime(wndID) });
+        };
 
-                //check stream videoframe for aruco markers
-                //if (textures[index].isStream && arucoProcessorPtr->detectMarkers(frameVideo, frameVideoAruco))
-                //{
-                //    glTexImage2D(GL_TEXTURE_2D, 0, textures[index].internalformat, textures[index].width, textures[index].height, 0, textures[index].format, GL_UNSIGNED_BYTE, frameVideoAruco.data);
-                //}
-                //else
-                //glTexImage2D(GL_TEXTURE_2D, 0, textures[index].internalformat, textures[index].width, textures[index].height, 0, textures[index].format, GL_UNSIGNED_BYTE, frameVideo.data);
+        glObjects[index].renderObject(camera, renderCallback);
 
-                if (textures[index].isStream)
-                {
-                    arucoProcessorPtr->detectMarkers(frameVideo, frameVideo);
-                    showInFrame(frameVideo, cv::Size(WinWidth, WinHeight), arucoProcessorPtr->getFrameSize(), RTCounter::getFPS(wndID), { RTCounter::getDeltaTime((4 * 1) + wndID), RTCounter::getDeltaTime((4 * 2) + wndID), RTCounter::getDeltaTime((4 * 3) + wndID), RTCounter::getDeltaTime(wndID) });
-                }
-                glTexImage2D(GL_TEXTURE_2D, 0, textures[index].internalformat, textures[index].width, textures[index].height, 0, textures[index].format, GL_UNSIGNED_BYTE, frameVideo.data);
-            }
-        }
-        if (textures[index].isImg)
-        {
-            // checking
-            if (!textures[index].isOpened)		//может быть заменить на textures[index].isOpened ?
-            {
-                std::cout << "Error: Img can't be open" << std::endl;
-                break;
-            }
-            glTexImage2D(GL_TEXTURE_2D, 0, textures[index].internalformat, textures[index].width, textures[index].height, 0, textures[index].format, GL_UNSIGNED_BYTE, textures[index].data);
-        }
-        glm::mat4 view = glm::mat4(1.0f);
-        glm::mat4 projection = glm::mat4(1.0f);
-        projection = arucoProcessorPtr->getProjectionMat();
-        //projection = glm::perspective(glm::radians(camera.Zoom), (float)WinWidth / (float)WinHeight, 0.1f, 100.0f);
-        //projection = glm::perspective(glm::radians(42.0f), (float)WinWidth / (float)WinHeight, 0.1f, 100.0f);
-        
-        if (textures[index].showOnMarker /*&& !arucoProcessorPtr->getMarkers().ids.empty()*/)
-        {
-            if (textures[index].markerIds == nullptr)
-            {
-                for (glm::mat4 view : arucoProcessorPtr->getMarkers().viewMatrixes)       //drow objects for all markers
-                {
-                    drowObject(index, view, projection, textures[index].isBackground);
-                }
-            }
-            else
-            {
-                for (int markerIndex{ 0 }; markerIndex < arucoProcessorPtr->getMarkers().ids.size(); markerIndex++)
-                {
-                    int target = arucoProcessorPtr->getMarkers().ids.at(markerIndex);
-                    if (std::ranges::any_of(*(textures[index].markerIds.get()), [target](int value) { return value == target; }))
-                    {
-                        view = arucoProcessorPtr->getMarkers().viewMatrixes.at(markerIndex);
-                        drowObject(index, view, projection, textures[index].isBackground);
-                    }
-
-                }
-            }
-        }
-        else
-        {
-            view = camera.GetViewMatrix();
-            drowObject(index, view, projection, textures[index].isBackground);
-        }
         RTCounter::stopTimer((index + 1) * 4 + wndID);      // For debugging perfomance, remove it!!!
     }
     // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
@@ -214,33 +135,6 @@ void GWindow::renderFrame(float deltaTime)
     glfwPollEvents();
 
     RTCounter::stopTimer(wndID);
-}
-
-void GWindow::drowObject(GLsizei objIndex, glm::mat4& viewMat, glm::mat4& projectionMat, bool background)
-{
-    glm::mat4 model = glm::mat4(1.0f);
-
-    // ------------- render objects copies from objState list ---------------
-    std::shared_ptr <const std::vector<InitState>> objState = geometryObjects.getObjStatePtr(objIndex);
-
-    const GLsizei objSize = geometryObjects.getObjSize(objIndex);
-    for (GLsizei i = 0; i < objState->size(); i++)
-    {
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, (*objState)[i].positions);
-        float angle = (*objState)[i].angle;
-        model = glm::rotate(model, glm::radians(angle), (*objState)[i].axisRotation);
-        model = glm::rotate(model, glm::radians((*objState)[i].speed * (float)glfwGetTime()), (*objState)[i].axisRotation);
-
-        shaders[objIndex]->setCordTrans("model", glm::value_ptr(model));
-        shaders[objIndex]->setCordTrans("view", glm::value_ptr(viewMat));
-        shaders[objIndex]->setCordTrans("projection", glm::value_ptr(projectionMat));
-        shaders[objIndex]->setColorMask("colorMask", (*objState)[i].colorMask);
-        glDrawElements(GL_TRIANGLES, objSize, GL_UNSIGNED_INT, 0);
-
-    }
-
-    if (background) glClear(GL_DEPTH_BUFFER_BIT);	// first object is background
 }
 
 void GWindow::showInFrame(const cv::Mat& frame, cv::Size WindSize, cv::Size frameSize, float FPS, std::initializer_list<float> dTimes)

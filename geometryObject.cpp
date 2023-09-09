@@ -1,25 +1,19 @@
-#include "geometryObjects.h"
+#include "geometryObject.h"
 
-void GeometryObjects::setSize(GLsizei size)
+GeometryObject::GeometryObject(GLsizeiptr sizeVBO, const void* dataVBO, GLsizeiptr sizeEBO, const void* dataEBO, const std::vector<InitState>& objState)
+    :objSize(sizeEBO)
 {
-    VAO.resize(size);
-    VBO.resize(size);
-    EBO.resize(size);
-    objSizes.resize(size);
-    objStatePtrs.resize(size);
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
 
-    glGenVertexArrays(size, VAO.data());
-    glGenBuffers(size, VBO.data());
-    glGenBuffers(size, EBO.data());
-}
-
-void GeometryObjects::addObject(GLuint objIndex, GLsizeiptr sizeVBO, const void* dataVBO, GLsizeiptr sizeEBO, const void* dataEBO, const std::vector<InitState>& objState)
-{
-    glBindVertexArray(VAO[objIndex]);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO[objIndex]);
+    // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+    // Vertex Array Object sould has next form: float[] {PosX, PosY, PosZ, ColR, ColG, ColB, TextX, TextY} 
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeVBO * sizeof(float), dataVBO, GL_STATIC_DRAW);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[objIndex]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeEBO * sizeof(unsigned int), dataEBO, GL_STATIC_DRAW);
 
     // position attribute
@@ -42,11 +36,10 @@ void GeometryObjects::addObject(GLuint objIndex, GLsizeiptr sizeVBO, const void*
     // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
     // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
     glBindVertexArray(0);
-    objSizes[objIndex] = sizeEBO;           // store the object size
-    objStatePtrs[objIndex] = std::make_shared<const std::vector<InitState>>(objState);   // store the object state   
+    objStatePtrs = std::make_shared<const std::vector<InitState>>(objState);   // store the object state   
 }
 
-void GeometryObjects::initObjectTexture(bool linePolygonMode)
+void GeometryObject::initObjectTexture(bool linePolygonMode)
 {
     unsigned int texture;
 
@@ -67,17 +60,17 @@ void GeometryObjects::initObjectTexture(bool linePolygonMode)
     }
 }
 
-void GeometryObjects::bindVertexArray(GLsizei objIndex)
+void GeometryObject::bindVertexArray()
 {
-    glBindVertexArray(VAO[objIndex]);
+    glBindVertexArray(VAO);
 }
 
-std::shared_ptr<const std::vector<InitState>> GeometryObjects::getObjStatePtr(GLsizei objIndex) const
+std::shared_ptr<const std::vector<InitState>> GeometryObject::getObjStatePtr() const
 {
-    return objStatePtrs[objIndex];
+    return objStatePtrs;
 }
 
-GLsizei GeometryObjects::getObjSize(GLsizei objIndex)
+GLsizei GeometryObject::getObjSize()
 {
-    return objSizes[objIndex];
+    return objSize;
 }
