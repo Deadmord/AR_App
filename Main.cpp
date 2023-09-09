@@ -38,8 +38,8 @@ void loadObjects(GWindow& window, Shader& shaderProgObjWin, Shader& shaderProgBg
     window.addGLObject(verticesOrigin, indicesOrigin, initStateOrigin,      &shaderProgObjWin, std::string("img/white.jpg"),            GL_RGB, GL_RGB, false, false, false, false, nullptr, "");
     window.addGLObject(verticesBrdCube, indicesBrdCube, initStateBrdCube,   &shaderProgObjWin, std::string("img/border.png"),           GL_RGB, GL_RGB, false, false, false, true, std::make_shared<std::vector<int>>(markerIdsBrdCube), "");
     window.addGLObject(verticesCube, indicesCube, initStateCubes,           &shaderProgObjWin, std::string("video/video (1080p).mp4"),  GL_RGB, GL_BGR, false, false, false, true, std::make_shared<std::vector<int>>(markerIdsCubes), "");
-    window.addGLObject(verticesSurfWall, indicesSurfWall, initStateSurfWall,&shaderProgObjWin, std::string("img/krasnii-kover-13.jpg"), GL_RGB, GL_RGB, false, false, false, true, std::make_shared<std::vector<int>>(markerIdsSurfWall), "");
-
+    window.addGLObject(verticesSurfWall, indicesSurfWall, initStateSurfWall,&shaderProgObjWin, std::string("img/krasnii-kover-13.jpg"), GL_RGB, GL_RGB, false, false, false, true, std::make_shared<std::vector<int>>(markerIdsSurfWall_42), "");
+    window.addGLObject(verticesSurfWall, indicesSurfWall, initStateSurfWall,&shaderProgObjWin, std::string("img/kot.png"), GL_RGBA, GL_RGBA, false, false, false, true, std::make_shared<std::vector<int>>(markerIdsSurfWall_41), "");
 }
 
 int main()

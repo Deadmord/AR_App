@@ -39,5 +39,6 @@ extern std::vector<int> markerIdsBrdCube;
 extern std::vector<float> verticesSurfWall;
 extern std::vector<unsigned int> indicesSurfWall;
 extern std::vector<InitState> initStateSurfWall;
-extern std::vector<int> markerIdsSurfWall;
+extern std::vector<int> markerIdsSurfWall_41;
+extern std::vector<int> markerIdsSurfWall_42;
 
