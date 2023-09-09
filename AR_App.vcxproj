@@ -145,6 +145,7 @@
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="config.cpp" />
     <ClCompile Include="GLObject.cpp" />
+    <ClCompile Include="MonitorsManager.cpp" />
     <ClCompile Include="RTCounter.cpp" />
     <ClCompile Include="geometryData.cpp" />
     <ClCompile Include="geometryObject.cpp" />
@@ -161,6 +162,7 @@
     <ClInclude Include="camera.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="GLObject.h" />
+    <ClInclude Include="MonitorsManager.h" />
     <ClInclude Include="RTCounter.h" />
     <ClInclude Include="geometryData.h" />
     <ClInclude Include="geometryObject.h" />

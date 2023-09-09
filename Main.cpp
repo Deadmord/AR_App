@@ -1,5 +1,4 @@
 #pragma once
-#include <iostream>
 
 #include "GWindow.h"
 #include <glad/glad.h>
@@ -10,14 +9,22 @@
 #include "stb_image.h"
 
 #include "config.h"
+#include "MonitorsManager.h"
 #include "shader.h"
 #include "geometryData.h"
 
-struct MonitorData
+void appInit()
 {
-    GLFWmonitor* monitor;
-    int monitor_X, monitor_Y, monitor_Width, monitor_Height;
-};
+    // ----------------------- GLFW --------------------------
+    glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    //glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);    // specifies whether the windowed mode window will be maximized when created.
+#ifdef __APPLE__
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
+}
 
 //------------- helper: set geometry objects --------------
 void loadObjects(GWindow& window, Shader& shaderProgObjWin, Shader& shaderProgBgrWin, int cameraId, std::string& cameraParams, bool rotateCamera = false)
@@ -38,37 +45,10 @@ void loadObjects(GWindow& window, Shader& shaderProgObjWin, Shader& shaderProgBg
 int main()
 {
     //******************** Initialisation ********************
-    // ----------------------- GLFW --------------------------
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    //glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);    // specifies whether the windowed mode window will be maximized when created.
-#ifdef __APPLE__
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
-
-    // ----------------- Monitors state ----------------------
-    int monitorsCount{};
-    GLFWmonitor** monitorsPtr = glfwGetMonitors(&monitorsCount);
-    std::cout << "Monitors curently connected: " << monitorsCount << std::endl;
-    if (!monitorsPtr) {
-        std::cout << "No monitors were found!" << std::endl;
-        glfwTerminate();
-        return -1;
-    }
-    
-    std::vector<MonitorData> monitors;
-    for (int monitorIndex{ 0 }; monitorIndex < monitorsCount; monitorIndex++)
-    {
-        MonitorData data;
-        data.monitor = *(monitorsPtr + monitorIndex);
-        glfwGetMonitorWorkarea(data.monitor, &data.monitor_X, &data.monitor_Y, &data.monitor_Width, &data.monitor_Height);
-        monitors.push_back(data);
-    }
-
+    appInit();
+    MonitorsManager monitors;
     // ------------------ Windows init ---------------------
-    MonitorData& data = monitors[0];
+    const MonitorData& data = monitors.getMonitor(0);
     GWindow window_1(0, data.monitor_Width/4, data.monitor_Width /4 *3/4, data.monitor_X + data.monitor_Width *1/4, data.monitor_Y, "OpenGL center left window", NULL, BG_CLR_W1);
     GWindow window_2(1, data.monitor_Width/4, data.monitor_Width /4 *3/4, data.monitor_X + data.monitor_Width *1/2, data.monitor_Y, "OpenGL center right window", NULL, BG_CLR_W1);
     GWindow window_3(2, data.monitor_Width/4, data.monitor_Width /4 *3/4, data.monitor_X, data.monitor_Y, "OpenGL left window", NULL, BG_CLR_W2);
@@ -76,9 +56,7 @@ int main()
    
     //***************************** Shaders *****************************
     // 
-        // build and compile our shader programs
-    // ------------------------------------
-    //window_1.makeContextCurrent();
+    // build and compile our shader programs
     Shader shaderProgObjWin_1(window_1, "shaderObj.vs", "shader.fs");
     Shader shaderProgBgrWin_1(window_1, "shaderBgr.vs", "shader.fs");
     Shader shaderProgObjWin_2(window_2, "shaderObj.vs", "shader.fs");
