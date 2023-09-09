@@ -52,8 +52,11 @@ void GeometryObject::initObjectTexture(bool linePolygonMode)
     // set texture filtering parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // enable alpha blending for proper blending of the texture with transparency in the framebuffer.
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // uncomment this call to draw in wireframe polygons.
+    // draw in wireframe polygons.
     if (linePolygonMode)
     {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
