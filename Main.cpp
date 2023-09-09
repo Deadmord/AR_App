@@ -7,6 +7,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "stb_image.h"
+#include <peak/peak.hpp>
 
 #include "shader.h"
 #include "geometryData.h"
@@ -25,9 +26,20 @@ const glm::vec4 BG_CLR_W2 = glm::vec4(0.2f, 0.2f, 0.3f, 1.0f);	//window 2
 const glm::vec4 BG_CLR_W3 = glm::vec4(0.3f, 0.2f, 0.2f, 1.0f);	//window 3 
 const glm::vec4 BG_CLR_W4 = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);	//window 4 
 
-
 int main()
 {
+
+    peak::Library::Initialize();
+    std::cout << "Library successfully initialized!" << std::endl;
+    auto peakVersion = peak::Library::Version();
+    std::cout << "peak version: " << peakVersion.ToString() << std::endl;
+    auto& deviceManager = peak::DeviceManager::Instance();
+    deviceManager.Update();
+    auto devices = deviceManager.Devices();
+    auto device = devices.at(0)->OpenDevice(peak::core::DeviceAccessType::Control);
+
+    peak::Library::Close();
+
     ArUcoSettings arUcoSettings;
     arUcoSettings.markerLength = 1.0f;
     arUcoSettings.dictionaryId = cv::aruco::DICT_6X6_250;
@@ -37,8 +49,6 @@ int main()
 
     //******************** Initialisation ********************
     // ----------------------- GLFW --------------------------
-
-
 
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -116,6 +126,7 @@ int main()
     window3.setupGeometryObject(0, verticesSurfFull, indicesSurf, initStateSurfFullScr);
     window3.setupGeometryObject(1, verticesCube, indicesCube, initStateCube);
     window3.setupGeometryObject(2, verticesOrigin, indicesOrigin, initStateOrigin);
+
     // ------------------------------------ 
     window1.textureManager.setupVideoTexture(0, defaultCamera, GL_RGB, GL_BGR, arUcoSettings, true, false, arUcoSettings.defaultCameraParams);                           // set camera stream for virtual screans
     window1.textureManager.setupImgTexture(2, std::string("img/white.jpg"), GL_RGB, GL_RGB);
@@ -156,6 +167,5 @@ int main()
     //vid_captureCamera.release();
     //vid_captureVideo.release();
     
-
 	return 0;
 }

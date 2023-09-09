@@ -1,5 +1,12 @@
 #include "GWindowCore.h"
 
+//линзы 120 градусов, линзы м12, IDS/IDC камеры + SDK IDS peak?
+// +документация
+//боковые углы на маске 70 градусов, TRS матрица
+//углы глаза должны совпадать с углами камерами
+//получить изображение на устройстве с одной камеры
+//профайлер посмотреть для определения сколько ресурсов тратится GPU, CPU 
+
 GWindowCore::GWindowCore(unsigned int WinID, const unsigned int& width, const unsigned int& height, unsigned int WinPosX, unsigned int WinPosY, const std::string& name, GLFWmonitor* monitor, glm::vec4 bgColor_)
     : WinWidth(width), WinHeight(height), bgColor(bgColor_) {
 

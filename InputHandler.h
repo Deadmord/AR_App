@@ -16,7 +16,6 @@ public:
 	void mouseCursorCallback(GLFWwindow* window, double xposIn, double yposIn);
 	void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 
-
 	float lastX = 400.0f;
 	float lastY = 300.0f;
 	bool firstMouse = true;
