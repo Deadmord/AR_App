@@ -70,7 +70,9 @@
     <ClCompile Include="GLObject.cpp">
       <Filter>Controllers</Filter>
     </ClCompile>
-    <ClCompile Include="MonitorsManager.cpp" />
+    <ClCompile Include="MonitorsManager.cpp">
+      <Filter>Controllers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="appState.h">
@@ -109,7 +111,9 @@
     <ClInclude Include="GLObject.h">
       <Filter>Controllers</Filter>
     </ClInclude>
-    <ClInclude Include="MonitorsManager.h" />
+    <ClInclude Include="MonitorsManager.h">
+      <Filter>Controllers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="shader.fs">
