@@ -145,7 +145,7 @@ std::vector<InitState> initStateCube =
 };
 
 std::vector<int> markerIdsCubes{ 35, 36, 37, 38, 39, 40 };
-std::vector<int> markerIdsCube{ 6,7,8,9,10,11,12,13,14,15 };
+std::vector<int> markerIdsCube{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34 };
 
 //---------------------- 03 cube_1.25 ------------------------------
 std::vector<float> verticesBrdCube = {
@@ -200,7 +200,7 @@ std::vector<InitState> initStateBrdCube =
     {   glm::vec3(0.0f, 0.0f, -0.5f), glm::vec3(0.0f, 0.0f, 1.0f),  0.0f,  0.0f, glm::vec3(0.8f, 0.8f, 0.8f)    }
 };
 
-std::vector<int> markerIdsBrdCube{ 0,1,2,3,4,5 };
+std::vector<int> markerIdsBrdCube{ 45,46,47,48,49,50 };
 
 //--------------------------------------- 04 wall texture -------------------------------------------------- 
 std::vector<float> verticesSurfWall = {
