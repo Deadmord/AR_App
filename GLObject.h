@@ -1,11 +1,16 @@
 #pragma once
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <opencv2/opencv.hpp>
 #include "stb_image.h"
+#include "camera.h"
 #include "shader.h"				//move it up if problem
 #include "geometryObject.h"
 #include "geometryData.h"
 #include "aruco/ArucoProcessor.h"
+#include "config.h"
+
+using PrintInFrameCallback = std::function<void(const cv::Mat& frame, cv::Size frameSize)>;
 
 class GLObject
 {
@@ -16,6 +21,12 @@ public:
 	GLObject(const std::vector<float>& objVBO, const std::vector<unsigned int>& objEBO, const std::vector<InitState>& objState, bool linePolygonMode = false);
 
 	void setupShaderProgram(Shader* shaderProgPtr);
+
+	void setupArUcoPtr(std::shared_ptr<ArucoProcessor>& arucoProcessorPtr)
+	{
+		this->arucoProcessorPtrToPtr = &arucoProcessorPtr;
+		this->arucoProcessorPtr = *arucoProcessorPtrToPtr;
+	}
 
 	// Open texture file and bind with object
 	template<typename T>
@@ -37,8 +48,8 @@ public:
 		if (this->isStream) //&& turn aruco flag
 		{
 			// ArUco init
-			arucoProcessorPtr = std::make_unique<ArucoProcessor>(ArUcoMarkerLength, ArUcoDictionaryId, cameraParams, ArUcoShowRejected);
-
+			*arucoProcessorPtrToPtr = std::make_shared<ArucoProcessor>(ArUcoMarkerLength, ArUcoDictionaryId, cameraParams, ArUcoShowRejected);
+			arucoProcessorPtr = *arucoProcessorPtrToPtr;
 			this->vidCapture.set(cv::CAP_PROP_FRAME_WIDTH, arucoProcessorPtr->getFrameSize().width);
 			this->vidCapture.set(cv::CAP_PROP_FRAME_HEIGHT, arucoProcessorPtr->getFrameSize().height);
 		}
@@ -78,9 +89,9 @@ public:
 
 	void setupImgTexture(const std::string& imgTexture, GLenum internalformat, GLenum format, bool rotate = false, bool isBackground = false, bool showOnMarker = false, std::shared_ptr<std::vector<int>> markerIds = nullptr);
 
-	void renderObject();
+	void renderObject(Camera& camera, PrintInFrameCallback printCallback);
 
-	void drowObject(GLsizei objIndex, glm::mat4& viewMat, glm::mat4& projectionMat, bool background = false);
+	void drowObject(glm::mat4& viewMat, glm::mat4& projectionMat, bool background = false);
 
 private:
 	GeometryObject geometryObject;
@@ -105,6 +116,7 @@ private:
 	uchar*			data;
 	std::shared_ptr<std::vector<int>> markerIds;
 
-	std::unique_ptr<ArucoProcessor> arucoProcessorPtr;
+	std::shared_ptr<ArucoProcessor> arucoProcessorPtr;
+	std::shared_ptr<ArucoProcessor>* arucoProcessorPtrToPtr;
 };
 

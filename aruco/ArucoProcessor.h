@@ -65,7 +65,7 @@ private:
 	cv::aruco::DetectorParameters detectorParams;
 	cv::aruco::ArucoDetector detector;
 
-	std::unique_ptr<cv::Mat> objPoints;
+	std::shared_ptr<cv::Mat> objPoints;
 	Markers markers;
 
 	// Примерные значения для FOV, nearPlane и farPlane

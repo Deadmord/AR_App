@@ -32,9 +32,7 @@ GWindow::GWindow(unsigned int WinID, unsigned int WinWidth, unsigned int WinHeig
 
     // Set the user pointer to this instance so that it can be accessed in the static wrapper functions.
     glfwSetWindowUserPointer(window, this);
-
     std::cout << "GLFW window created successfully: " << window << std::endl;
-
 }
 
 //void GWindow::addGeometryBuffers(GLsizei size)
@@ -47,11 +45,12 @@ GWindow::GWindow(unsigned int WinID, unsigned int WinWidth, unsigned int WinHeig
 //    objectListSize = size;
 //}
 
-inline void GWindow::addGLObject(const std::vector<float>& objVBO, const std::vector<unsigned int>& objEBO, const std::vector<InitState>& objState, Shader* shaderProgPtr, const std::string& texturePath, GLenum internalformat, GLenum format, bool linePolygonMode, bool rotate, bool isBackground, bool showOnMarker, std::shared_ptr<std::vector<int>> markerIds, std::string cameraParams)
+void GWindow::addGLObject(const std::vector<float>& objVBO, const std::vector<unsigned int>& objEBO, const std::vector<InitState>& objState, Shader* shaderProgPtr, const std::string& texturePath, GLenum internalformat, GLenum format, bool linePolygonMode, bool rotate, bool isBackground, bool showOnMarker, std::shared_ptr<std::vector<int>> markerIds, std::string cameraParams)
 {
     glfwMakeContextCurrent(window);
     GLObject newGLObject(objVBO, objEBO, objState, linePolygonMode);
     newGLObject.setupShaderProgram(shaderProgPtr);
+    newGLObject.setupArUcoPtr(arucoProcessorPtr);
 
     if (!texturePath.empty())
     {
@@ -77,7 +76,7 @@ inline void GWindow::addGLObject(const std::vector<float>& objVBO, const std::ve
             int streamId = std::stoi(texturePath);
             if (streamId >= 0 && streamId < 127)
             {
-                newGLObject.setupVideoTexture(texturePath, internalformat, format, rotate, isBackground, showOnMarker, markerIds, cameraParams);
+                newGLObject.setupVideoTexture(streamId, internalformat, format, rotate, isBackground, showOnMarker, markerIds, cameraParams);
             }
             else
             {
@@ -114,6 +113,20 @@ void GWindow::renderFrame(float deltaTime)
     {
         RTCounter::startTimer((index + 1) * 4 + wndID);      // For debugging perfomance, remove it!!!
 
+        //glObjects[index].renderObject([&](const cv::Mat& frame, cv::Size frameSize){
+        //    showInFrame(frame, cv::Size(WinWidth, WinHeight), frameSize, RTCounter::getFPS(wndID), { RTCounter::getDeltaTime((4 * 1) + wndID), RTCounter::getDeltaTime((4 * 2) + wndID), RTCounter::getDeltaTime((4 * 3) + wndID), RTCounter::getDeltaTime(wndID) }); });
+
+        // Render object method reqaer camera veuw matrix and printState functions in some caces
+        // create alias for lambda function
+        using RenderCallback = std::function<void(const cv::Mat&, cv::Size)>;
+
+        // define lambda f()
+        RenderCallback renderCallback = [&](const cv::Mat& frame, cv::Size frameSize) {
+            showInFrame(frame, cv::Size(WinWidth, WinHeight), frameSize, RTCounter::getFPS(wndID), { RTCounter::getDeltaTime((4 * 1) + wndID), RTCounter::getDeltaTime((4 * 2) + wndID), RTCounter::getDeltaTime((4 * 3) + wndID), RTCounter::getDeltaTime(wndID) });
+        };
+
+        glObjects[index].renderObject(camera, renderCallback);
+
         RTCounter::stopTimer((index + 1) * 4 + wndID);      // For debugging perfomance, remove it!!!
     }
     // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
@@ -123,7 +136,6 @@ void GWindow::renderFrame(float deltaTime)
 
     RTCounter::stopTimer(wndID);
 }
-
 
 void GWindow::showInFrame(const cv::Mat& frame, cv::Size WindSize, cv::Size frameSize, float FPS, std::initializer_list<float> dTimes)
 {

@@ -33,31 +33,38 @@ const glm::vec4 BG_CLR_W3 = glm::vec4(0.3f, 0.2f, 0.2f, 1.0f);	//window 3
 const glm::vec4 BG_CLR_W4 = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);	//window 4 
 
 //------------- helper: set geometry objects --------------
-void loadObjects(GWindow& window, Shader& shaderProgObjWin, Shader& shaderProgBgrWin, int cameraNum, std::string& cameraParams, bool rotateCamera = false)
+void loadObjects(GWindow& window, Shader& shaderProgObjWin, Shader& shaderProgBgrWin, int cameraId, std::string& cameraParams, bool rotateCamera = false)
 {
     shaderProgObjWin.use();
     shaderProgObjWin.setInt("texture", 0);
     shaderProgBgrWin.use();
     shaderProgBgrWin.setInt("texture", 0);
 
-    window.addGeometryBuffers(5);
-    window.setupGeometryObject(0, verticesSurfFull, indicesSurf, initStateSurfFullScr);
-    window.setupGeometryObject(1, verticesOrigin, indicesOrigin, initStateOrigin);
-    window.setupGeometryObject(2, verticesCubeWithBorder, indicesCubeWithBorder, initStateCubeWithBorder);
-    window.setupGeometryObject(3, verticesCube, indicesCube, initStateCubes);
-    window.setupGeometryObject(4, verticesSurfWall, indicesSurfWall, initStateSurfWall);
+    //window.addGeometryBuffers(5);
+    //window.setupGeometryObject(0, verticesSurfFull, indicesSurf, initStateSurfFullScr);
+    //window.setupGeometryObject(1, verticesOrigin, indicesOrigin, initStateOrigin);
+    //window.setupGeometryObject(2, verticesCubeWithBorder, indicesCubeWithBorder, initStateCubeWithBorder);
+    //window.setupGeometryObject(3, verticesCube, indicesCube, initStateCubes);
+    //window.setupGeometryObject(4, verticesSurfWall, indicesSurfWall, initStateSurfWall);
 
-    window.setupVideoTexture(0, cameraNum, GL_RGB, GL_BGR, rotateCamera, true, false, nullptr, cameraParams);          // set camera stream for virtual screans
-    window.setupImgTexture(1, std::string("img/white.jpg"), GL_RGB, GL_RGB);
-    window.setupImgTexture(2, std::string("img/border.png"), GL_RGB, GL_RGB, false, true, std::make_shared<std::vector<int>>(markerIdsCubeWithBorder));
-    window.setupVideoTexture(3, std::string("video/video (1080p).mp4"), GL_RGB, GL_BGR, false, false, true, std::make_shared<std::vector<int>>(markerIdsCubes), ""); //set video texture for cube object
-    window.setupImgTexture(4, std::string("img/krasnii-kover-13.jpg"), GL_RGB, GL_RGB, false, true, std::make_shared<std::vector<int>>(markerIdsSurfWall));
+    //window.setupVideoTexture(0, cameraId, GL_RGB, GL_BGR, rotateCamera, true, false, nullptr, cameraParams);          // set camera stream for virtual screans
+    //window.setupImgTexture(1, std::string("img/white.jpg"), GL_RGB, GL_RGB);
+    //window.setupImgTexture(2, std::string("img/border.png"), GL_RGB, GL_RGB, false, true, std::make_shared<std::vector<int>>(markerIdsCubeWithBorder));
+    //window.setupVideoTexture(3, std::string("video/video (1080p).mp4"), GL_RGB, GL_BGR, false, false, true, std::make_shared<std::vector<int>>(markerIdsCubes), ""); //set video texture for cube object
+    //window.setupImgTexture(4, std::string("img/krasnii-kover-13.jpg"), GL_RGB, GL_RGB, false, true, std::make_shared<std::vector<int>>(markerIdsSurfWall));
 
-    window.setupShaderProgram(0, &shaderProgBgrWin);
-    window.setupShaderProgram(1, &shaderProgObjWin);
-    window.setupShaderProgram(2, &shaderProgObjWin);
-    window.setupShaderProgram(3, &shaderProgObjWin);
-    window.setupShaderProgram(4, &shaderProgObjWin);
+    //window.setupShaderProgram(0, &shaderProgBgrWin);
+    //window.setupShaderProgram(1, &shaderProgObjWin);
+    //window.setupShaderProgram(2, &shaderProgObjWin);
+    //window.setupShaderProgram(3, &shaderProgObjWin);
+    //window.setupShaderProgram(4, &shaderProgObjWin);
+
+    window.addGLObject(verticesSurfFull, indicesSurf, initStateSurfFullScr, &shaderProgBgrWin, std::to_string(cameraId),                GL_RGB, GL_BGR, false, rotateCamera, true, false, nullptr, cameraParams);
+    window.addGLObject(verticesOrigin, indicesOrigin, initStateOrigin,      &shaderProgObjWin, std::string("img/white.jpg"),            GL_RGB, GL_RGB, false, false, false, false, nullptr, "");
+    window.addGLObject(verticesBrdCube, indicesBrdCube, initStateBrdCube,   &shaderProgObjWin, std::string("img/border.png"),           GL_RGB, GL_RGB, false, false, false, true, std::make_shared<std::vector<int>>(markerIdsBrdCube), "");
+    window.addGLObject(verticesCube, indicesCube, initStateCubes,           &shaderProgObjWin, std::string("video/video (1080p).mp4"),  GL_RGB, GL_BGR, false, false, false, true, std::make_shared<std::vector<int>>(markerIdsCubes), "");
+    window.addGLObject(verticesSurfWall, indicesSurfWall, initStateSurfWall,&shaderProgObjWin, std::string("img/krasnii-kover-13.jpg"), GL_RGB, GL_RGB, false, false, false, true, std::make_shared<std::vector<int>>(markerIdsSurfWall), "");
+
 }
 
 int main()

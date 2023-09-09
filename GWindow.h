@@ -1,6 +1,7 @@
 #pragma once
 #include "camera.h"
 //#include "shader.h"
+#include "GLObject.h"
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -12,7 +13,7 @@
 //#include "geometryObjects.h"
 //#include "geometryData.h"
 //#include "aruco/ArucoProcessor.h"
-#include "GLObject.h"
+
 #include "RTCounter.h"
 #include "config.h"
 
@@ -30,7 +31,6 @@ public:
 		const std::string& texturePath, GLenum internalformat, GLenum format, bool linePolygonMode = false, bool rotate = false, bool isBackground = false, bool showOnMarker = false, std::shared_ptr<std::vector<int>> markerIds = nullptr, std::string cameraParams = nullptr);
 
 	void renderFrame(float deltaTime);
-
 
 private:
 	void showInFrame(const cv::Mat& frame, cv::Size WindSize, cv::Size frameSize, float FPS, std::initializer_list<float> dTimes);
@@ -62,6 +62,6 @@ private:
 	glm::vec4 bgColor;
 
 	std::vector<GLObject> glObjects;
-	//GLsizei objectListSize = 0;
+	std::shared_ptr<ArucoProcessor> arucoProcessorPtr;
 };
 

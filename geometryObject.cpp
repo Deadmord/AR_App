@@ -1,6 +1,6 @@
 #include "geometryObject.h"
 
-inline GeometryObject::GeometryObject(GLsizeiptr sizeVBO, const void* dataVBO, GLsizeiptr sizeEBO, const void* dataEBO, const std::vector<InitState>& objState)
+GeometryObject::GeometryObject(GLsizeiptr sizeVBO, const void* dataVBO, GLsizeiptr sizeEBO, const void* dataEBO, const std::vector<InitState>& objState)
     :objSize(sizeEBO)
 {
     glGenVertexArrays(1, &VAO);
