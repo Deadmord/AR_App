@@ -71,6 +71,12 @@
       <Filter>Controllers</Filter>
     </ClCompile>
     <ClCompile Include="MonitorsManager.cpp" />
+    <ClCompile Include="AcquisitionWorker.cpp">
+      <Filter>Controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="ThreadSafeQueue.cpp">
+      <Filter>Controllers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="appState.h">
@@ -110,6 +116,12 @@
       <Filter>Controllers</Filter>
     </ClInclude>
     <ClInclude Include="MonitorsManager.h" />
+    <ClInclude Include="AcquisitionWorker.h">
+      <Filter>Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadSafeQueue.h">
+      <Filter>Controllers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="shader.fs">

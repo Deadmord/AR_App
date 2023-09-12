@@ -72,12 +72,16 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\src\OpenGL\Libraries\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\src\OpenGL\Libraries\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\AR_App\build\include;C:\AR_App\OpenGL\Libraries\include;C:\Program Files\IDS\ids_peak\generic_sdk\ipl\include;C:\Program Files\IDS\ids_peak\generic_sdk\api\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\AR_App\build\x64\vc17\lib;C:\AR_App\OpenGL\Libraries\lib;C:\Program Files\IDS\ids_peak\generic_sdk\api\lib\x86_64;C:\Program Files\IDS\ids_peak\generic_sdk\ipl\lib\x86_64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>C:\src\OpenGL\Libraries\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\src\OpenGL\Libraries\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>C:\AR_App\build\include;C:\AR_App\OpenGL\Libraries\include;C:\Program Files\IDS\ids_peak\generic_sdk\ipl\include;C:\Program Files\IDS\ids_peak\generic_sdk\api\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\AR_App\build\x64\vc17\lib;C:\AR_App\OpenGL\Libraries\lib;C:\Program Files\IDS\ids_peak\generic_sdk\api\lib\x86_64;C:\Program Files\IDS\ids_peak\generic_sdk\ipl\lib\x86_64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -89,7 +93,12 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;opencv_world480d.lib;ids_peak.lib;ids_peak_ipl.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy "C:\Program Files\IDS\ids_peak\generic_sdk\api\lib\x86_64\*.dll" "C:\AR_App\AR_App\x64\Debug"
+copy "C:\Program Files\IDS\ids_peak\generic_sdk\ipl\lib\x86_64\*.dll" "C:\AR_App\AR_App\x64\Debug"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -118,8 +127,12 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;opencv_world480d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;opencv_world480d.lib;ids_peak.lib;ids_peak_ipl.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy "C:\Program Files\IDS\ids_peak\generic_sdk\api\lib\x86_64\*.dll" "C:\AR_App\AR_App\x64\Debug"
+copy "C:\Program Files\IDS\ids_peak\generic_sdk\ipl\lib\x86_64\*.dll" "C:\AR_App\AR_App\x64\Debug"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -140,6 +153,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AcquisitionWorker.cpp" />
     <ClCompile Include="appState.cpp" />
     <ClCompile Include="aruco\ArucoProcessor.cpp" />
     <ClCompile Include="camera.cpp" />
@@ -154,8 +168,10 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="stb_image_implementation.cpp" />
+    <ClCompile Include="ThreadSafeQueue.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AcquisitionWorker.h" />
     <ClInclude Include="appState.h" />
     <ClInclude Include="aruco\ArucoProcessor.h" />
     <ClInclude Include="aruco\aruco_utilities.hpp" />
@@ -169,6 +185,7 @@
     <ClInclude Include="GWindow.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="stb_image.h" />
+    <ClInclude Include="ThreadSafeQueue.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="shaderObj.vs" />

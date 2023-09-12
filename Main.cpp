@@ -7,11 +7,13 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "stb_image.h"
+#include <peak/peak.hpp>
 
 #include "config.h"
 #include "MonitorsManager.h"
 #include "shader.h"
 #include "geometryData.h"
+#include "AcquisitionWorker.h"
 
 void appInit()
 {
@@ -44,6 +46,26 @@ void loadObjects(GWindow& window, Shader& shaderProgObjWin, Shader& shaderProgBg
 
 int main()
 {
+    // initialize library
+    peak::Library::Initialize();
+
+    auto& deviceManager = peak::DeviceManager::Instance();
+    deviceManager.Update();
+    auto devices = deviceManager.Devices();
+    if (devices.empty()) {
+        std::cout << "Exception: no devices found." << std::endl;
+        peak::Library::Close();
+        return -1;
+    }
+
+    std::vector<std::shared_ptr<AcquisitionWorker>> workers;
+    for (const auto& device : devices) {
+        if (device->IsOpenable()) {
+            auto worker = std::make_shared<AcquisitionWorker>(device->OpenDevice(peak::core::DeviceAccessType::Control));
+            workers.push_back(worker);
+        }
+    }
+
     //******************** Initialisation ********************
     appInit();
     MonitorsManager monitors;
@@ -86,6 +108,7 @@ int main()
     //vid_captureCamera.release();
     //vid_captureVideo.release();
     glfwTerminate();
+    peak::Library::Close();
 
 	return 0;
 }
