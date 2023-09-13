@@ -160,6 +160,7 @@ copy "C:\Program Files\IDS\ids_peak\generic_sdk\ipl\lib\x86_64\*.dll" "C:\AR_App
     <ClCompile Include="config.cpp" />
     <ClCompile Include="GLObject.cpp" />
     <ClCompile Include="MonitorsManager.cpp" />
+    <ClCompile Include="peakInitializer.cpp" />
     <ClCompile Include="RTCounter.cpp" />
     <ClCompile Include="geometryData.cpp" />
     <ClCompile Include="geometryObject.cpp" />
@@ -179,6 +180,7 @@ copy "C:\Program Files\IDS\ids_peak\generic_sdk\ipl\lib\x86_64\*.dll" "C:\AR_App
     <ClInclude Include="config.h" />
     <ClInclude Include="GLObject.h" />
     <ClInclude Include="MonitorsManager.h" />
+    <ClInclude Include="peakInitializer.h" />
     <ClInclude Include="RTCounter.h" />
     <ClInclude Include="geometryData.h" />
     <ClInclude Include="geometryObject.h" />

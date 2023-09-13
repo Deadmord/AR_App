@@ -14,6 +14,7 @@
 #include "shader.h"
 #include "geometryData.h"
 #include "AcquisitionWorker.h"
+#include "peakInitializer.h"
 
 void appInit()
 {
@@ -46,25 +47,8 @@ void loadObjects(GWindow& window, Shader& shaderProgObjWin, Shader& shaderProgBg
 
 int main()
 {
-    // initialize library
-    peak::Library::Initialize();
-
-    auto& deviceManager = peak::DeviceManager::Instance();
-    deviceManager.Update();
-    auto devices = deviceManager.Devices();
-    if (devices.empty()) {
-        std::cout << "Exception: no devices found." << std::endl;
-        peak::Library::Close();
-        return -1;
-    }
-
-    std::vector<std::shared_ptr<AcquisitionWorker>> workers;
-    for (const auto& device : devices) {
-        if (device->IsOpenable()) {
-            auto worker = std::make_shared<AcquisitionWorker>(device->OpenDevice(peak::core::DeviceAccessType::Control));
-            workers.push_back(worker);
-        }
-    }
+    peakInitializer::InitializeLibraryFindDevices();
+    auto workers = peakInitializer::InitializeWorkers();
 
     //******************** Initialisation ********************
     appInit();
@@ -108,7 +92,7 @@ int main()
     //vid_captureCamera.release();
     //vid_captureVideo.release();
     glfwTerminate();
-    peak::Library::Close();
+    peakInitializer::CloseLibrary();
 
 	return 0;
 }
