@@ -52,9 +52,6 @@
     <ClCompile Include="glad.c">
       <Filter>Framework</Filter>
     </ClCompile>
-    <ClCompile Include="Main.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
     <ClCompile Include="GWindow.cpp">
       <Filter>Core</Filter>
     </ClCompile>
@@ -77,7 +74,12 @@
     <ClCompile Include="ThreadSafeQueue.cpp">
       <Filter>Controllers</Filter>
     </ClCompile>
-    <ClCompile Include="peakInitializer.cpp" />
+    <ClCompile Include="Main.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="peakInitializer.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="appState.h">
@@ -123,7 +125,9 @@
     <ClInclude Include="ThreadSafeQueue.h">
       <Filter>Controllers</Filter>
     </ClInclude>
-    <ClInclude Include="peakInitializer.h" />
+    <ClInclude Include="peakInitializer.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="shader.fs">
