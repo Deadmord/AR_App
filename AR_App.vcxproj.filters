@@ -73,6 +73,15 @@
     <ClCompile Include="MonitorsManager.cpp">
       <Filter>Controllers</Filter>
     </ClCompile>
+    <ClCompile Include="AcquisitionWorker.cpp">
+      <Filter>Controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="ThreadSafeQueue.cpp">
+      <Filter>Controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="peakInitializer.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="appState.h">
@@ -113,6 +122,15 @@
     </ClInclude>
     <ClInclude Include="MonitorsManager.h">
       <Filter>Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="AcquisitionWorker.h">
+      <Filter>Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadSafeQueue.h">
+      <Filter>Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="peakInitializer.h">
+      <Filter>Helpers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
