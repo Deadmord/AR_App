@@ -6,12 +6,15 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <peak/peak.hpp>
 #include "stb_image.h"
 
 #include "config.h"
 #include "MonitorsManager.h"
 #include "shader.h"
 #include "geometryData.h"
+#include "AcquisitionWorker.h"
+#include "peakInitializer.h"
 
 void appInit()
 {
@@ -50,6 +53,9 @@ void loadObjects(GWindow& window, Shader& shaderProgObjWin, Shader& shaderProgBg
 
 int main()
 {
+    peakInitializer::InitializeLibraryFindDevices();
+    auto workers = peakInitializer::InitializeWorkers();
+
     //******************** Initialisation ********************
     appInit();
     MonitorsManager monitors;
@@ -87,6 +93,7 @@ int main()
     //vid_captureCamera.release();
     //vid_captureVideo.release();
     glfwTerminate();
+    peakInitializer::CloseLibrary();
 
 	return 0;
 }
