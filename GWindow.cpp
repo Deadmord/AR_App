@@ -93,6 +93,17 @@ void GWindow::addGLObject(const std::vector<float>& objVBO, const std::vector<un
     glObjects.push_back(newGLObject);
 }
 
+void GWindow::addGLObjectAndWorker(const std::vector<float>& objVBO, const std::vector<unsigned int>& objEBO, const std::vector<InitState>& objState, Shader* shaderProgPtr, std::shared_ptr<AcquisitionWorker> worker, GLenum internalformat, GLenum format, bool linePolygonMode, bool rotate, bool isBackground, bool showOnMarker, std::shared_ptr<std::vector<int>> markerIds, std::string cameraParams)
+{
+    glfwMakeContextCurrent(window);
+    GLObject newGLObject(objVBO, objEBO, objState, linePolygonMode);
+    newGLObject.setupShaderProgram(shaderProgPtr);
+    newGLObject.setupArUcoPtr(arucoProcessorPtr);
+    newGLObject.setAcquisitionWorker(worker);
+    newGLObject.setupVideoIDS(worker, internalformat, format, rotate, isBackground, showOnMarker, markerIds, cameraParams);
+    glObjects.push_back(newGLObject);
+}
+
 void GWindow::renderFrame(float deltaTime)
 {
     RTCounter::startTimer(wndID);

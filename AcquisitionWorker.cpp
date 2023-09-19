@@ -34,9 +34,14 @@ void AcquisitionWorker::AcquisitionLoop() {
     }
 }
 
-bool AcquisitionWorker::SetDataStream(std::shared_ptr<peak::core::DataStream> dataStream) {
-	m_dataStream = dataStream;
-	return true;
+bool AcquisitionWorker::SetDataStream() {
+    auto  dataStreams = m_device->DataStreams();
+    if (dataStreams.empty()) {
+        std::cout << "No data streams available" << std::endl;
+        return false;
+    }
+    m_dataStream = m_device->DataStreams().at(0)->OpenDataStream();
+    return true;
 }
 
 bool AcquisitionWorker::SetRoi(int64_t x, int64_t y, int64_t width, int64_t height) {
@@ -199,7 +204,8 @@ void AcquisitionWorker::SetImageCallback(ImageCallback callback) {
 }
 
 bool AcquisitionWorker::TryGetImage(cv::Mat& image) {
-    return imageQueue.Try_pop(image);
+    imageQueue.Try_pop(image);
+    return true;
 }
 
 cv::Mat AcquisitionWorker::ConvertPeakImageToCvMat(const peak::ipl::Image& peakImage) {

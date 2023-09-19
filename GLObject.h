@@ -9,6 +9,7 @@
 #include "geometryData.h"
 #include "aruco/ArucoProcessor.h"
 #include "config.h"
+#include "AcquisitionWorker.h"
 
 using PrintInFrameCallback = std::function<void(const cv::Mat& frame, cv::Size frameSize)>;
 
@@ -87,12 +88,16 @@ public:
 		}
 	}
 
+	void setupVideoIDS(std::shared_ptr<AcquisitionWorker> worker, GLenum internalformat, GLenum format, bool rotate = false, bool isBackground = false, bool showOnMarker = false, std::shared_ptr<std::vector<int>> markerIds = nullptr, std::string cameraParams = nullptr);
+
 	void setupImgTexture(const std::string& imgTexture, GLenum internalformat, GLenum format, bool rotate = false, bool isBackground = false, bool showOnMarker = false, std::shared_ptr<std::vector<int>> markerIds = nullptr);
 
 	void renderObject(Camera& camera, PrintInFrameCallback printCallback);
 
 	void drowObject(glm::mat4& viewMat, glm::mat4& projectionMat, bool background = false);
 
+	void setAcquisitionWorker(std::shared_ptr<AcquisitionWorker> worker);
+	void updateFrame();
 private:
 	GeometryObject geometryObject;
 	Shader* shader;
@@ -118,5 +123,8 @@ private:
 
 	std::shared_ptr<ArucoProcessor> arucoProcessorPtr;
 	std::shared_ptr<ArucoProcessor>* arucoProcessorPtrToPtr;
+	
+	std::shared_ptr<AcquisitionWorker> acquisitionWorker;
+	cv::Mat currentFrame;
 };
 

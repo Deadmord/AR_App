@@ -14,7 +14,7 @@ public:
 	//инициализация объекта под камеру
 	AcquisitionWorker(std::shared_ptr<peak::core::Device> device);
 	//установка потока данных для объекта
-	bool SetDataStream(std::shared_ptr<peak::core::DataStream> dataStream);
+	bool SetDataStream();
 	//область интереса камеры
 	bool SetRoi(int64_t x, int64_t y, int64_t width, int64_t height);
 	//выделение буферов для хранения данных

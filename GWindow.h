@@ -16,6 +16,7 @@
 
 #include "RTCounter.h"
 #include "config.h"
+#include "AcquisitionWorker.h"
 
 class GWindow
 {
@@ -29,7 +30,8 @@ public:
 
 	void addGLObject(const std::vector<float>& objVBO, const std::vector<unsigned int>& objEBO, const std::vector<InitState>& objState, Shader* shaderProgPtr,
 		const std::string& texturePath, GLenum internalformat, GLenum format, bool linePolygonMode = false, bool rotate = false, bool isBackground = false, bool showOnMarker = false, std::shared_ptr<std::vector<int>> markerIds = nullptr, std::string cameraParams = nullptr);
-
+	void addGLObjectAndWorker(const std::vector<float>& objVBO, const std::vector<unsigned int>& objEBO, const std::vector<InitState>& objState, Shader* shaderProgPtr, std::shared_ptr<AcquisitionWorker> worker, GLenum internalformat, GLenum format, bool linePolygonMode, bool rotate, bool isBackground, bool showOnMarker, std::shared_ptr<std::vector<int>> markerIds, std::string cameraParams);
+	
 	void renderFrame(float deltaTime);
 
 private:

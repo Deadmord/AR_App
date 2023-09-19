@@ -24,6 +24,8 @@ void appInit()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     //glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);    // specifies whether the windowed mode window will be maximized when created.
+    peakInitializer::InitializeLibraryFindDevices();
+
 #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
@@ -45,13 +47,27 @@ void loadObjects(GWindow& window, Shader& shaderProgObjWin, Shader& shaderProgBg
     window.addGLObject(verticesSurfWall, indicesSurfWall, initStateSurfWall,&shaderProgObjWin, std::string("img/kot.png"), GL_RGBA, GL_RGBA, false, false, false, true, std::make_shared<std::vector<int>>(markerIdsSurfWall_41), "");
 }
 
+void loadObjectsIDS(GWindow& window, Shader& shaderProgObjWin, Shader& shaderProgBgrWin, int cameraId, std::string& cameraParams, std::shared_ptr<AcquisitionWorker> worker, bool rotateCamera = false)
+{
+    shaderProgObjWin.use();
+    shaderProgObjWin.setInt("texture", 0);
+    shaderProgBgrWin.use();
+    shaderProgBgrWin.setInt("texture", 0);
+
+    window.addGLObjectAndWorker(verticesSurfFull, indicesSurf, initStateSurfFullScr, &shaderProgBgrWin, worker, GL_RGB, GL_BGR, false, rotateCamera, true, false, nullptr, cameraParams);
+    window.addGLObject(verticesOrigin, indicesOrigin, initStateOrigin, &shaderProgObjWin, std::string("img/white.jpg"), GL_RGB, GL_RGB, false, false, false, false, nullptr, "");
+    window.addGLObject(verticesBrdCube, indicesBrdCube, initStateBrdCube, &shaderProgObjWin, std::string("img/border.png"), GL_RGB, GL_RGB, false, false, false, true, std::make_shared<std::vector<int>>(markerIdsBrdCube), "");
+    window.addGLObject(verticesCube, indicesCube, initStateCubes, &shaderProgObjWin, std::string("video/video (1080p).mp4"), GL_RGB, GL_BGR, false, false, false, true, std::make_shared<std::vector<int>>(markerIdsCubes), "");
+    window.addGLObject(verticesSurfWall, indicesSurfWall, initStateSurfWall, &shaderProgObjWin, std::string("img/krasnii-kover-13.jpg"), GL_RGB, GL_RGB, false, false, false, true, std::make_shared<std::vector<int>>(markerIdsSurfWall_42), "");
+    window.addGLObject(verticesSurfWall, indicesSurfWall, initStateSurfWall, &shaderProgObjWin, std::string("img/kot.png"), GL_RGBA, GL_RGBA, false, false, false, true, std::make_shared<std::vector<int>>(markerIdsSurfWall_41), "");
+}
+
 int main()
 {
-    peakInitializer::InitializeLibraryFindDevices();
-    auto workers = peakInitializer::InitializeWorkers();
-
     //******************** Initialisation ********************
     appInit();
+    auto workers = peakInitializer::InitializeWorkers();
+
     MonitorsManager monitors;
     // ------------------ Windows init ---------------------
     const MonitorData& data = monitors.getMonitor(0);
@@ -72,10 +88,15 @@ int main()
     Shader shaderProgObjWin_4(window_4, "shaderObj.vs", "shader.fs");
     Shader shaderProgBgrWin_4(window_4, "shaderBgr.vs", "shader.fs");
 
-    loadObjects(window_1, shaderProgObjWin_1, shaderProgBgrWin_1, usbCamera_1, usbCam01Params);
-    loadObjects(window_2, shaderProgObjWin_2, shaderProgBgrWin_2, usbCamera_1, usbCam01Params);
-    loadObjects(window_3, shaderProgObjWin_3, shaderProgBgrWin_3, usbCamera_2, usbCam02Params, true);
-    loadObjects(window_4, shaderProgObjWin_4, shaderProgBgrWin_4, usbCamera_3, usbCam03Params);
+    //loadObjects(window_1, shaderProgObjWin_1, shaderProgBgrWin_1, usbCamera_1, usbCam01Params);
+    //loadObjects(window_2, shaderProgObjWin_2, shaderProgBgrWin_2, usbCamera_1, usbCam01Params);
+    //loadObjects(window_3, shaderProgObjWin_3, shaderProgBgrWin_3, usbCamera_2, usbCam02Params, true);
+    //loadObjects(window_4, shaderProgObjWin_4, shaderProgBgrWin_4, usbCamera_3, usbCam03Params);
+
+    loadObjectsIDS(window_1, shaderProgObjWin_1, shaderProgBgrWin_1, usbCamera_1, usbCam01Params, workers.at(0));
+    loadObjectsIDS(window_2, shaderProgObjWin_2, shaderProgBgrWin_2, usbCamera_1, usbCam01Params, workers.at(1));
+    loadObjectsIDS(window_3, shaderProgObjWin_3, shaderProgBgrWin_3, usbCamera_2, usbCam02Params, workers.at(2), true);
+    loadObjectsIDS(window_4, shaderProgObjWin_4, shaderProgBgrWin_4, usbCamera_3, usbCam03Params, workers.at(3));
 
     while (!glfwWindowShouldClose(window_1) && !glfwWindowShouldClose(window_2) && !glfwWindowShouldClose(window_3) && !glfwWindowShouldClose(window_4))
     {
