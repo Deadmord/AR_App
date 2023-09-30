@@ -14,7 +14,8 @@
 #include "shader.h"
 #include "geometryData.h"
 #include "AcquisitionWorker.h"
-#include "peakInitializer.h"
+//#include "peakInitializer.h"
+#include "IDSPeak.h"
 
 void appInit()
 {
@@ -27,6 +28,9 @@ void appInit()
 #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
+
+    // ----------------------- IDS camera --------------------------
+    IDSPeak::Initialize();
 }
 
 //------------- helper: set geometry objects --------------
@@ -53,9 +57,6 @@ void loadObjects(GWindow& window, Shader& shaderProgObjWin, Shader& shaderProgBg
 
 int main()
 {
-    peakInitializer::InitializeLibraryFindDevices();
-    auto workers = peakInitializer::InitializeWorkers();
-
     //******************** Initialisation ********************
     appInit();
     MonitorsManager monitors;
@@ -85,15 +86,19 @@ int main()
         window_2.renderFrame(RTCounter::getDeltaTime());
         window_3.renderFrame(RTCounter::getDeltaTime());
 
+        //
+        cv::Mat IDSframe;
+        if (IDSPeak::GetWorker()->TryGetImage(IDSframe))
+        {
+            cv::imshow("IDS camera", IDSframe);
+        }
+        //
+
         RTCounter::updateTimer();
         RTCounter::printFPS_Console();
     }
-
-    // ------------------ check if auto caled and !!! include in destructor !!! ----------------
-    //vid_captureCamera.release();
-    //vid_captureVideo.release();
     glfwTerminate();
-    peakInitializer::CloseLibrary();
+    IDSPeak::CloseLibrary();
 
 	return 0;
 }

@@ -1,13 +1,14 @@
 #pragma once
 
 #include <memory>
-#include "AcquisitionWorker.h"
+#include "AcquisitionWorkerOld.h"
 
 class peakInitializer
 {
 public:
-	static void InitializeLibraryFindDevices();
-	static std::vector<std::shared_ptr<AcquisitionWorker>> InitializeWorkers();
+	static bool InitializeLibraryFindDevices();
+	static std::vector<std::shared_ptr<AcquisitionWorkerOld>> InitializeAllWorkers();
+	static std::shared_ptr<AcquisitionWorkerOld> InitializeWorkerById();
 	static void CloseLibrary();
 
 private:

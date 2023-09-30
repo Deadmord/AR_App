@@ -55,7 +55,7 @@ void GLObject::renderObject(Camera& camera, PrintInFrameCallback printCallback)
             isOpened = false;
             return;
         }
-        cv::Mat frameVideo, frameVideoAruco;
+        cv::Mat frameVideo;
         bool isSuccessStream = vidCapture.read(frameVideo);
         //while (inputVideo.grab()) {           использовать для асинхронного захвата видео кадра, наверное лучше разместить в конце метода и сделать исинхронной чтобы выполнялась пока обрабатывается остальные потоки.
         //    inputVideo.retrieve(image);

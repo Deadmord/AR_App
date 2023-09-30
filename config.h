@@ -7,6 +7,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/string_cast.hpp> // For glm::value_ptr è glm::to_string
+#include <peak_afl/peak_afl.h>
 
 //*********************** Settings ***********************
 
@@ -38,17 +39,14 @@ constexpr int usbCamera_1 = 0;
 constexpr int usbCamera_2 = 1;
 constexpr int usbCamera_3 = 2;
 
+// -------------------- IDS Cameras ----------------------
+constexpr int skip_frames = 2;
+constexpr int skip_frames_min = 1;
+constexpr int skip_frames_max = 10;
 
-// Settings
-extern int g_setting1;
-extern double g_setting2;
-
-// CONSTANTS
-constexpr int k_constant1 = 42;
-constexpr double k_constant2 = 3.14;
-
-// Global var
-extern int g_globalVar;
+constexpr auto exposureAutoFeatures = PEAK_AFL_CONTROLLER_AUTOMODE_CONTINUOUS;
+constexpr auto gainAutoFeatures = PEAK_AFL_CONTROLLER_AUTOMODE_CONTINUOUS;
+constexpr auto balanceWhiteAutoFeatures = PEAK_AFL_CONTROLLER_AUTOMODE_CONTINUOUS;
 
 #endif // CONFIG_H
 
