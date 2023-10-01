@@ -1,218 +1,237 @@
-#include "AcquisitionWorker.h"
+Ôªø#include "acquisitionworker.h"
 
-AcquisitionWorker::AcquisitionWorker(std::shared_ptr<peak::core::Device> device) : m_device(device) {
-	m_running = false;
-	m_nodemapRemoteDevice = m_device->RemoteDevice()->NodeMaps().at(0);
+#include <peak_ipl/peak_ipl.hpp>
+
+#include <peak/converters/peak_buffer_converter_ipl.hpp>
+
+#include <cmath>
+#include <cstring>
+#include <iostream>
+#include "config.h"
+
+
+AcquisitionWorker::AcquisitionWorker(std::shared_ptr<peak::core::DataStream> dataStream)
+{
+    m_running = false;
+    m_frameCounter = 0;
+    m_errorCounter = 0;
+
+    SetDataStream(dataStream);
+    CreateAutoFeatures();
+    InitAutoFeatures();
+    m_imageConverter = std::make_unique<peak::ipl::ImageConverter>();
 }
 
-void AcquisitionWorker::AcquisitionLoop() {
-    while (m_running)
-    {
-        try
-        {
-            const auto buffer = m_dataStream->WaitForFinishedBuffer(5000);
-            //‰Â·‡ÈÂËÌ„
-            const auto peakImage = peak::BufferTo<peak::ipl::Image>(buffer).ConvertTo(
-                peak::ipl::PixelFormatName::BGRa8, peak::ipl::ConversionMode::Classic);
-            //ÍÓÌ‚ÂÚ‡ˆËˇ peak::ipl::Image ‚ cv::Mat
-            cv::Mat cvImage = ConvertPeakImageToCvMat(peakImage);
-            //‰Ó·‡‚ÎÂÌËÂ ËÁÓ·‡ÊÂÌËˇ ‚ Ó˜ÂÂ‰¸
-            imageQueue.Push(cvImage);
-
-            m_dataStream->QueueBuffer(buffer);
-        }
-        catch (const peak::core::TimeoutException& e)
-        {
-            std::cout << "Timeout Exception getting frame: " << e.what() << std::endl;
-            return;
-        }
-        catch (const std::exception& e)
-        {
-            std::cout << "Exception getting frame: " << e.what() << std::endl;
-            return;
-        }
-    }
+AcquisitionWorker::~AcquisitionWorker()
+{
+    Stop();
 }
 
-bool AcquisitionWorker::SetDataStream(std::shared_ptr<peak::core::DataStream> dataStream) {
-	m_dataStream = dataStream;
-	return true;
-}
-
-bool AcquisitionWorker::SetRoi(int64_t x, int64_t y, int64_t width, int64_t height) {
+void AcquisitionWorker::Start()
+{
     try
     {
-        // Get the minimum ROI and set it. After that there are no size restrictions anymore
-        int64_t x_min = m_nodemapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("OffsetX")->Minimum();
-        int64_t y_min = m_nodemapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("OffsetY")->Minimum();
-        int64_t w_min = m_nodemapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("Width")->Minimum();
-        int64_t h_min = m_nodemapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("Height")->Minimum();
+        // Lock critical features to prevent them from changing during acquisition
+        m_nodemapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("TLParamsLocked")->SetValue(1);
 
-        m_nodemapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("OffsetX")->SetValue(x_min);
-        m_nodemapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("OffsetY")->SetValue(y_min);
-        m_nodemapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("Width")->SetValue(w_min);
-        m_nodemapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("Height")->SetValue(h_min);
+        // Determine RAW buffer size
+        m_bufferWidth = m_nodemapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("Width")->Value();
+        m_bufferHeight = m_nodemapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("Height")->Value();
 
-        // Get the maximum ROI values
-        int64_t x_max = m_nodemapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("OffsetX")->Maximum();
-        int64_t y_max = m_nodemapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("OffsetY")->Maximum();
-        int64_t w_max = m_nodemapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("Width")->Maximum();
-        int64_t h_max = m_nodemapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("Height")->Maximum();
-
-        if ((x < x_min) || (y < y_min) || (x > x_max) || (y > y_max))
+        // Determine image size
+        if (m_nodemapRemoteDevice->HasNode("UsableWidth"))
         {
-            return false;
-        }
-        else if ((width < w_min) || (height < h_min) || ((x + width) > w_max) || ((y + height) > h_max))
-        {
-            return false;
+            m_imageWidth = m_nodemapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("UsableWidth")
+                               ->Value();
+            m_imageHeight = m_nodemapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("UsableHeight")
+                                ->Value();
         }
         else
         {
-            // Now, set final AOI
-            m_nodemapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("OffsetX")->SetValue(x);
-            m_nodemapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("OffsetY")->SetValue(y);
-            m_nodemapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("Width")->SetValue(width);
-            m_nodemapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("Height")->SetValue(height);
-
-            return true;
-        }
-    }
-    catch (std::exception& e)
-    {
-        std::cout << "Exception setting ROI: " << e.what() << std::endl;
-    }
-
-    return false;
-}
-
-bool AcquisitionWorker::AllocAndAnnounceBuffers() {
-    try
-    {
-        if (m_dataStream)
-        {
-            // Flush queue and prepare all buffers for revoking
-            m_dataStream->Flush(peak::core::DataStreamFlushMode::DiscardAll);
-
-            // Clear all old buffers
-            for (const auto& buffer : m_dataStream->AnnouncedBuffers())
-            {
-                m_dataStream->RevokeBuffer(buffer);
-            }
-
-            int64_t payloadSize = m_nodemapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("PayloadSize")->Value();
-
-            // Get number of minimum required buffers
-            int numBuffersMinRequired = m_dataStream->NumBuffersAnnouncedMinRequired();
-
-            // Alloc buffers
-            for (size_t count = 0; count < numBuffersMinRequired; count++)
-            {
-                auto buffer = m_dataStream->AllocAndAnnounceBuffer(static_cast<size_t>(payloadSize), nullptr);
-                m_dataStream->QueueBuffer(buffer);
-            }
-
-            return true;
-        }
-    }
-    catch (std::exception& e)
-    {
-        std::cout << "Exception allocating buffers: " << e.what() << std::endl;
-    }
-
-    return false;
-}
-
-bool AcquisitionWorker::OpenCamera() {
-    try {
-        if (!m_device) {
-            return false;
+            m_imageWidth = m_bufferWidth;
+            m_imageHeight = m_bufferHeight;
         }
 
-        m_nodemapRemoteDevice = m_device->RemoteDevice()->NodeMaps().at(0);
+        // Pre-allocate images for conversion that can be used simultaneously
+        // This is not mandatory but it can increase the speed of image conversions
+        size_t imageCount = 1;
+        inputPixelFormat = static_cast<peak::ipl::PixelFormatName>(
+            m_nodemapRemoteDevice->FindNode<peak::core::nodes::EnumerationNode>("PixelFormat")
+                ->CurrentEntry()
+                ->Value());
 
-        return true;
-    }
-    catch (std::exception& e)
-    {
-        std::cout << "Exception opening camera: " << e.what() << std::endl;
-        return false;
-    }
+        m_imageConverter->PreAllocateConversion(
+            inputPixelFormat, peak::ipl::PixelFormatName::BGRa8, m_imageWidth, m_imageHeight, imageCount);
 
-    return false;
-}
-
-bool AcquisitionWorker::PrepareAcquisition() {
-    try
-    {
-        auto dataStreams = m_device->DataStreams();
-        if (dataStreams.empty())
-        {
-            // no data streams available
-            return false;
-        }
-
-        m_dataStream = m_device->DataStreams().at(0)->OpenDataStream();
-
-        return true;
-    }
-    catch (std::exception& e)
-    {
-        std::cout << "Exception preparering acquisition: " << e.what() << std::endl;
-    }
-
-    return false;
-}
-
-bool AcquisitionWorker::StartAcquisition() {
-    try
-    {
-        m_dataStream->StartAcquisition(peak::core::AcquisitionStartMode::Default, peak::core::DataStream::INFINITE_NUMBER);
-        m_nodemapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("TLParamsLocked")->SetValue(1);
+        // Start acquisition
+        m_dataStream->StartAcquisition();
         m_nodemapRemoteDevice->FindNode<peak::core::nodes::CommandNode>("AcquisitionStart")->Execute();
-
-        return true;
+        m_nodemapRemoteDevice->FindNode<peak::core::nodes::CommandNode>("AcquisitionStart")->WaitUntilDone();
     }
-    catch (std::exception& e)
+    catch (const std::exception& e)
     {
-        std::cout << "Exception starting acquisition: " << e.what() << std::endl;
+        std::cout << "Exception: " << e.what();
+        throw std::runtime_error(e.what());
     }
 
-    return false;
-}
-
-void AcquisitionWorker::Start() {
     m_running = true;
-    m_thread = std::thread(&AcquisitionWorker::AcquisitionLoop, this);
-    std::cout << "AcquisitionWorker thread: " << m_thread.get_id() << std::endl;
+
+    m_acquisitionLoopthread = std::thread(&AcquisitionWorker::AcquisitionLoop, this);
+    std::cout << "AcquisitionWorker thread: " << m_acquisitionLoopthread.get_id() << std::endl;
 }
 
-void AcquisitionWorker::Stop() {
+void AcquisitionWorker::Stop()
+{
     m_running = false;
-    if (m_thread.joinable()) {
-        m_thread.join();
-    }
+    m_acquisitionLoopthread.join();
 }
 
-void AcquisitionWorker::SetImageCallback(ImageCallback callback) {
-    m_imageCallback = callback;
+
+void AcquisitionWorker::CreateAutoFeatures()
+{
+    m_autoFeatures = std::make_shared<AutoFeatures>(m_nodemapRemoteDevice);
+    m_autoFeatures->RegisterGainCallback([&] { std::cout << "Info: GainAutoFeature Register"; });
+    m_autoFeatures->RegisterExposureCallback([&] { std::cout << "Info: ExposureAutoFeature Register"; });
+    m_autoFeatures->RegisterWhiteBalanceCallback([&] { std::cout << "Info: WhiteBalanceAutoFeature Register"; });
+}
+
+void AcquisitionWorker::InitAutoFeatures()
+{
+    m_autoFeatures->SetExposureMode(static_cast<peak_afl_controller_automode>(exposureAutoFeatures));
+    m_autoFeatures->SetGainMode(static_cast<peak_afl_controller_automode>(gainAutoFeatures));
+    m_autoFeatures->SetWhiteBalanceMode(static_cast<peak_afl_controller_automode>(balanceWhiteAutoFeatures));
+    m_autoFeatures->SetSkipFrames(skip_frames);
+}
+
+inline void AcquisitionWorker::ResetAutoFeatures()
+{
+    m_autoFeatures->Reset();
+}
+
+void AcquisitionWorker::SetDataStream(std::shared_ptr<peak::core::DataStream> dataStream)
+{
+    m_dataStream = std::move(dataStream);
+    m_nodemapRemoteDevice = m_dataStream->ParentDevice()->RemoteDevice()->NodeMaps().at(0);
 }
 
 bool AcquisitionWorker::TryGetImage(cv::Mat& image) {
     return imageQueue.Try_pop(image);
 }
 
+size_t AcquisitionWorker::getImageWidth()
+{
+    return m_imageWidth;
+}
+
+size_t AcquisitionWorker::getImageHeight()
+{
+    return m_imageHeight;
+}
+
 cv::Mat AcquisitionWorker::ConvertPeakImageToCvMat(const peak::ipl::Image& peakImage) {
     int width = peakImage.Width();
     int height = peakImage.Height();
+    auto PixelFormat = peakImage.PixelFormat();
     uint8_t* peakData = peakImage.Data();
-    cv::Mat cvImage;
 
     if (peakImage.PixelFormat() == peak::ipl::PixelFormatName::BGRa8) {
-        cvImage = cv::Mat(height, width, CV_8UC4, peakData);
+        return cv::Mat(height, width, CV_8UC4, peakData);
     }
     else if (peakImage.PixelFormat() == peak::ipl::PixelFormatName::BGR8) {
-        cvImage = cv::Mat(height, width, CV_8UC3, peakData);
+        return cv::Mat(height, width, CV_8UC3, peakData);
     }
-    return cvImage;
+    else {
+        auto peakImg = m_imageConverter->Convert(peakImage, peak::ipl::PixelFormatName::BGRa8);
+        peakData = peakImg.Data();
+        return cv::Mat(height, width, CV_8UC4, peakData);
+    }
+}
+
+void AcquisitionWorker::AcquisitionLoop() {
+    //while (m_running)
+    //{
+    //    try
+    //    {
+    //        const auto buffer = m_dataStream->WaitForFinishedBuffer(5000);
+    //        //–¥–µ–±–∞–π–µ—Ä–∏–Ω–≥
+    //        const auto peakImage = peak::BufferTo<peak::ipl::Image>(buffer).ConvertTo(
+    //            peak::ipl::PixelFormatName::BGRa8, peak::ipl::ConversionMode::Classic);
+    //        //–∫–æ–Ω–≤–µ—Ä—Ç–∞—Ü–∏—è peak::ipl::Image –≤ cv::Mat
+    //        cv::Mat cvImage = ConvertPeakImageToCvMat(peakImage);
+    //        //–¥–æ–±–∞–≤–ª–µ–Ω–∏–µ –∏–∑–æ–±—Ä–∞–∂–µ–Ω–∏—è –≤ –æ—á–µ—Ä–µ–¥—å
+    //        imageQueue.Push(cvImage);
+
+    //        m_dataStream->QueueBuffer(buffer);
+    //    }
+    //    catch (const peak::core::TimeoutException& e)
+    //    {
+    //        std::cout << "Timeout Exception getting frame: " << e.what() << std::endl;
+    //        return;
+    //    }
+    //    catch (const std::exception& e)
+    //    {
+    //        std::cout << "Exception getting frame: " << e.what() << std::endl;
+    //        return;
+    //    }
+    //}
+
+    while (m_running)
+    {
+        try
+        {
+            // Get buffer from device's datastream
+            const auto buffer = m_dataStream->WaitForFinishedBuffer(5000);
+
+            peak::ipl::Image tempImage;
+            tempImage = peak::BufferTo<peak::ipl::Image>(buffer).Clone();
+
+            imageReceived(&tempImage);
+
+            // Create IDS peak IPL image for debayering and convert it to RGBa8 format
+
+            // Using the image converter ...
+            //QImage qImage(static_cast<int>(m_imageWidth), static_cast<int>(m_imageHeight), QImage::Format_RGB32);
+            //m_imageConverter->Convert(tempImage, peak::ipl::PixelFormatName::BGRa8, qImage.bits(),
+            //    static_cast<size_t>(qImage.sizeInBytes()));
+            tempImage = m_imageConverter->Convert(tempImage, peak::ipl::PixelFormatName::BGRa8);
+
+            // ... or without image converter
+            // tempImage.ConvertTo(
+            //     peak::ipl::PixelFormatName::BGRa8, qImage.bits(), static_cast<size_t>(qImage.byteCount()));
+
+            // Convert peak::ipl::Image to cv::Mat
+            cv::Mat cvImage(ConvertPeakImageToCvMat(tempImage));
+
+
+            // Put cvImage into Queue asynchronously
+            imageQueue.Push(cvImage);
+
+            // Requeue buffer
+            m_dataStream->QueueBuffer(buffer);
+
+            m_frameCounter++;
+            m_autoFeaturesThread.join();
+        }
+        catch (const peak::core::TimeoutException& e)
+        {
+            m_errorCounter++;
+            std::cout << "Timeout Exception getting frame: " << e.what() << std::endl;
+        }
+        catch (const std::exception& e)
+        {
+            m_errorCounter++;
+            std::cout << "Exception: " << e.what();
+        }
+    }
+}
+
+void AcquisitionWorker::imageReceived(const peak::ipl::Image* image)
+{
+    // create and run in thread autoFeatures for IDS Peak camera
+    m_autoFeaturesThread = std::thread([this, image]()
+        {
+            m_autoFeatures->ProcessImage(image);
+        });
+    std::cout << "AutoFeatures thread: " << m_autoFeaturesThread.get_id() << std::endl;
+    //m_autoFeaturesThread.join();
 }

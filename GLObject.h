@@ -8,6 +8,7 @@
 #include "geometryObject.h"
 #include "geometryData.h"
 #include "aruco/ArucoProcessor.h"
+#include "acquisitionworker.h"
 #include "config.h"
 
 using PrintInFrameCallback = std::function<void(const cv::Mat& frame, cv::Size frameSize)>;
@@ -87,6 +88,37 @@ public:
 		}
 	}
 
+	void setupIDSPeakTexture(const std::shared_ptr<AcquisitionWorker> workerPtr, bool rotate = false, bool isBackground = false, bool showOnMarker = false, std::shared_ptr<std::vector<int>> markerIds = nullptr, std::string cameraParams = nullptr)
+	{
+		this->isIDSPeak = true;
+		this->workerIDSPtr = workerPtr;
+
+		//----------- Init ArUco and set resolution -----------
+		if (this->isIDSPeak) //&& turn aruco flag
+		{
+			// ArUco init
+			*arucoProcessorPtrToPtr = std::make_shared<ArucoProcessor>(ArUcoMarkerLength, ArUcoDictionaryId, cameraParams, ArUcoShowRejected);
+			arucoProcessorPtr = *arucoProcessorPtrToPtr;
+			//Set width & hight from arucoProcessorPtr->getFrameSize().width
+
+		}
+		//------------------------------------------
+
+		this->width = static_cast<int>(this->workerIDSPtr->getImageWidth());
+		this->height = static_cast<int>(this->workerIDSPtr->getImageHeight());
+
+		this->rotate = rotate;
+		this->isBackground = isBackground;
+		this->showOnMarker = showOnMarker;
+		this->markerIds = markerIds;
+
+		cv::Mat frame;
+		workerPtr->TryGetImage(frame);
+		std::cout << "Video stream opened successfully!" << std::endl;
+		this->data = frame.data;
+		this->isOpened = true;
+	}
+
 	void setupImgTexture(const std::string& imgTexture, GLenum internalformat, GLenum format, bool rotate = false, bool isBackground = false, bool showOnMarker = false, std::shared_ptr<std::vector<int>> markerIds = nullptr);
 
 	void renderObject(Camera& camera, PrintInFrameCallback printCallback);
@@ -102,6 +134,7 @@ private:
 	bool			isImg = false;
 	bool			isVideo = false;
 	bool			isStream = false;
+	bool			isIDSPeak = false;
 	bool			rotate = false;
 	bool			isBackground = false;
 	bool			showOnMarker = false;
@@ -114,6 +147,7 @@ private:
 	GLenum			format;
 	cv::VideoCapture vidCapture;
 	uchar*			data;
+	std::shared_ptr<AcquisitionWorker> workerIDSPtr;
 	std::shared_ptr<std::vector<int>> markerIds;
 
 	std::shared_ptr<ArucoProcessor> arucoProcessorPtr;

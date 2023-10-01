@@ -29,6 +29,9 @@
     <Filter Include="Modules\Virtual camera">
       <UniqueIdentifier>{b18116a2-4bbc-4e09-bd95-cd2f47b95ff5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Modules\IDSPeak">
+      <UniqueIdentifier>{6f9ae55a-a510-426b-b571-e9dbfab69209}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RTCounter.cpp">
@@ -73,14 +76,26 @@
     <ClCompile Include="MonitorsManager.cpp">
       <Filter>Controllers</Filter>
     </ClCompile>
-    <ClCompile Include="AcquisitionWorker.cpp">
-      <Filter>Controllers</Filter>
-    </ClCompile>
-    <ClCompile Include="ThreadSafeQueue.cpp">
+    <ClCompile Include="AcquisitionWorkerOld.cpp">
       <Filter>Controllers</Filter>
     </ClCompile>
     <ClCompile Include="peakInitializer.cpp">
       <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="IDSPeak.cpp">
+      <Filter>Modules\IDSPeak</Filter>
+    </ClCompile>
+    <ClCompile Include="acquisitionworker.cpp">
+      <Filter>Modules\IDSPeak</Filter>
+    </ClCompile>
+    <ClCompile Include="autofeatures.cpp">
+      <Filter>Modules\IDSPeak</Filter>
+    </ClCompile>
+    <ClCompile Include="device.cpp">
+      <Filter>Modules\IDSPeak</Filter>
+    </ClCompile>
+    <ClCompile Include="ThreadSafeQueue.cpp">
+      <Filter>Framework</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -123,14 +138,26 @@
     <ClInclude Include="MonitorsManager.h">
       <Filter>Controllers</Filter>
     </ClInclude>
-    <ClInclude Include="AcquisitionWorker.h">
-      <Filter>Controllers</Filter>
-    </ClInclude>
-    <ClInclude Include="ThreadSafeQueue.h">
+    <ClInclude Include="AcquisitionWorkerOld.h">
       <Filter>Controllers</Filter>
     </ClInclude>
     <ClInclude Include="peakInitializer.h">
       <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="IDSPeak.h">
+      <Filter>Modules\IDSPeak</Filter>
+    </ClInclude>
+    <ClInclude Include="acquisitionworker.h">
+      <Filter>Modules\IDSPeak</Filter>
+    </ClInclude>
+    <ClInclude Include="autofeatures.h">
+      <Filter>Modules\IDSPeak</Filter>
+    </ClInclude>
+    <ClInclude Include="device.h">
+      <Filter>Modules\IDSPeak</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadSafeQueue.h">
+      <Filter>Framework</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
