@@ -34,14 +34,17 @@ void appInit()
 }
 
 //------------- helper: set geometry objects --------------
-void loadObjects(GWindow& window, Shader& shaderProgObjWin, Shader& shaderProgBgrWin, int cameraId, std::string& cameraParams, bool rotateCamera = false)
+void loadObjects(GWindow& window, Shader& shaderProgObjWin, Shader& shaderProgBgrWin, int cameraId, std::shared_ptr<AcquisitionWorker> cameraIDSworkerPtr, std::string& cameraParams, bool rotateCamera = false)
 {
     shaderProgObjWin.use();
     shaderProgObjWin.setInt("texture", 0);
     shaderProgBgrWin.use();
     shaderProgBgrWin.setInt("texture", 0);
 
-    window.addGLObject(verticesSurfFull, indicesSurf, initStateSurfFullScr, &shaderProgBgrWin, std::to_string(cameraId),                GL_RGB, GL_BGR, false, rotateCamera, true, false, nullptr, cameraParams);
+    if (cameraIDSworkerPtr != nullptr)
+        window.addGLObject(verticesSurfFull, indicesSurf, initStateSurfFullScr, &shaderProgBgrWin, cameraIDSworkerPtr, false, rotateCamera, true, false, nullptr, cameraParams);
+    else
+        window.addGLObject(verticesSurfFull, indicesSurf, initStateSurfFullScr, &shaderProgBgrWin, std::to_string(cameraId),            GL_RGB, GL_BGR, false, rotateCamera, true, false, nullptr, cameraParams);
     window.addGLObject(verticesOrigin, indicesOrigin, initStateOrigin,      &shaderProgObjWin, std::string("img/white.jpg"),            GL_RGB, GL_RGB, false, false, false, false, nullptr, "");
     window.addGLObject(verticesCube, indicesCube, initStateCube,            &shaderProgObjWin, std::string("img/border.png"),           GL_RGB, GL_RGB, false, false, false, true, std::make_shared<std::vector<int>>(markerIdsCube), "");
     window.addGLObject(verticesBrdCube, indicesBrdCube, initStateBrdCube,   &shaderProgObjWin, std::string("img/border.png"),           GL_RGB, GL_RGB, false, false, false, true, std::make_shared<std::vector<int>>(markerIdsBrdCube), "");
@@ -76,9 +79,9 @@ int main()
     Shader shaderProgObjWin_3(window_3, "shaderObj.vs", "shader.fs");
     Shader shaderProgBgrWin_3(window_3, "shaderBgr.vs", "shader.fs");
 
-    loadObjects(window_1, shaderProgObjWin_1, shaderProgBgrWin_1, usbCamera_1, usbCam01Params);
-    loadObjects(window_2, shaderProgObjWin_2, shaderProgBgrWin_2, usbCamera_2, usbCam02Params, true);
-    loadObjects(window_3, shaderProgObjWin_3, shaderProgBgrWin_3, usbCamera_3, usbCam03Params);
+    loadObjects(window_1, shaderProgObjWin_1, shaderProgBgrWin_1, usbCamera_1, nullptr, usbCam01Params);
+    loadObjects(window_2, shaderProgObjWin_2, shaderProgBgrWin_2, usbCamera_2, nullptr, usbCam02Params, true);
+    loadObjects(window_3, shaderProgObjWin_3, shaderProgBgrWin_3, usbCamera_3, nullptr, usbCam03Params);
 
     while (!glfwWindowShouldClose(window_1) && !glfwWindowShouldClose(window_2) && !glfwWindowShouldClose(window_3))
     {

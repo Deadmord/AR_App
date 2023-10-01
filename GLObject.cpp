@@ -101,6 +101,48 @@ void GLObject::renderObject(Camera& camera, PrintInFrameCallback printCallback)
             glTexImage2D(GL_TEXTURE_2D, 0, internalformat, width, height, 0, format, GL_UNSIGNED_BYTE, frameVideo.data);
         }
     }
+    if (isIDSPeak)
+    {
+        cv::Mat frameVideo;
+        bool isSuccessStream = workerIDSPtr->TryGetImage(frameVideo);
+        //while (inputVideo.grab()) {           использовать для асинхронного захвата видео кадра, наверное лучше разместить в конце метода и сделать исинхронной чтобы выполнялась пока обрабатывается остальные потоки.
+        //    inputVideo.retrieve(image);
+        //}
+        if (!isSuccessStream)
+        {
+            std::cout << "Error: IDS stream can't be read or disconnect! Source: " << std::endl;
+            return;
+        }
+        else
+        {
+            if (rotate)
+                cv::rotate(frameVideo, frameVideo, cv::ROTATE_180);
+
+            //calc and apply distortion correction, very heavy hendling!!!
+            //cv::Mat undistortedFrame;
+            //cv::undistort(frameVideo, undistortedFrame, arucoProcessorPtr->getCameraMat(), arucoProcessorPtr->getDistortCoeff());
+
+            //only apply distortion maps, mach more faster!!!
+            //cv::Mat undistortedFrame;
+            //cv::remap(frameVideo, undistortedFrame, arucoProcessorPtr->getUndistortMap1(), arucoProcessorPtr->getUndistortMap2(), cv::INTER_LINEAR);
+
+            //check stream videoframe for aruco markers
+            //if (textures[index].isStream && arucoProcessorPtr->detectMarkers(frameVideo, frameVideoAruco))
+            //{
+            //    glTexImage2D(GL_TEXTURE_2D, 0, textures[index].internalformat, textures[index].width, textures[index].height, 0, textures[index].format, GL_UNSIGNED_BYTE, frameVideoAruco.data);
+            //}
+            //else
+            //glTexImage2D(GL_TEXTURE_2D, 0, textures[index].internalformat, textures[index].width, textures[index].height, 0, textures[index].format, GL_UNSIGNED_BYTE, frameVideo.data);
+
+            if (isIDSPeak && isBackground)
+            {
+                arucoProcessorPtr->detectMarkers(frameVideo, frameVideo);
+                printCallback(frameVideo, arucoProcessorPtr->getFrameSize());
+                //showInFrame(frameVideo, cv::Size(WinWidth, WinHeight), arucoProcessorPtr->getFrameSize(), RTCounter::getFPS(wndID), { RTCounter::getDeltaTime((4 * 1) + wndID), RTCounter::getDeltaTime((4 * 2) + wndID), RTCounter::getDeltaTime((4 * 3) + wndID), RTCounter::getDeltaTime(wndID) });
+            }
+            glTexImage2D(GL_TEXTURE_2D, 0, internalformat, width, height, 0, format, GL_UNSIGNED_BYTE, frameVideo.data);
+        }
+    }
     if (isImg)
     {
         // checking

@@ -28,6 +28,7 @@ extern std::string usbCam00Params;
 extern std::string usbCam01Params;
 extern std::string usbCam02Params;
 extern std::string usbCam03Params;
+extern std::string idsCamParams;
 
 constexpr float ArUcoMarkerLength = 1.0f;    // 0.035f;s
 constexpr cv::aruco::PredefinedDictionaryType ArUcoDictionaryId = cv::aruco::DICT_6X6_250;

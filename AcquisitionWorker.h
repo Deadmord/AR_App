@@ -23,6 +23,9 @@ public:
     void SetDataStream(std::shared_ptr<peak::core::DataStream> dataStream);
     bool TryGetImage(cv::Mat& image);
 
+    size_t getImageWidth();
+    size_t getImageHeight();
+
 private:
     //основной цикл, выполняется в отдельном потоке - завершение буфера - снова в очередь
     void AcquisitionLoop();

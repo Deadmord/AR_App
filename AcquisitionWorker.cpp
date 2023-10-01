@@ -118,6 +118,16 @@ bool AcquisitionWorker::TryGetImage(cv::Mat& image) {
     return imageQueue.Try_pop(image);
 }
 
+size_t AcquisitionWorker::getImageWidth()
+{
+    return m_imageWidth;
+}
+
+size_t AcquisitionWorker::getImageHeight()
+{
+    return m_imageHeight;
+}
+
 cv::Mat AcquisitionWorker::ConvertPeakImageToCvMat(const peak::ipl::Image& peakImage) {
     int width = peakImage.Width();
     int height = peakImage.Height();

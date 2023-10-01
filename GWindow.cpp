@@ -93,6 +93,25 @@ void GWindow::addGLObject(const std::vector<float>& objVBO, const std::vector<un
     glObjects.push_back(newGLObject);
 }
 
+void GWindow::addGLObject(const std::vector<float>& objVBO, const std::vector<unsigned int>& objEBO, const std::vector<InitState>& objState, Shader* shaderProgPtr, const std::shared_ptr<AcquisitionWorker> workerPtr, bool linePolygonMode, bool rotate, bool isBackground, bool showOnMarker, std::shared_ptr<std::vector<int>> markerIds, std::string cameraParams)
+{
+    glfwMakeContextCurrent(window);
+    GLObject newGLObject(objVBO, objEBO, objState, linePolygonMode);
+    newGLObject.setupShaderProgram(shaderProgPtr);
+    newGLObject.setupArUcoPtr(arucoProcessorPtr);
+
+    if (workerPtr != nullptr)
+    {
+        newGLObject.setupIDSPeakTexture(workerPtr, rotate, isBackground, showOnMarker, markerIds, cameraParams);
+    }
+    else
+    {
+        std::cout << "Invalid IDS camera worker pointer!" << std::endl;
+        throw std::runtime_error("Invalid IDS camera worker pointer!");   //Refactoring !!! Add tray/catch
+    }
+    glObjects.push_back(newGLObject);
+}
+
 void GWindow::renderFrame(float deltaTime)
 {
     RTCounter::startTimer(wndID);
