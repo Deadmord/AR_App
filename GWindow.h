@@ -30,7 +30,7 @@ public:
 	void addGLObject(const std::vector<float>& objVBO, const std::vector<unsigned int>& objEBO, const std::vector<InitState>& objState, Shader* shaderProgPtr,
 		const std::string& texturePath, GLenum internalformat, GLenum format, bool linePolygonMode = false, bool rotate = false, bool isBackground = false, bool showOnMarker = false, std::shared_ptr<std::vector<int>> markerIds = nullptr, std::string cameraParams = nullptr);
 	void addGLObject(const std::vector<float>& objVBO, const std::vector<unsigned int>& objEBO, const std::vector<InitState>& objState, Shader* shaderProgPtr,
-		const std::shared_ptr<AcquisitionWorker> workerPtr, bool linePolygonMode = false, bool rotate = false, bool isBackground = false, bool showOnMarker = false, std::shared_ptr<std::vector<int>> markerIds = nullptr, std::string cameraParams = nullptr);
+		const std::shared_ptr<AcquisitionWorker> workerPtr, GLenum internalformat, GLenum format, bool linePolygonMode = false, bool rotate = false, bool isBackground = false, bool showOnMarker = false, std::shared_ptr<std::vector<int>> markerIds = nullptr, std::string cameraParams = nullptr);
 
 	void renderFrame(float deltaTime);
 

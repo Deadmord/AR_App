@@ -88,7 +88,7 @@ public:
 		}
 	}
 
-	void setupIDSPeakTexture(const std::shared_ptr<AcquisitionWorker> workerPtr, bool rotate = false, bool isBackground = false, bool showOnMarker = false, std::shared_ptr<std::vector<int>> markerIds = nullptr, std::string cameraParams = nullptr)
+	void setupIDSPeakTexture(const std::shared_ptr<AcquisitionWorker> workerPtr, GLenum internalformat, GLenum format, bool rotate = false, bool isBackground = false, bool showOnMarker = false, std::shared_ptr<std::vector<int>> markerIds = nullptr, std::string cameraParams = nullptr)
 	{
 		this->isIDSPeak = true;
 		this->workerIDSPtr = workerPtr;
@@ -107,6 +107,8 @@ public:
 		this->width = static_cast<int>(this->workerIDSPtr->getImageWidth());
 		this->height = static_cast<int>(this->workerIDSPtr->getImageHeight());
 
+		this->internalformat = internalformat;
+		this->format = format;
 		this->rotate = rotate;
 		this->isBackground = isBackground;
 		this->showOnMarker = showOnMarker;

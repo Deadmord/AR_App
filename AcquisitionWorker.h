@@ -12,7 +12,7 @@ class AcquisitionWorker
 
 public:
     AcquisitionWorker(std::shared_ptr<peak::core::DataStream> dataStream);
-    ~AcquisitionWorker();
+    ~AcquisitionWorker() = default;
 
     void Start();
     void Stop();
