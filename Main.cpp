@@ -90,13 +90,12 @@ int main()
         window_2.renderFrame(RTCounter::getDeltaTime());
         window_3.renderFrame(RTCounter::getDeltaTime());
 
-        //
+        // Show IDS stream directly
         //cv::Mat IDSframe;
         //if (IDSPeak::GetWorker()->TryGetImage(IDSframe))
         //{
         //    cv::imshow("IDS camera", IDSframe);
         //}
-        //
 
         RTCounter::updateTimer();
         RTCounter::printFPS_Console();
