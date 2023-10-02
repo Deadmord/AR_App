@@ -5,7 +5,7 @@
 #include <peak/peak.hpp>
 #include <opencv2/opencv.hpp>
 #include "autofeatures.h"
-#include "ThreadSafeQueue.h"
+#include "ThreadSafeValue.h"
 
 class AcquisitionWorker
 {
@@ -40,7 +40,7 @@ private:
 
     std::thread m_acquisitionLoopthread;
     std::thread m_autoFeaturesThread;
-    ThreadSafeQueue<cv::Mat> imageQueue;
+    ThreadSafeValue<cv::Mat> imageItem;
     unsigned int m_frameCounter = 0;
     unsigned int m_errorCounter = 0;
 

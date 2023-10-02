@@ -111,8 +111,7 @@ void AcquisitionWorker::SetDataStream(std::shared_ptr<peak::core::DataStream> da
 }
 
 bool AcquisitionWorker::TryGetImage(cv::Mat& image) {
-    std::cout << "imageQueue size: " << imageQueue.Size() << std::endl;
-    return imageQueue.Try_pop(image);
+    return imageItem.tryGet(image);
 }
 
 size_t AcquisitionWorker::getImageWidth()
@@ -166,12 +165,11 @@ void AcquisitionWorker::AcquisitionLoop() {
             imageReceived(&tempImage);
 
             // Convert peak::ipl::Image to cv::Mat
-            m_imageConverter->Convert(tempImage, peak::ipl::PixelFormatName::BGR8);
-            cv::Mat cvImage(ConvertPeakImageToCvMat(tempImage));
+            tempImage = m_imageConverter->Convert(tempImage, peak::ipl::PixelFormatName::BGR8);
+            //cv::Mat cvImage(ConvertPeakImageToCvMat(tempImage));
 
-
-            // Put cvImage into Queue asynchronously
-            imageQueue.Push(cvImage);
+            // Put cvImage into ThreadSafeValue asynchronously
+            imageItem.push(ConvertPeakImageToCvMat(tempImage));
 
             // Requeue buffer
             m_dataStream->QueueBuffer(buffer);

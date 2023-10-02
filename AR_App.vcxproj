@@ -193,6 +193,7 @@ copy "$(IDS_PEAK_GENERIC_SDK_PATH)\afl\lib\x86_64\*.dll" "$(OutDir)"</Command>
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="stb_image_implementation.cpp" />
     <ClCompile Include="ThreadSafeQueue.cpp" />
+    <ClCompile Include="ThreadSafeValue.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="acquisitionworker.h" />
@@ -215,6 +216,7 @@ copy "$(IDS_PEAK_GENERIC_SDK_PATH)\afl\lib\x86_64\*.dll" "$(OutDir)"</Command>
     <ClInclude Include="shader.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="ThreadSafeQueue.h" />
+    <ClInclude Include="ThreadSafeValue.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="shaderObj.vs" />
