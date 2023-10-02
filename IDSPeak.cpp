@@ -30,7 +30,7 @@ void IDSPeak::CloseLibrary()
 {
     if (m_acquisitionWorker)
     {
-        //m_acquisitionWorker->Stop();
+        m_acquisitionWorker->Stop();
         m_acquisitionWorker = nullptr;
     }
 

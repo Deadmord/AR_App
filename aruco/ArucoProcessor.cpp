@@ -48,7 +48,14 @@ bool ArucoProcessor::detectMarkers(const cv::Mat& frame, cv::Mat& frameCopy)
 	//double tick = (double)cv::getTickCount();
 
 	// detect markers and estimate pose
-	detector.detectMarkers(frame, markers.corners, markers.ids, markers.rejected);
+	try {
+		detector.detectMarkers(frame, markers.corners, markers.ids, markers.rejected);
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << "Exception Aruco: " << e.what() << std::endl;
+	}
+
 
 	size_t  nMarkers = markers.corners.size();
 	markers.rvecs.resize(nMarkers);

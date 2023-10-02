@@ -97,6 +97,9 @@
     <ClCompile Include="ThreadSafeQueue.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
+    <ClCompile Include="ThreadSafeValue.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="appState.h">
@@ -157,6 +160,9 @@
       <Filter>Modules\IDSPeak</Filter>
     </ClInclude>
     <ClInclude Include="ThreadSafeQueue.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadSafeValue.h">
       <Filter>Framework</Filter>
     </ClInclude>
   </ItemGroup>

@@ -22,11 +22,6 @@ AcquisitionWorker::AcquisitionWorker(std::shared_ptr<peak::core::DataStream> dat
     m_imageConverter = std::make_unique<peak::ipl::ImageConverter>();
 }
 
-AcquisitionWorker::~AcquisitionWorker()
-{
-    Stop();
-}
-
 void AcquisitionWorker::Start()
 {
     try
@@ -84,6 +79,7 @@ void AcquisitionWorker::Stop()
 {
     m_running = false;
     m_acquisitionLoopthread.join();
+    m_autoFeatures = nullptr;
 }
 
 
@@ -115,7 +111,7 @@ void AcquisitionWorker::SetDataStream(std::shared_ptr<peak::core::DataStream> da
 }
 
 bool AcquisitionWorker::TryGetImage(cv::Mat& image) {
-    return imageQueue.Try_pop(image);
+    return imageItem.tryGet(image);
 }
 
 size_t AcquisitionWorker::getImageWidth()
@@ -129,51 +125,32 @@ size_t AcquisitionWorker::getImageHeight()
 }
 
 cv::Mat AcquisitionWorker::ConvertPeakImageToCvMat(const peak::ipl::Image& peakImage) {
+    // Create CV Mat image for debayering and convert it to RGB8 format
     int width = peakImage.Width();
     int height = peakImage.Height();
     auto PixelFormat = peakImage.PixelFormat();
     uint8_t* peakData = peakImage.Data();
 
     if (peakImage.PixelFormat() == peak::ipl::PixelFormatName::BGRa8) {
-        return cv::Mat(height, width, CV_8UC4, peakData);
+        cv::Mat bgraImage(height, width, CV_8UC4, peakData);
+        cv::Mat bgrImage;
+        cv::cvtColor(bgraImage, bgrImage, cv::COLOR_BGRA2BGR);      //very heavy operation
+        return bgrImage;
+        //return cv::Mat(height, width, CV_8UC4, peakData);
     }
     else if (peakImage.PixelFormat() == peak::ipl::PixelFormatName::BGR8) {
         return cv::Mat(height, width, CV_8UC3, peakData);
     }
     else {
-        auto peakImg = m_imageConverter->Convert(peakImage, peak::ipl::PixelFormatName::BGRa8);
+        auto peakImg = m_imageConverter->Convert(peakImage, peak::ipl::PixelFormatName::BGR8);
         peakData = peakImg.Data();
-        return cv::Mat(height, width, CV_8UC4, peakData);
+        return cv::Mat(height, width, CV_8UC3, peakData);
     }
 }
 
 void AcquisitionWorker::AcquisitionLoop() {
-    //while (m_running)
-    //{
-    //    try
-    //    {
-    //        const auto buffer = m_dataStream->WaitForFinishedBuffer(5000);
-    //        //дебайеринг
-    //        const auto peakImage = peak::BufferTo<peak::ipl::Image>(buffer).ConvertTo(
-    //            peak::ipl::PixelFormatName::BGRa8, peak::ipl::ConversionMode::Classic);
-    //        //конвертация peak::ipl::Image в cv::Mat
-    //        cv::Mat cvImage = ConvertPeakImageToCvMat(peakImage);
-    //        //добавление изображения в очередь
-    //        imageQueue.Push(cvImage);
 
-    //        m_dataStream->QueueBuffer(buffer);
-    //    }
-    //    catch (const peak::core::TimeoutException& e)
-    //    {
-    //        std::cout << "Timeout Exception getting frame: " << e.what() << std::endl;
-    //        return;
-    //    }
-    //    catch (const std::exception& e)
-    //    {
-    //        std::cout << "Exception getting frame: " << e.what() << std::endl;
-    //        return;
-    //    }
-    //}
+    peak::ipl::Image tempImage;
 
     while (m_running)
     {
@@ -182,29 +159,17 @@ void AcquisitionWorker::AcquisitionLoop() {
             // Get buffer from device's datastream
             const auto buffer = m_dataStream->WaitForFinishedBuffer(5000);
 
-            peak::ipl::Image tempImage;
+            
             tempImage = peak::BufferTo<peak::ipl::Image>(buffer).Clone();
 
             imageReceived(&tempImage);
 
-            // Create IDS peak IPL image for debayering and convert it to RGBa8 format
-
-            // Using the image converter ...
-            //QImage qImage(static_cast<int>(m_imageWidth), static_cast<int>(m_imageHeight), QImage::Format_RGB32);
-            //m_imageConverter->Convert(tempImage, peak::ipl::PixelFormatName::BGRa8, qImage.bits(),
-            //    static_cast<size_t>(qImage.sizeInBytes()));
-            tempImage = m_imageConverter->Convert(tempImage, peak::ipl::PixelFormatName::BGRa8);
-
-            // ... or without image converter
-            // tempImage.ConvertTo(
-            //     peak::ipl::PixelFormatName::BGRa8, qImage.bits(), static_cast<size_t>(qImage.byteCount()));
-
             // Convert peak::ipl::Image to cv::Mat
-            cv::Mat cvImage(ConvertPeakImageToCvMat(tempImage));
+            tempImage = m_imageConverter->Convert(tempImage, peak::ipl::PixelFormatName::BGR8);
+            //cv::Mat cvImage(ConvertPeakImageToCvMat(tempImage));
 
-
-            // Put cvImage into Queue asynchronously
-            imageQueue.Push(cvImage);
+            // Put cvImage into ThreadSafeValue asynchronously
+            imageItem.push(ConvertPeakImageToCvMat(tempImage));
 
             // Requeue buffer
             m_dataStream->QueueBuffer(buffer);
@@ -232,6 +197,5 @@ void AcquisitionWorker::imageReceived(const peak::ipl::Image* image)
         {
             m_autoFeatures->ProcessImage(image);
         });
-    std::cout << "AutoFeatures thread: " << m_autoFeaturesThread.get_id() << std::endl;
-    //m_autoFeaturesThread.join();
+    //std::cout << "AutoFeatures thread: " << m_autoFeaturesThread.get_id() << std::endl;
 }

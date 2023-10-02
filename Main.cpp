@@ -42,7 +42,7 @@ void loadObjects(GWindow& window, Shader& shaderProgObjWin, Shader& shaderProgBg
     shaderProgBgrWin.setInt("texture", 0);
 
     if (cameraIDSworkerPtr != nullptr)
-        window.addGLObject(verticesSurfFull, indicesSurf, initStateSurfFullScr, &shaderProgBgrWin, cameraIDSworkerPtr, false, rotateCamera, true, false, nullptr, cameraParams);
+        window.addGLObject(verticesSurfFull, indicesSurf, initStateSurfFullScr, &shaderProgBgrWin, cameraIDSworkerPtr,                  GL_RGB, GL_BGR, false, rotateCamera, true, false, nullptr, cameraParams);
     else
         window.addGLObject(verticesSurfFull, indicesSurf, initStateSurfFullScr, &shaderProgBgrWin, std::to_string(cameraId),            GL_RGB, GL_BGR, false, rotateCamera, true, false, nullptr, cameraParams);
     window.addGLObject(verticesOrigin, indicesOrigin, initStateOrigin,      &shaderProgObjWin, std::string("img/white.jpg"),            GL_RGB, GL_RGB, false, false, false, false, nullptr, "");
@@ -81,7 +81,8 @@ int main()
 
     loadObjects(window_1, shaderProgObjWin_1, shaderProgBgrWin_1, usbCamera_1, nullptr, usbCam01Params);
     loadObjects(window_2, shaderProgObjWin_2, shaderProgBgrWin_2, usbCamera_2, nullptr, usbCam02Params, true);
-    loadObjects(window_3, shaderProgObjWin_3, shaderProgBgrWin_3, usbCamera_3, nullptr, usbCam03Params);
+    //loadObjects(window_3, shaderProgObjWin_3, shaderProgBgrWin_3, usbCamera_3, nullptr, usbCam03Params);
+    loadObjects(window_3, shaderProgObjWin_3, shaderProgBgrWin_3, 0, IDSPeak::GetWorker(), usbCam03Params);
 
     while (!glfwWindowShouldClose(window_1) && !glfwWindowShouldClose(window_2) && !glfwWindowShouldClose(window_3))
     {
@@ -90,11 +91,11 @@ int main()
         window_3.renderFrame(RTCounter::getDeltaTime());
 
         //
-        cv::Mat IDSframe;
-        if (IDSPeak::GetWorker()->TryGetImage(IDSframe))
-        {
-            cv::imshow("IDS camera", IDSframe);
-        }
+        //cv::Mat IDSframe;
+        //if (IDSPeak::GetWorker()->TryGetImage(IDSframe))
+        //{
+        //    cv::imshow("IDS camera", IDSframe);
+        //}
         //
 
         RTCounter::updateTimer();
