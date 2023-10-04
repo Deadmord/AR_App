@@ -52,7 +52,7 @@ void GWindow::addGLObject(const std::vector<float>& objVBO, const std::vector<un
         glfwMakeContextCurrent(window);
         GLObject newGLObject(objVBO, objEBO, objState, linePolygonMode);
         newGLObject.setupShaderProgram(shaderProgPtr);
-        newGLObject.setupArUcoPtr(arucoProcessorPtr);
+        newGLObject.setupArUcoPtr(arucoThreadWrapper);
 
         if (texturePath.empty()) {
             throwError("Invalid texture file path!", texturePath);
@@ -77,7 +77,7 @@ void GWindow::addGLObject(const std::vector<float>& objVBO, const std::vector<un
         glfwMakeContextCurrent(window);
         GLObject newGLObject(objVBO, objEBO, objState, linePolygonMode);
         newGLObject.setupShaderProgram(shaderProgPtr);
-        newGLObject.setupArUcoPtr(arucoProcessorPtr);
+        newGLObject.setupArUcoPtr(arucoThreadWrapper);
 
         if (workerPtr != nullptr)
         {

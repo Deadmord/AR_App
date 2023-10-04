@@ -100,6 +100,9 @@
     <ClCompile Include="ThreadSafeValue.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
+    <ClCompile Include="ArucoThreadWrapper.cpp">
+      <Filter>Modules\ArUco</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="appState.h">
@@ -164,6 +167,9 @@
     </ClInclude>
     <ClInclude Include="ThreadSafeValue.h">
       <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="ArucoThreadWrapper.h">
+      <Filter>Modules\ArUco</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

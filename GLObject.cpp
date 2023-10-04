@@ -27,7 +27,7 @@ void GLObject::setupImgTexture(const std::string& imgTexture, GLenum internalfor
     //---------------------- video texture -------------------
     if (!this->data)
     {
-        std::cout << "Error: Img can't be open! Source: " << imgTexture << std::endl;
+        std::cerr << "Error: Img can't be open! Source: " << imgTexture << std::endl;
     }
     else
     {
@@ -42,9 +42,15 @@ void GLObject::setupImgTexture(const std::string& imgTexture, GLenum internalfor
 
 void GLObject::renderObject(Camera& camera, PrintInFrameCallback printCallback)
 {
-    arucoProcessorPtr = *arucoProcessorPtrToPtr;
+    //arucoProcessorPtr = *arucoProcessorPtrToPtr;
     shader->use();
     geometryObject.bindVertexArray();
+
+    if (!arucoThreadWrapperPtr)
+    {
+        std::cerr << "Error: ArucoThreadWrapper is not initialized!" << std::endl;
+        return;
+    }
 
     if (isStream || isVideo)
     {
@@ -58,8 +64,8 @@ void GLObject::renderObject(Camera& camera, PrintInFrameCallback printCallback)
     {
         processImage();
     }
-
-    glm::mat4 projection = arucoProcessorPtr->getProjectionMat();
+    
+    glm::mat4 projection = arucoThreadWrapperPtr->GetProjectionMat();
     renderMarkers(camera, projection);
 }
 
@@ -93,7 +99,7 @@ void GLObject::drowObject(glm::mat4& viewMat, glm::mat4& projectionMat, bool bac
 void GLObject::processVideoStream(const PrintInFrameCallback& printCallback)
 {
     if (!vidCapture.isOpened()) {
-        std::cout << "Error: Video stream can't be open" << std::endl;
+        std::cerr << "Error: Video stream can't be open" << std::endl;
         isOpened = false;
         return;
     }
@@ -107,7 +113,7 @@ void GLObject::processVideoStream(const PrintInFrameCallback& printCallback)
     }
 
     if (!isSuccessStream) {
-        std::cout << "Error: Video stream can't be read or disconnect! Source: " << streamIndex << filePath << std::endl;
+        std::cerr << "Error: Video stream can't be read or disconnect! Source: " << streamIndex << filePath << std::endl;
         isOpened = false;
         return;
     }
@@ -121,10 +127,10 @@ void GLObject::processIDSStream(const PrintInFrameCallback& printCallback)
     bool isSuccessStream = workerIDSPtr->TryGetImage(frameVideo);
 
     if (!isSuccessStream) {
-        std::cout << "Error: IDS stream can't be read or disconnect! Source: " << std::endl;
+        std::cerr << "Error: IDS stream can't be read or disconnect! Source: " << std::endl;
         return;
     }
-
+    //arucoThreadWrapperPtr->ProcessFrame(frameVideo);
     processFrame(frameVideo, printCallback);
 }
 
@@ -135,8 +141,10 @@ void GLObject::processFrame(cv::Mat& frame, const PrintInFrameCallback& printCal
     }
 
     if ((isStream || isIDSPeak) && isBackground) {
-        arucoProcessorPtr->detectMarkers(frame, frame);
-        printCallback(frame, arucoProcessorPtr->getFrameSize());
+        
+        //arucoProcessorPtr->detectMarkers(frame, frame);
+        arucoThreadWrapperPtr->ProcessFrame(frame);
+        printCallback(frame, arucoThreadWrapperPtr->GetFrameSize());
     }
 
     glTexImage2D(GL_TEXTURE_2D, 0, internalformat, width, height, 0, format, GL_UNSIGNED_BYTE, frame.data);
@@ -145,7 +153,7 @@ void GLObject::processFrame(cv::Mat& frame, const PrintInFrameCallback& printCal
 void GLObject::processImage()
 {
     if (!isOpened) {
-        std::cout << "Error: Img can't be open" << std::endl;
+        std::cerr << "Error: Img can't be open" << std::endl;
         return;
     }
 
@@ -154,7 +162,7 @@ void GLObject::processImage()
 
 void GLObject::renderOnMarkers(glm::mat4& view, glm::mat4& projection)
 {
-    const auto& markers = arucoProcessorPtr->getMarkers();
+    const auto& markers = arucoThreadWrapperPtr->GetDetectedMarkers();
 
     if (markerIds == nullptr) {
         for (glm::mat4 view : markers.viewMatrixes) { // рисуем объекты для всех маркеров
@@ -175,8 +183,7 @@ void GLObject::renderOnMarkers(glm::mat4& view, glm::mat4& projection)
 void GLObject::renderMarkers(Camera& camera, glm::mat4& projection)
 {
     glm::mat4 view = glm::mat4(1.0f);
-    const auto& markers = arucoProcessorPtr->getMarkers();
-
+    //const auto& markers = arucoProcessorPtr->getMarkers();
     if (showOnMarker) {
         renderOnMarkers(view, projection);
     }
@@ -186,3 +193,8 @@ void GLObject::renderMarkers(Camera& camera, glm::mat4& projection)
     }
 }
 
+GLObject::~GLObject()
+{
+    if (arucoThreadWrapperPtr)
+        arucoThreadWrapperPtr->StopThread();
+}

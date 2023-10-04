@@ -13,6 +13,7 @@
 //#include "geometryObjects.h"
 //#include "geometryData.h"
 //#include "aruco/ArucoProcessor.h"
+#include "ArucoThreadWrapper.h"
 
 #include "RTCounter.h"
 #include "config.h"
@@ -65,6 +66,6 @@ private:
 	glm::vec4 bgColor;
 
 	std::vector<GLObject> glObjects;
-	std::shared_ptr<ArucoProcessor> arucoProcessorPtr;
+	std::shared_ptr<ArucoThreadWrapper> arucoThreadWrapper;
 };
 

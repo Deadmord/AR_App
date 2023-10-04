@@ -10,23 +10,21 @@
 #include "aruco/ArucoProcessor.h"
 #include "acquisitionworker.h"
 #include "config.h"
+#include "ArucoThreadWrapper.h"
 
 using PrintInFrameCallback = std::function<void(const cv::Mat& frame, cv::Size frameSize)>;
 
 class GLObject
 {
 public:
-// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
-// Vertex Array Object sould has next form: float[] {PosX, PosY, PosZ, ColR, ColG, ColB, TextX, TextY, ...}.
-// Element Buffer Object should include indices of triangle vertices in the correct sequence.
+
 	GLObject(const std::vector<float>& objVBO, const std::vector<unsigned int>& objEBO, const std::vector<InitState>& objState, bool linePolygonMode = false);
 
 	void setupShaderProgram(Shader* shaderProgPtr);
 
-	void setupArUcoPtr(std::shared_ptr<ArucoProcessor>& arucoProcessorPtr)
+	void setupArUcoPtr(std::shared_ptr<ArucoThreadWrapper>& arucoThreadWrapper)
 	{
-		this->arucoProcessorPtrToPtr = &arucoProcessorPtr;
-		this->arucoProcessorPtr = *arucoProcessorPtrToPtr;
+		this->arucoThreadWrapperPtr = arucoThreadWrapper;
 	}
 
 	// Open texture file and bind with object
@@ -49,10 +47,12 @@ public:
 		if (this->isStream) //&& turn aruco flag
 		{
 			// ArUco init
-			*arucoProcessorPtrToPtr = std::make_shared<ArucoProcessor>(ArUcoMarkerLength, ArUcoDictionaryId, cameraParams, ArUcoShowRejected);
-			arucoProcessorPtr = *arucoProcessorPtrToPtr;
-			this->vidCapture.set(cv::CAP_PROP_FRAME_WIDTH, arucoProcessorPtr->getFrameSize().width);
-			this->vidCapture.set(cv::CAP_PROP_FRAME_HEIGHT, arucoProcessorPtr->getFrameSize().height);
+			//*arucoProcessorPtrToPtr = std::make_shared<ArucoProcessor>(ArUcoMarkerLength, ArUcoDictionaryId, cameraParams, ArUcoShowRejected);
+			//arucoProcessorPtr = *arucoProcessorPtrToPtr;
+			arucoThreadWrapperPtr = std::make_shared<ArucoThreadWrapper>(ArUcoMarkerLength, ArUcoDictionaryId, cameraParams, ArUcoShowRejected);
+			this->vidCapture.set(cv::CAP_PROP_FRAME_WIDTH, arucoThreadWrapperPtr->GetFrameSize().width);
+			this->vidCapture.set(cv::CAP_PROP_FRAME_HEIGHT, arucoThreadWrapperPtr->GetFrameSize().height);
+			arucoThreadWrapperPtr->StartThread();
 		}
 		//------------------------------------------
 
@@ -69,7 +69,7 @@ public:
 		//---------------------- video texture -------------------
 		if (!this->vidCapture.isOpened())
 		{
-			std::cout << "Error: Video stream can't be open! Source: " << videoTexture << std::endl;
+			std::cerr << "Error: Video stream can't be open! Source: " << videoTexture << std::endl;
 		}
 		else
 		{
@@ -77,7 +77,7 @@ public:
 			//Initialize a boolean to check whether frames are present or not
 			if (!this->vidCapture.read(frameVideo))
 			{
-				std::cout << "Error: Video stream can't be read or disconnect! Source: " << videoTexture << std::endl;
+				std::cerr << "Error: Video stream can't be read or disconnect! Source: " << videoTexture << std::endl;
 			}
 			else
 			{
@@ -97,10 +97,10 @@ public:
 		if (this->isIDSPeak) //&& turn aruco flag
 		{
 			// ArUco init
-			*arucoProcessorPtrToPtr = std::make_shared<ArucoProcessor>(ArUcoMarkerLength, ArUcoDictionaryId, cameraParams, ArUcoShowRejected);
-			arucoProcessorPtr = *arucoProcessorPtrToPtr;
-			//Set width & hight from arucoProcessorPtr->getFrameSize().width
-
+			//*arucoProcessorPtrToPtr = std::make_shared<ArucoProcessor>(ArUcoMarkerLength, ArUcoDictionaryId, cameraParams, ArUcoShowRejected);
+			//arucoProcessorPtr = *arucoProcessorPtrToPtr;
+			arucoThreadWrapperPtr = std::make_shared<ArucoThreadWrapper>(ArUcoMarkerLength, ArUcoDictionaryId, cameraParams, ArUcoShowRejected);
+			arucoThreadWrapperPtr->StartThread();
 		}
 		//------------------------------------------
 
@@ -126,7 +126,7 @@ public:
 	void renderObject(Camera& camera, PrintInFrameCallback printCallback);
 
 	void drowObject(glm::mat4& viewMat, glm::mat4& projectionMat, bool background = false);
-
+	~GLObject();
 private:
 
 	void processVideoStream(const PrintInFrameCallback& printCallback);
@@ -159,7 +159,8 @@ private:
 	std::shared_ptr<AcquisitionWorker> workerIDSPtr;
 	std::shared_ptr<std::vector<int>> markerIds;
 
-	std::shared_ptr<ArucoProcessor> arucoProcessorPtr;
-	std::shared_ptr<ArucoProcessor>* arucoProcessorPtrToPtr;
+	//std::shared_ptr<ArucoProcessor> arucoProcessorPtr;
+	//std::shared_ptr<ArucoProcessor>* arucoProcessorPtrToPtr;
+	std::shared_ptr<ArucoThreadWrapper> arucoThreadWrapperPtr;
 };
 

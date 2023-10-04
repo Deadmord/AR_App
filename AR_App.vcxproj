@@ -175,6 +175,7 @@ copy "$(IDS_PEAK_GENERIC_SDK_PATH)\afl\lib\x86_64\*.dll" "$(OutDir)"</Command>
     <ClCompile Include="acquisitionworker.cpp" />
     <ClCompile Include="AcquisitionWorkerOld.cpp" />
     <ClCompile Include="appState.cpp" />
+    <ClCompile Include="ArucoThreadWrapper.cpp" />
     <ClCompile Include="aruco\ArucoProcessor.cpp" />
     <ClCompile Include="autofeatures.cpp" />
     <ClCompile Include="camera.cpp" />
@@ -199,6 +200,7 @@ copy "$(IDS_PEAK_GENERIC_SDK_PATH)\afl\lib\x86_64\*.dll" "$(OutDir)"</Command>
     <ClInclude Include="acquisitionworker.h" />
     <ClInclude Include="AcquisitionWorkerOld.h" />
     <ClInclude Include="appState.h" />
+    <ClInclude Include="ArucoThreadWrapper.h" />
     <ClInclude Include="aruco\ArucoProcessor.h" />
     <ClInclude Include="aruco\aruco_utilities.hpp" />
     <ClInclude Include="autofeatures.h" />
