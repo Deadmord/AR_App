@@ -47,77 +47,57 @@ GWindow::GWindow(unsigned int WinID, unsigned int WinWidth, unsigned int WinHeig
 
 void GWindow::addGLObject(const std::vector<float>& objVBO, const std::vector<unsigned int>& objEBO, const std::vector<InitState>& objState, Shader* shaderProgPtr, const std::string& texturePath, GLenum internalformat, GLenum format, bool linePolygonMode, bool rotate, bool isBackground, bool showOnMarker, std::shared_ptr<std::vector<int>> markerIds, std::string cameraParams)
 {
-    glfwMakeContextCurrent(window);
-    GLObject newGLObject(objVBO, objEBO, objState, linePolygonMode);
-    newGLObject.setupShaderProgram(shaderProgPtr);
-    newGLObject.setupArUcoPtr(arucoProcessorPtr);
+    try
+    {
+        glfwMakeContextCurrent(window);
+        GLObject newGLObject(objVBO, objEBO, objState, linePolygonMode);
+        newGLObject.setupShaderProgram(shaderProgPtr);
+        newGLObject.setupArUcoPtr(arucoProcessorPtr);
 
-    if (!texturePath.empty())
-    {
+        if (texturePath.empty()) {
+            throwError("Invalid texture file path!", texturePath);
+            return;
+        }
+
         std::string fileExtension = std::filesystem::path(texturePath).extension().generic_string();
-        if (!fileExtension.empty())
-        {
-            if (fileExtension == ".jpg" || fileExtension == ".png" || fileExtension == ".bmp")
-            {
-                newGLObject.setupImgTexture(texturePath, internalformat, format, rotate, isBackground, showOnMarker, markerIds);
-            }
-            else if (fileExtension == ".mp4" || fileExtension == ".avi" || fileExtension == ".mov")
-            {
-                newGLObject.setupVideoTexture(texturePath, internalformat, format, rotate, isBackground, showOnMarker, markerIds, cameraParams);
-            }
-            else
-            {
-                std::cout << "Invalid file extension: " << texturePath << std::endl;
-                throw std::runtime_error("Invalid file extension");   //Refactoring !!! Add tray/catch
-            }
-        }
-        else
-        {
-            int streamId = std::stoi(texturePath);
-            if (streamId >= 0 && streamId < 127)
-            {
-                newGLObject.setupVideoTexture(streamId, internalformat, format, rotate, isBackground, showOnMarker, markerIds, cameraParams);
-            }
-            else
-            {
-                std::cout << "Invalid texture file path or stream id! " << texturePath << std::endl;
-                throw std::runtime_error("Invalid texture file path or stream id!");   //Refactoring !!! Add tray/catch
-            }
-        }
+        setupTextureBasedOnExtension(newGLObject, fileExtension, texturePath, internalformat, format, rotate, isBackground, showOnMarker, markerIds, cameraParams);
+
+        glObjects.push_back(newGLObject);
     }
-    else
+    catch (const std::exception& e)
     {
-        std::cout << "Invalid texture file path! " << texturePath << std::endl;
-        throw std::runtime_error("Invalid texture file path!");   //Refactoring !!! Add tray/catch
+        std::cout << "Exception adding GLObject: " << e.what() << std::endl;
     }
-    glObjects.push_back(newGLObject);
 }
 
 void GWindow::addGLObject(const std::vector<float>& objVBO, const std::vector<unsigned int>& objEBO, const std::vector<InitState>& objState, Shader* shaderProgPtr, const std::shared_ptr<AcquisitionWorker> workerPtr, GLenum internalformat, GLenum format, bool linePolygonMode, bool rotate, bool isBackground, bool showOnMarker, std::shared_ptr<std::vector<int>> markerIds, std::string cameraParams)
 {
-    glfwMakeContextCurrent(window);
-    GLObject newGLObject(objVBO, objEBO, objState, linePolygonMode);
-    newGLObject.setupShaderProgram(shaderProgPtr);
-    newGLObject.setupArUcoPtr(arucoProcessorPtr);
+    try
+    {
+        glfwMakeContextCurrent(window);
+        GLObject newGLObject(objVBO, objEBO, objState, linePolygonMode);
+        newGLObject.setupShaderProgram(shaderProgPtr);
+        newGLObject.setupArUcoPtr(arucoProcessorPtr);
 
-    if (workerPtr != nullptr)
-    {
-        newGLObject.setupIDSPeakTexture(workerPtr, internalformat, format, rotate, isBackground, showOnMarker, markerIds, cameraParams);
+        if (workerPtr != nullptr)
+        {
+            newGLObject.setupIDSPeakTexture(workerPtr, internalformat, format, rotate, isBackground, showOnMarker, markerIds, cameraParams);
+        }
+        else
+        {
+            throwError("Invalid IDS camera worker pointer!", "");
+        }
+        glObjects.push_back(newGLObject);
     }
-    else
+    catch (const std::exception& e)
     {
-        std::cout << "Invalid IDS camera worker pointer!" << std::endl;
-        throw std::runtime_error("Invalid IDS camera worker pointer!");   //Refactoring !!! Add tray/catch
+        std::cout << "Exception adding GLObject: " << e.what() << std::endl;
     }
-    glObjects.push_back(newGLObject);
 }
 
 void GWindow::renderFrame(float deltaTime)
 {
     RTCounter::startTimer(wndID);
-    //RTCounter::startTimer((4 * 1) + wndID);     // For debagging perfomance. Remove it !!!
-    //RTCounter::startTimer((4 * 2) + wndID);
-    //RTCounter::startTimer((4 * 3) + wndID);
 
     glfwMakeContextCurrent(window);
 
@@ -128,28 +108,22 @@ void GWindow::renderFrame(float deltaTime)
     glClearColor(bgColor.r, bgColor.g, bgColor.b, bgColor.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // also clear the depth buffer now!
 
+    using RenderCallback = std::function<void(const cv::Mat&, cv::Size)>;
+
+    // define lambda f()
+    RenderCallback renderCallback = [&](const cv::Mat& frame, cv::Size frameSize) {
+        showInFrame(frame, cv::Size(WinWidth, WinHeight), frameSize, RTCounter::getFPS(wndID), { RTCounter::getDeltaTime((4 * 1) + wndID), RTCounter::getDeltaTime((4 * 2) + wndID), RTCounter::getDeltaTime((4 * 3) + wndID), RTCounter::getDeltaTime(wndID) });
+    };
+
     for (GLsizei index{ 0 }; index < glObjects.size(); index++)
     {
         RTCounter::startTimer((index + 1) * 4 + wndID);      // For debugging perfomance, remove it!!!
-
-        //glObjects[index].renderObject([&](const cv::Mat& frame, cv::Size frameSize){
-        //    showInFrame(frame, cv::Size(WinWidth, WinHeight), frameSize, RTCounter::getFPS(wndID), { RTCounter::getDeltaTime((4 * 1) + wndID), RTCounter::getDeltaTime((4 * 2) + wndID), RTCounter::getDeltaTime((4 * 3) + wndID), RTCounter::getDeltaTime(wndID) }); });
-
-        // Render object method reqaer camera veuw matrix and printState functions in some caces
-        // create alias for lambda function
-        using RenderCallback = std::function<void(const cv::Mat&, cv::Size)>;
-
-        // define lambda f()
-        RenderCallback renderCallback = [&](const cv::Mat& frame, cv::Size frameSize) {
-            showInFrame(frame, cv::Size(WinWidth, WinHeight), frameSize, RTCounter::getFPS(wndID), { RTCounter::getDeltaTime((4 * 1) + wndID), RTCounter::getDeltaTime((4 * 2) + wndID), RTCounter::getDeltaTime((4 * 3) + wndID), RTCounter::getDeltaTime(wndID) });
-        };
 
         glObjects[index].renderObject(camera, renderCallback);
 
         RTCounter::stopTimer((index + 1) * 4 + wndID);      // For debugging perfomance, remove it!!!
     }
-    // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-    // -------------------------------------------------------------------------------
+
     glfwSwapBuffers(window);
     glfwPollEvents();
 
@@ -158,29 +132,22 @@ void GWindow::renderFrame(float deltaTime)
 
 void GWindow::showInFrame(const cv::Mat& frame, cv::Size WindSize, cv::Size frameSize, float FPS, std::initializer_list<float> dTimes)
 {
-    std::ostringstream vector_to_marker;
+    auto putTextOnFrame = [&](const std::string& text, const cv::Point& position, const cv::Scalar& color) {
+        cv::putText(frame, text, position, cv::FONT_HERSHEY_SIMPLEX, 0.6, color, 2);
+    };
 
-    vector_to_marker.str(std::string());
-    vector_to_marker << std::setprecision(4) << "WindwRes: " << std::setw(2) << WindSize.width << " x " << WindSize.height;
-    cv::putText(frame, vector_to_marker.str(), cv::Point(10, 25), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(32, 32, 240), 2);
-
-    vector_to_marker.str(std::string());
-    vector_to_marker << std::setprecision(4) << "FrameRes: " << std::setw(4) << frameSize.width << " x " << frameSize.height;
-    cv::putText(frame, vector_to_marker.str(), cv::Point(250, 25), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(32, 240, 32), 2);
-
-    vector_to_marker.str(std::string());
-    vector_to_marker << std::setprecision(4) << "FPS: " << std::setw(6) << FPS;
-    cv::putText(frame, vector_to_marker.str(), cv::Point(500, 25), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(240, 32, 32), 2);
+    putTextOnFrame("WindwRes: " + std::to_string(WindSize.width) + " x " + std::to_string(WindSize.height), cv::Point(10, 25), cv::Scalar(32, 32, 240));
+    putTextOnFrame("FrameRes: " + std::to_string(frameSize.width) + " x " + std::to_string(frameSize.height), cv::Point(250, 25), cv::Scalar(32, 240, 32));
+    putTextOnFrame("FPS: " + std::to_string(FPS), cv::Point(500, 25), cv::Scalar(240, 32, 32));
 
     int shift{ 0 };
     for (float dTime : dTimes)
     {
-        vector_to_marker.str(std::string());
-        vector_to_marker << std::setprecision(4) << "OperationTime: " << std::setw(4) << dTime;
-        cv::putText(frame, vector_to_marker.str(), cv::Point(10, 50 + shift), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(220, 16, 220), 2);
+        putTextOnFrame("OperationTime: " + std::to_string(dTime), cv::Point(10, 50 + shift), cv::Scalar(220, 16, 220));
         shift += 25;
     }
 }
+
 
 void GWindow::framebufferSizeCallbackWrapper(GLFWwindow* window, int width, int height)
 {
@@ -291,4 +258,33 @@ void GWindow::mouseCursorCallback(GLFWwindow* window, double xposIn, double ypos
 void GWindow::scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
     camera.ProcessMouseScroll(static_cast<float>(yoffset));
+}
+
+void GWindow::setupTextureBasedOnExtension(GLObject& obj, const std::string& ext, const std::string& path, GLenum internalformat, GLenum format, bool rotate, bool isBackground, bool showOnMarker, std::shared_ptr<std::vector<int>> markerIds, std::string& cameraParams)
+{
+    if (ext.empty()) {
+        int streamId = std::stoi(path);
+        if (streamId >= 0 && streamId < 127) {
+            obj.setupVideoTexture(streamId, internalformat, format, rotate, isBackground, showOnMarker, markerIds, cameraParams);
+        }
+        else {
+            throwError("Invalid texture file path or stream id!", path);;
+        }
+        return;
+    }
+
+    if (ext == ".jpg" || ext == ".png" || ext == ".bmp") {
+        obj.setupImgTexture(path, internalformat, format, rotate, isBackground, showOnMarker, markerIds);
+    }
+    else if (ext == ".mp4" || ext == ".avi" || ext == ".mov") {
+        obj.setupVideoTexture(path, internalformat, format, rotate, isBackground, showOnMarker, markerIds, cameraParams);
+    }
+    else {
+        throwError("Invalid file extension:", path);
+    }
+}
+
+void GWindow::throwError(const std::string& message, const std::string& detail)
+{
+    throw std::runtime_error(message + " " + detail);
 }

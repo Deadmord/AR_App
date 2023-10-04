@@ -22,55 +22,62 @@ AcquisitionWorker::AcquisitionWorker(std::shared_ptr<peak::core::DataStream> dat
     m_imageConverter = std::make_unique<peak::ipl::ImageConverter>();
 }
 
-void AcquisitionWorker::Start()
-{
-    try
-    {
-        // Lock critical features to prevent them from changing during acquisition
-        m_nodemapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("TLParamsLocked")->SetValue(1);
-
-        // Determine RAW buffer size
-        m_bufferWidth = m_nodemapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("Width")->Value();
-        m_bufferHeight = m_nodemapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("Height")->Value();
-
-        // Determine image size
-        if (m_nodemapRemoteDevice->HasNode("UsableWidth"))
-        {
-            m_imageWidth = m_nodemapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("UsableWidth")
-                               ->Value();
-            m_imageHeight = m_nodemapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("UsableHeight")
-                                ->Value();
+void AcquisitionWorker::Start() {
+    try {
+        // Use the helper function for safe node finding
+        auto tlParamsLockedNode = FindNodeSafe<peak::core::nodes::IntegerNode>("TLParamsLocked");
+        if (tlParamsLockedNode) {
+            tlParamsLockedNode->SetValue(1);
         }
-        else
-        {
+
+        auto widthNode = FindNodeSafe<peak::core::nodes::IntegerNode>("Width");
+        if (widthNode) {
+            m_bufferWidth = widthNode->Value();
+        }
+
+        auto heightNode = FindNodeSafe<peak::core::nodes::IntegerNode>("Height");
+        if (heightNode) {
+            m_bufferHeight = heightNode->Value();
+        }
+
+        if (m_nodemapRemoteDevice->HasNode("UsableWidth")) {
+            auto usableWidthNode = FindNodeSafe<peak::core::nodes::IntegerNode>("UsableWidth");
+            if (usableWidthNode) {
+                m_imageWidth = usableWidthNode->Value();
+            }
+
+            auto usableHeightNode = FindNodeSafe<peak::core::nodes::IntegerNode>("UsableHeight");
+            if (usableHeightNode) {
+                m_imageHeight = usableHeightNode->Value();
+            }
+        }
+        else {
             m_imageWidth = m_bufferWidth;
             m_imageHeight = m_bufferHeight;
         }
 
-        // Pre-allocate images for conversion that can be used simultaneously
-        // This is not mandatory but it can increase the speed of image conversions
         size_t imageCount = 1;
         inputPixelFormat = static_cast<peak::ipl::PixelFormatName>(
             m_nodemapRemoteDevice->FindNode<peak::core::nodes::EnumerationNode>("PixelFormat")
-                ->CurrentEntry()
-                ->Value());
+            ->CurrentEntry()
+            ->Value());
 
         m_imageConverter->PreAllocateConversion(
             inputPixelFormat, peak::ipl::PixelFormatName::BGRa8, m_imageWidth, m_imageHeight, imageCount);
 
-        // Start acquisition
         m_dataStream->StartAcquisition();
-        m_nodemapRemoteDevice->FindNode<peak::core::nodes::CommandNode>("AcquisitionStart")->Execute();
-        m_nodemapRemoteDevice->FindNode<peak::core::nodes::CommandNode>("AcquisitionStart")->WaitUntilDone();
+        auto acquisitionStartNode = FindNodeSafe<peak::core::nodes::CommandNode>("AcquisitionStart");
+        if (acquisitionStartNode) {
+            acquisitionStartNode->Execute();
+            acquisitionStartNode->WaitUntilDone();
+        }
     }
-    catch (const std::exception& e)
-    {
-        std::cout << "Exception: " << e.what();
+    catch (const std::exception& e) {
+        std::cerr << "Exception: " << e.what() << std::endl;
         throw std::runtime_error(e.what());
     }
 
     m_running = true;
-
     m_acquisitionLoopthread = std::thread(&AcquisitionWorker::AcquisitionLoop, this);
     std::cout << "AcquisitionWorker thread: " << m_acquisitionLoopthread.get_id() << std::endl;
 }
@@ -198,4 +205,18 @@ void AcquisitionWorker::imageReceived(const peak::ipl::Image* image)
             m_autoFeatures->ProcessImage(image);
         });
     //std::cout << "AutoFeatures thread: " << m_autoFeaturesThread.get_id() << std::endl;
+}
+
+template <typename T>
+std::shared_ptr<T> AcquisitionWorker::FindNodeSafe(const std::string& nodeName)
+{
+    try
+    {
+        return m_nodemapRemoteDevice->FindNode<T>(nodeName);
+    }
+    catch (const std::exception& e)
+    {
+        std::cout << "Exception while finding node " << nodeName << e.what() << std::endl;
+        return nullptr;
+    }
 }

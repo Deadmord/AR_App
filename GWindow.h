@@ -47,7 +47,8 @@ private:
 	void mouseCursorCallback(GLFWwindow* window, double xposIn, double yposIn);
 	void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 	void processInput(GLFWwindow* window, float deltaTime);	//remove it or make private
-
+	void setupTextureBasedOnExtension(GLObject& obj, const std::string& ext, const std::string& path, GLenum internalformat, GLenum format, bool rotate, bool isBackground, bool showOnMarker, std::shared_ptr<std::vector<int>> markerIds, std::string& cameraParams);
+	void throwError(const std::string& message, const std::string& detail);
 private:
 	GLFWwindow* window;
 

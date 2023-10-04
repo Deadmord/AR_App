@@ -128,9 +128,16 @@ public:
 	void drowObject(glm::mat4& viewMat, glm::mat4& projectionMat, bool background = false);
 
 private:
+
+	void processVideoStream(const PrintInFrameCallback& printCallback);
+	void processIDSStream(const PrintInFrameCallback& printCallback);
+	void processFrame(cv::Mat& frame, const PrintInFrameCallback& printCallback);
+	void processImage();
+	void renderMarkers(Camera& camera, glm::mat4& projection);
+	void renderOnMarkers(glm::mat4& view, glm::mat4& projection);
+
 	GeometryObject geometryObject;
 	Shader* shader;
-
 	//Textures property
 	bool			isOpened = false;
 	bool			isImg = false;

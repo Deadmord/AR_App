@@ -70,15 +70,6 @@ bool ArucoProcessor::detectMarkers(const cv::Mat& frame, cv::Mat& frameCopy)
 		}
 	}
 
-	//double currentTime = ((double)cv::getTickCount() - tick) / cv::getTickFrequency();
-	//totalTime += currentTime;
-	//totalIterations++;
-	//if (totalIterations % 30 == 0) {
-	//	cout << "Detection Time = " << currentTime * 1000 << " ms "
-	//		<< "(Mean = " << 1000 * totalTime / double(totalIterations) << " ms)" << endl;
-	//}
-
-	// draw results
 	frame.copyTo(frameCopy);
 	if (!markers.ids.empty()) {
 		cv::aruco::drawDetectedMarkers(frameCopy, markers.corners, markers.ids);
@@ -140,7 +131,7 @@ const float& ArucoProcessor::getFOVdeg() const
 	return FOV_Deg;
 }
 
-glm::mat4 ArucoProcessor::createViewMatrix(cv::Mat cameraMatrix, cv::Vec3d rvec, cv::Vec3d tvec) {
+glm::mat4 ArucoProcessor::createViewMatrix(cv::Mat& cameraMatrix, cv::Vec3d& rvec, cv::Vec3d& tvec) {
 	// Convert rotation vector to rotation matrix
 	cv::Mat rotationMatrix;
 	cv::Rodrigues(rvec, rotationMatrix);
@@ -164,7 +155,7 @@ glm::mat4 ArucoProcessor::createViewMatrix(cv::Mat cameraMatrix, cv::Vec3d rvec,
 	//std::cout << "Transformation Matrix:\n" << glm::to_string(glmTransformationMatrix) << "\n\n";    //Print matrix example
 }
 
-inline glm::mat4 ArucoProcessor::createProjectionMatrix(float FOV, cv::Size frameSize, float nearPlane, float farPlane)
+inline glm::mat4 ArucoProcessor::createProjectionMatrix(float FOV, cv::Size& frameSize, float nearPlane, float farPlane)
 {
 	// Create OpenGL-style projection matrix
 	glm::mat4 glmProjectionMatrix = glm::perspective(FOV, float(frameSize.width) / float(frameSize.height), nearPlane, farPlane);

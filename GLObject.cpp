@@ -48,145 +48,19 @@ void GLObject::renderObject(Camera& camera, PrintInFrameCallback printCallback)
 
     if (isStream || isVideo)
     {
-        // checking
-        if (!vidCapture.isOpened())		//может быть заменить на textures[index].isOpened ?
-        {
-            std::cout << "Error: Video stream can't be open" << std::endl;
-            isOpened = false;
-            return;
-        }
-        cv::Mat frameVideo;
-        bool isSuccessStream = vidCapture.read(frameVideo);
-        //while (inputVideo.grab()) {           использовать для асинхронного захвата видео кадра, наверное лучше разместить в конце метода и сделать исинхронной чтобы выполнялась пока обрабатывается остальные потоки.
-        //    inputVideo.retrieve(image);
-        //}
-        if (!isSuccessStream && isVideo)
-        {
-            vidCapture.set(cv::CAP_PROP_POS_FRAMES, 0); // return to file begin
-            isSuccessStream = vidCapture.read(frameVideo);
-        }
-        if (!isSuccessStream)
-        {
-            std::cout << "Error: Video stream can't be read or disconnect! Source: " << streamIndex << filePath << std::endl;
-            isOpened = false;
-            return;
-        }
-        else
-        {
-            if (rotate)
-                cv::rotate(frameVideo, frameVideo, cv::ROTATE_180);
-
-            //calc and apply distortion correction, very heavy hendling!!!
-            //cv::Mat undistortedFrame;
-            //cv::undistort(frameVideo, undistortedFrame, arucoProcessorPtr->getCameraMat(), arucoProcessorPtr->getDistortCoeff());
-
-            //only apply distortion maps, mach more faster!!!
-            //cv::Mat undistortedFrame;
-            //cv::remap(frameVideo, undistortedFrame, arucoProcessorPtr->getUndistortMap1(), arucoProcessorPtr->getUndistortMap2(), cv::INTER_LINEAR);
-
-            //check stream videoframe for aruco markers
-            //if (textures[index].isStream && arucoProcessorPtr->detectMarkers(frameVideo, frameVideoAruco))
-            //{
-            //    glTexImage2D(GL_TEXTURE_2D, 0, textures[index].internalformat, textures[index].width, textures[index].height, 0, textures[index].format, GL_UNSIGNED_BYTE, frameVideoAruco.data);
-            //}
-            //else
-            //glTexImage2D(GL_TEXTURE_2D, 0, textures[index].internalformat, textures[index].width, textures[index].height, 0, textures[index].format, GL_UNSIGNED_BYTE, frameVideo.data);
-
-            if (isStream && isBackground)
-            {
-                arucoProcessorPtr->detectMarkers(frameVideo, frameVideo);
-                printCallback(frameVideo, arucoProcessorPtr->getFrameSize());
-                //showInFrame(frameVideo, cv::Size(WinWidth, WinHeight), arucoProcessorPtr->getFrameSize(), RTCounter::getFPS(wndID), { RTCounter::getDeltaTime((4 * 1) + wndID), RTCounter::getDeltaTime((4 * 2) + wndID), RTCounter::getDeltaTime((4 * 3) + wndID), RTCounter::getDeltaTime(wndID) });
-            }
-            glTexImage2D(GL_TEXTURE_2D, 0, internalformat, width, height, 0, format, GL_UNSIGNED_BYTE, frameVideo.data);
-        }
+        processVideoStream(printCallback);
     }
-    if (isIDSPeak)
+    else if (isIDSPeak)
     {
-        cv::Mat frameVideo;
-        bool isSuccessStream = workerIDSPtr->TryGetImage(frameVideo);
-        //while (inputVideo.grab()) {           использовать для асинхронного захвата видео кадра, наверное лучше разместить в конце метода и сделать исинхронной чтобы выполнялась пока обрабатывается остальные потоки.
-        //    inputVideo.retrieve(image);
-        //}
-        if (!isSuccessStream)
-        {
-            std::cout << "Error: IDS stream can't be read or disconnect! Source: " << std::endl;
-            return;
-        }
-        else
-        {
-            if (rotate)
-                cv::rotate(frameVideo, frameVideo, cv::ROTATE_180);
-
-            //calc and apply distortion correction, very heavy hendling!!!
-            //cv::Mat undistortedFrame;
-            //cv::undistort(frameVideo, undistortedFrame, arucoProcessorPtr->getCameraMat(), arucoProcessorPtr->getDistortCoeff());
-
-            //only apply distortion maps, mach more faster!!!
-            //cv::Mat undistortedFrame;
-            //cv::remap(frameVideo, undistortedFrame, arucoProcessorPtr->getUndistortMap1(), arucoProcessorPtr->getUndistortMap2(), cv::INTER_LINEAR);
-
-            //check stream videoframe for aruco markers
-            //if (textures[index].isStream && arucoProcessorPtr->detectMarkers(frameVideo, frameVideoAruco))
-            //{
-            //    glTexImage2D(GL_TEXTURE_2D, 0, textures[index].internalformat, textures[index].width, textures[index].height, 0, textures[index].format, GL_UNSIGNED_BYTE, frameVideoAruco.data);
-            //}
-            //else
-            //glTexImage2D(GL_TEXTURE_2D, 0, textures[index].internalformat, textures[index].width, textures[index].height, 0, textures[index].format, GL_UNSIGNED_BYTE, frameVideo.data);
-
-            if (isIDSPeak && isBackground)
-            {
-                arucoProcessorPtr->detectMarkers(frameVideo, frameVideo);
-                printCallback(frameVideo, arucoProcessorPtr->getFrameSize());
-                //showInFrame(frameVideo, cv::Size(WinWidth, WinHeight), arucoProcessorPtr->getFrameSize(), RTCounter::getFPS(wndID), { RTCounter::getDeltaTime((4 * 1) + wndID), RTCounter::getDeltaTime((4 * 2) + wndID), RTCounter::getDeltaTime((4 * 3) + wndID), RTCounter::getDeltaTime(wndID) });
-            }
-            glTexImage2D(GL_TEXTURE_2D, 0, internalformat, width, height, 0, format, GL_UNSIGNED_BYTE, frameVideo.data);
-        }
+        processIDSStream(printCallback);
     }
-    if (isImg)
+    else if (isImg)
     {
-        // checking
-        if (!isOpened)		//может быть заменить на textures[index].isOpened ?
-        {
-            std::cout << "Error: Img can't be open" << std::endl;
-            return;
-        }
-        glTexImage2D(GL_TEXTURE_2D, 0, internalformat, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        processImage();
     }
-    glm::mat4 view = glm::mat4(1.0f);
-    glm::mat4 projection = glm::mat4(1.0f);
-    projection = arucoProcessorPtr->getProjectionMat();
-    //projection = glm::perspective(glm::radians(camera.Zoom), (float)WinWidth / (float)WinHeight, 0.1f, 100.0f);
-    //projection = glm::perspective(glm::radians(42.0f), (float)WinWidth / (float)WinHeight, 0.1f, 100.0f);
 
-    if (showOnMarker /*&& !arucoProcessorPtr->getMarkers().ids.empty()*/)       //if ids list is empty it will be drow objects on top of all markers
-    {
-        if (markerIds == nullptr)
-        {
-            for (glm::mat4 view : arucoProcessorPtr->getMarkers().viewMatrixes)       //drow objects for all markers
-            {
-                drowObject(view, projection, isBackground);
-            }
-        }
-        else
-        {
-            for (int markerIndex{ 0 }; markerIndex < arucoProcessorPtr->getMarkers().ids.size(); markerIndex++)
-            {
-                int target = arucoProcessorPtr->getMarkers().ids.at(markerIndex);
-                if (std::ranges::any_of(*(markerIds.get()), [target](int value) { return value == target; }))
-                {
-                    view = arucoProcessorPtr->getMarkers().viewMatrixes.at(markerIndex);
-                    drowObject(view, projection, isBackground);
-                }
-
-            }
-        }
-    }
-    else
-    {
-        view = camera.GetViewMatrix();
-        drowObject(view, projection, isBackground);
-    }
+    glm::mat4 projection = arucoProcessorPtr->getProjectionMat();
+    renderMarkers(camera, projection);
 }
 
 void GLObject::drowObject(glm::mat4& viewMat, glm::mat4& projectionMat, bool background)
@@ -215,3 +89,100 @@ void GLObject::drowObject(glm::mat4& viewMat, glm::mat4& projectionMat, bool bac
 
     if (background) glClear(GL_DEPTH_BUFFER_BIT);	// first object is background
 }
+
+void GLObject::processVideoStream(const PrintInFrameCallback& printCallback)
+{
+    if (!vidCapture.isOpened()) {
+        std::cout << "Error: Video stream can't be open" << std::endl;
+        isOpened = false;
+        return;
+    }
+
+    cv::Mat frameVideo;
+    bool isSuccessStream = vidCapture.read(frameVideo);
+
+    if (!isSuccessStream && isVideo) {
+        vidCapture.set(cv::CAP_PROP_POS_FRAMES, 0); // return to file begin
+        isSuccessStream = vidCapture.read(frameVideo);
+    }
+
+    if (!isSuccessStream) {
+        std::cout << "Error: Video stream can't be read or disconnect! Source: " << streamIndex << filePath << std::endl;
+        isOpened = false;
+        return;
+    }
+
+    processFrame(frameVideo, printCallback);
+}
+
+void GLObject::processIDSStream(const PrintInFrameCallback& printCallback)
+{
+    cv::Mat frameVideo;
+    bool isSuccessStream = workerIDSPtr->TryGetImage(frameVideo);
+
+    if (!isSuccessStream) {
+        std::cout << "Error: IDS stream can't be read or disconnect! Source: " << std::endl;
+        return;
+    }
+
+    processFrame(frameVideo, printCallback);
+}
+
+void GLObject::processFrame(cv::Mat& frame, const PrintInFrameCallback& printCallback)
+{
+    if (rotate) {
+        cv::rotate(frame, frame, cv::ROTATE_180);
+    }
+
+    if ((isStream || isIDSPeak) && isBackground) {
+        arucoProcessorPtr->detectMarkers(frame, frame);
+        printCallback(frame, arucoProcessorPtr->getFrameSize());
+    }
+
+    glTexImage2D(GL_TEXTURE_2D, 0, internalformat, width, height, 0, format, GL_UNSIGNED_BYTE, frame.data);
+}
+
+void GLObject::processImage()
+{
+    if (!isOpened) {
+        std::cout << "Error: Img can't be open" << std::endl;
+        return;
+    }
+
+    glTexImage2D(GL_TEXTURE_2D, 0, internalformat, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+}
+
+void GLObject::renderOnMarkers(glm::mat4& view, glm::mat4& projection)
+{
+    const auto& markers = arucoProcessorPtr->getMarkers();
+
+    if (markerIds == nullptr) {
+        for (glm::mat4 view : markers.viewMatrixes) { // рисуем объекты для всех маркеров
+            drowObject(view, projection, isBackground);
+        }
+    }
+    else {
+        for (int markerIndex{ 0 }; markerIndex < markers.ids.size(); markerIndex++) {
+            int target = markers.ids.at(markerIndex);
+            if (std::ranges::any_of(*(markerIds.get()), [target](int value) { return value == target; })) {
+                view = markers.viewMatrixes.at(markerIndex);
+                drowObject(view, projection, isBackground);
+            }
+        }
+    }
+}
+
+void GLObject::renderMarkers(Camera& camera, glm::mat4& projection)
+{
+    glm::mat4 view = glm::mat4(1.0f);
+    const auto& markers = arucoProcessorPtr->getMarkers();
+
+    if (showOnMarker) {
+        renderOnMarkers(view, projection);
+    }
+    else {
+        view = camera.GetViewMatrix();
+        drowObject(view, projection, isBackground);
+    }
+}
+

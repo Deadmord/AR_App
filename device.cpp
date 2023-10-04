@@ -6,40 +6,28 @@ bool IsAccessable(const std::shared_ptr<peak::core::nodes::Node>& node)
 {
     try
     {
-        if ((peak::core::nodes::NodeAccessStatus::NotAvailable == node->AccessStatus())
-            || (peak::core::nodes::NodeAccessStatus::NotImplemented == node->AccessStatus()))
-        {
-            return false;
-        }
-        else
-        {
-            return true;
-        }
+        auto status = node->AccessStatus();
+        return status != peak::core::nodes::NodeAccessStatus::NotAvailable &&
+            status != peak::core::nodes::NodeAccessStatus::NotImplemented;
     }
     catch (const std::exception&)
-    {}
-
-    return false;
+    {
+        return false;
+    }
 }
 
 bool IsWriteAble(const std::shared_ptr<peak::core::nodes::Node>& node)
 {
     try
     {
-        if (peak::core::nodes::NodeAccessStatus::ReadWrite == node->AccessStatus()
-            || peak::core::nodes::NodeAccessStatus::WriteOnly == node->AccessStatus())
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        auto status = node->AccessStatus();
+        return status == peak::core::nodes::NodeAccessStatus::ReadWrite ||
+            status == peak::core::nodes::NodeAccessStatus::WriteOnly;
     }
     catch (const std::exception&)
-    {}
-
-    return false;
+    {
+        return false;
+    }
 }
 } // namespace
 
@@ -150,33 +138,17 @@ void Device::LoadDefaults()
 
 void Device::DisableAutoFeatures()
 {
-    // Make sure that no auto feature is enabled by default
-    try
+    const std::vector<std::string> features = { "ExposureAuto", "GainAuto", "BalanceWhiteAuto" };
+    for (const auto& feature : features)
     {
-        m_nodemapRemoteDevice->FindNode<peak::core::nodes::EnumerationNode>("ExposureAuto")
-            ->SetCurrentEntry("Off");
-    }
-    catch (const std::exception&)
-    {
-        // Ignore
-    }
-    try
-    {
-        m_nodemapRemoteDevice->FindNode<peak::core::nodes::EnumerationNode>("GainAuto")
-            ->SetCurrentEntry("Off");
-    }
-    catch (const std::exception&)
-    {
-        // Ignore
-    }
-    try
-    {
-        m_nodemapRemoteDevice->FindNode<peak::core::nodes::EnumerationNode>("BalanceWhiteAuto")
-            ->SetCurrentEntry("Off");
-    }
-    catch (const std::exception&)
-    {
-        // Ignore
+        try
+        {
+            m_nodemapRemoteDevice->FindNode<peak::core::nodes::EnumerationNode>(feature)->SetCurrentEntry("Off");
+        }
+        catch (const std::exception&)
+        {
+            // Ignore
+        }
     }
 }
 
@@ -202,7 +174,6 @@ void Device::StopAcquisition()
     }
 }
 
-
 bool Device::IsMono()
 {
     auto pixelFormat = m_nodemapRemoteDevice->FindNode<peak::core::nodes::EnumerationNode>("PixelFormat")
@@ -215,28 +186,35 @@ bool Device::HasGain()
 {
     try
     {
-        if (m_nodemapRemoteDevice->HasNode("GainSelector"))
+        if (!m_nodemapRemoteDevice->HasNode("GainSelector"))
         {
-            const auto node = m_nodemapRemoteDevice->FindNode<peak::core::nodes::EnumerationNode>(
-                "GainSelector");
-            if (IsAccessable(node))
+            return false;
+        }
+
+        const auto node = m_nodemapRemoteDevice->FindNode<peak::core::nodes::EnumerationNode>("GainSelector");
+        if (!IsAccessable(node) || !IsWriteAble(node))
+        {
+            return false;
+        }
+
+        for (const auto& entry : node->Entries())
+        {
+            if (!IsAccessable(entry))
             {
-                for (const auto& entry : node->Entries())
-                {
-                    for (const auto& gainType : { "AnalogAll", "DigitalAll" })
-                        if (gainType == entry->StringValue())
-                        {
-                            if (IsAccessable(entry) && IsWriteAble(node))
-                            {
-                                return true;
-                            }
-                        }
-                }
+                continue;
+            }
+
+            const auto& gainType = entry->StringValue();
+            if (gainType == "AnalogAll" || gainType == "DigitalAll")
+            {
+                return true;
             }
         }
     }
-    catch (std::exception&)
-    {}
+    catch (std::exception& e)
+    {
+        std::cout << "Exception in HasGain method: " << e.what() << std::endl;
+    }
 
     return false;
 }

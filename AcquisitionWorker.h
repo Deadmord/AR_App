@@ -31,6 +31,8 @@ private:
     void AcquisitionLoop();
     void imageReceived(const peak::ipl::Image* image);
     cv::Mat ConvertPeakImageToCvMat(const peak::ipl::Image& peakImage);
+    template <typename T>
+    std::shared_ptr<T> FindNodeSafe(const std::string& nodeName);
 
     std::shared_ptr<peak::core::DataStream> m_dataStream;
     std::shared_ptr<peak::core::NodeMap> m_nodemapRemoteDevice;
