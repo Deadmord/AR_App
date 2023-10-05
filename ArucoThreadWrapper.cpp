@@ -21,7 +21,8 @@ void ArucoThreadWrapper::threadFunction()
 				currentFrame.release();
 			}
 			if (!frameToProcess.empty()) {
-				arucoProcessor->detectMarkers(frameToProcess, currentFrame);
+				cv::Mat resultFrame;
+				arucoProcessor->detectMarkers(frameToProcess, resultFrame);
 			}
 		}
 	}
