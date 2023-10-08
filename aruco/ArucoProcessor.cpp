@@ -66,7 +66,13 @@ bool ArucoProcessor::detectMarkers(const cv::Mat& frame, cv::Mat& frameCopy)
 		// Calculate pose for each marker
 		for (size_t i = 0; i < nMarkers; i++) {
 			solvePnP(*objPoints, markers.corners.at(i), camMatrix, distCoeffs, markers.rvecs.at(i), markers.tvecs.at(i));
-			markers.viewMatrixes.at(i) = createViewMatrix(camMatrix, markers.rvecs.at(i), markers.tvecs.at(i));
+			cv::Vec3d averaged_rvec, averaged_tvec;
+			addValueAndAverage(markers.rvecs.at(i), markers.tvecs.at(i), averaged_rvec, averaged_tvec);
+
+			markers.rvecs.at(i) = averaged_rvec;
+			markers.tvecs.at(i) = averaged_tvec;
+
+			markers.viewMatrixes.at(i) = createViewMatrix(camMatrix, averaged_rvec, averaged_tvec);
 		}
 	}
 
@@ -169,4 +175,22 @@ void ArucoProcessor::initializeObjPoints() {
 	(*objPoints).ptr<cv::Vec3f>(0)[1] = cv::Vec3f(markerLength / 2.f, markerLength / 2.f, 0);
 	(*objPoints).ptr<cv::Vec3f>(0)[2] = cv::Vec3f(markerLength / 2.f, -markerLength / 2.f, 0);
 	(*objPoints).ptr<cv::Vec3f>(0)[3] = cv::Vec3f(-markerLength / 2.f, -markerLength / 2.f, 0);
+}
+
+void ArucoProcessor::addValueAndAverage(const cv::Vec3d& new_rvec, const cv::Vec3d& new_tvec, cv::Vec3d& averaged_rvec, cv::Vec3d& averaged_tvec)
+{
+	//add new values
+	rvecs_history.push_back(new_rvec);
+	tvecs_history.push_back(new_tvec);
+
+	//delete old values if there are more than N of them
+	if (rvecs_history.size() > N) 
+	{
+		rvecs_history.pop_front();
+		tvecs_history.pop_front();
+	}
+
+	//calculate average values
+	averaged_rvec = std::accumulate(rvecs_history.begin(), rvecs_history.end(), cv::Vec3d(0, 0, 0)) / double(rvecs_history.size());
+	averaged_tvec = std::accumulate(tvecs_history.begin(), tvecs_history.end(), cv::Vec3d(0, 0, 0)) / double(tvecs_history.size());
 }

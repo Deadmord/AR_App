@@ -6,6 +6,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/string_cast.hpp> // For glm::value_ptr и glm::to_string
+#include <numeric>
 #include "aruco_utilities.hpp"
 
 struct Markers
@@ -52,6 +53,7 @@ private:
 	glm::mat4 createProjectionMatrix(float FOV, cv::Size& frameSize, float nearPlane = 0.1f, float farPlane = 100.0f);
 
 	void initializeObjPoints();
+	void addValueAndAverage(const cv::Vec3d& new_rvec, const cv::Vec3d& new_tvec, cv::Vec3d& averaged_rvec, cv::Vec3d& averaged_tvec);
 
 private:
 	float markerLength;
@@ -73,5 +75,10 @@ private:
 	float FOV_Deg = 45.0f;
 	const float nearPlane = 0.1f;  // Ѕлижн€€ плоскость отсечени€
 	const float farPlane = 100.0f; // ƒальн€€ плоскость отсечени€
+
+	//number of last measurements used for averaging
+	const int N = 10; // 5? 10? 15? 20?
+	std::deque<cv::Vec3d> rvecs_history;
+	std::deque<cv::Vec3d> tvecs_history;
 };
 
