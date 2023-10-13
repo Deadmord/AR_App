@@ -7,6 +7,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/string_cast.hpp> // For glm::value_ptr è glm::to_string
 #include "aruco_utilities.hpp"
+#include "../Console.h"
 
 struct Markers
 {
@@ -22,7 +23,8 @@ class ArucoProcessor
 public:
 	ArucoProcessor(float markerLength, cv::aruco::PredefinedDictionaryType dictionaryId = cv::aruco::DICT_6X6_250, std::string cameraParams = nullptr, bool showRejected = false);
 
-	~ArucoProcessor() = default;
+	~ArucoProcessor();
+
 	ArucoProcessor(const ArucoProcessor&) = default;
 	ArucoProcessor& operator=(const ArucoProcessor&) = default;
 

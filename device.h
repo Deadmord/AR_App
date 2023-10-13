@@ -10,19 +10,10 @@ class Device
 public:
     explicit Device();
 
-    std::shared_ptr<peak::core::DataStream> DataSteam()
-    {
-        return m_dataStream;
-    };
-    std::shared_ptr<peak::core::NodeMap> RemoteNodeMap()
-    {
-        return m_nodemapRemoteDevice;
-    }
+    std::shared_ptr<peak::core::DataStream> DataSteam();;
+    std::shared_ptr<peak::core::NodeMap> RemoteNodeMap();
 
-    double Framerate()
-    {
-        return m_frameRate;
-    }
+    double Framerate();
 
     void FindAndOpen();
     void OpenDataStream();

@@ -8,6 +8,29 @@ class ThreadSafeValue
 public:
     ThreadSafeValue() : itemAvailable_(false) {}
 
+    // Copy constructor
+    ThreadSafeValue(const ThreadSafeValue& other) {
+        std::unique_lock<std::mutex> lock(other.mutex_);
+        if (other.itemAvailable_) {
+            item_ = other.item_;
+            itemAvailable_ = true;
+        }
+    }
+
+    // Copy assignment operator
+    ThreadSafeValue& operator=(const ThreadSafeValue& other) {
+        if (this == &other) {
+            return *this;
+        }
+        std::unique_lock<std::mutex> myLock(mutex_);
+        std::unique_lock<std::mutex> otherLock(other.mutex_);
+        if (other.itemAvailable_) {
+            item_ = other.item_;
+            itemAvailable_ = true;
+        }
+        return *this;
+    }
+
     // Move constructor
     ThreadSafeValue(T&& item)
         : item_(std::move(item)), itemAvailable_(true) {}
@@ -63,7 +86,7 @@ public:
     }
 
     //то же что и Try_Get, но если элемента нет, ждет пока не появится
-    void waitAndGet(T& item) const {
+    void waitAndGet(T& item) {
         std::unique_lock<std::mutex> lock(mutex_);
         while (!itemAvailable_) {
             condition_.wait(lock);

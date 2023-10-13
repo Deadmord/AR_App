@@ -21,7 +21,7 @@ void IDSPeak::Initialize()
     }
     catch (const std::exception& e)
     {
-        std::cout << "Exception" << e.what();
+        Console::red() << "Exception" << e.what() << std::endl;
         CloseDevice();
     }
 }
@@ -39,6 +39,11 @@ void IDSPeak::CloseLibrary()
     // close IDS peak API library
     peak::Library::Close();
     peak::afl::library::Exit();
+}
+
+std::shared_ptr<AcquisitionWorker> IDSPeak::GetWorker()
+{
+    return m_acquisitionWorker;
 }
 
 void IDSPeak::OpenDevice()
@@ -59,6 +64,6 @@ void IDSPeak::CloseDevice()
     }
     catch (const std::exception& e)
     {
-        std::cout << "Exception" << e.what();
+        Console::red() << "Exception" << e.what() << std::endl;
     }
 }

@@ -29,8 +29,11 @@
     <Filter Include="Modules\Virtual camera">
       <UniqueIdentifier>{b18116a2-4bbc-4e09-bd95-cd2f47b95ff5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Modules\IDSPeak">
+    <Filter Include="Modules\IDSPeak stream">
       <UniqueIdentifier>{6f9ae55a-a510-426b-b571-e9dbfab69209}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\textures">
+      <UniqueIdentifier>{d4b47b83-9d29-4b6d-b82c-ccc01f8e0d0d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -83,21 +86,33 @@
       <Filter>Helpers</Filter>
     </ClCompile>
     <ClCompile Include="IDSPeak.cpp">
-      <Filter>Modules\IDSPeak</Filter>
+      <Filter>Modules\IDSPeak stream</Filter>
     </ClCompile>
     <ClCompile Include="acquisitionworker.cpp">
-      <Filter>Modules\IDSPeak</Filter>
+      <Filter>Modules\IDSPeak stream</Filter>
     </ClCompile>
     <ClCompile Include="autofeatures.cpp">
-      <Filter>Modules\IDSPeak</Filter>
+      <Filter>Modules\IDSPeak stream</Filter>
     </ClCompile>
     <ClCompile Include="device.cpp">
-      <Filter>Modules\IDSPeak</Filter>
+      <Filter>Modules\IDSPeak stream</Filter>
     </ClCompile>
     <ClCompile Include="ThreadSafeQueue.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
     <ClCompile Include="ThreadSafeValue.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="texture.cpp">
+      <Filter>Modules\textures</Filter>
+    </ClCompile>
+    <ClCompile Include="videoTexture.cpp">
+      <Filter>Modules\textures</Filter>
+    </ClCompile>
+    <ClCompile Include="imageTexture.cpp">
+      <Filter>Modules\textures</Filter>
+    </ClCompile>
+    <ClCompile Include="Console.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
   </ItemGroup>
@@ -148,21 +163,33 @@
       <Filter>Helpers</Filter>
     </ClInclude>
     <ClInclude Include="IDSPeak.h">
-      <Filter>Modules\IDSPeak</Filter>
+      <Filter>Modules\IDSPeak stream</Filter>
     </ClInclude>
     <ClInclude Include="acquisitionworker.h">
-      <Filter>Modules\IDSPeak</Filter>
+      <Filter>Modules\IDSPeak stream</Filter>
     </ClInclude>
     <ClInclude Include="autofeatures.h">
-      <Filter>Modules\IDSPeak</Filter>
+      <Filter>Modules\IDSPeak stream</Filter>
     </ClInclude>
     <ClInclude Include="device.h">
-      <Filter>Modules\IDSPeak</Filter>
+      <Filter>Modules\IDSPeak stream</Filter>
     </ClInclude>
     <ClInclude Include="ThreadSafeQueue.h">
       <Filter>Framework</Filter>
     </ClInclude>
     <ClInclude Include="ThreadSafeValue.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="texture.h">
+      <Filter>Modules\textures</Filter>
+    </ClInclude>
+    <ClInclude Include="videoTexture.h">
+      <Filter>Modules\textures</Filter>
+    </ClInclude>
+    <ClInclude Include="imageTexture.h">
+      <Filter>Modules\textures</Filter>
+    </ClInclude>
+    <ClInclude Include="Console.h">
       <Filter>Framework</Filter>
     </ClInclude>
   </ItemGroup>

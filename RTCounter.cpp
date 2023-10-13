@@ -3,82 +3,112 @@
 const unsigned int NUMBER_STOPWATCHS = 64;
 const size_t RTCounter::windowSize = 25;
 
-float RTCounter::deltaTime = 0.0f;
-float RTCounter::lastFrameTime = 0.0f;
 float RTCounter::lastPrintTime = 0.0f;
-std::vector<FrameTiming> RTCounter::stopwatch(NUMBER_STOPWATCHS);
+std::vector<FrameTiming> RTCounter::LocalTimers(NUMBER_STOPWATCHS);
+FrameTiming RTCounter::MainTimer;
+
+//--- Local Timers and FPS ---
 
 void RTCounter::startTimer(GLuint timerNumber)
 {
-	if (timerNumber < stopwatch.size())
+	if (timerNumber < LocalTimers.size())
 	{
-		stopwatch[timerNumber].startTime = static_cast<float>(glfwGetTime());
+		LocalTimers[timerNumber].startTime = static_cast<float>(glfwGetTime());
 	}
 	else
-		std::cout << "Error: Timer doesnt exist!";
+	Console::red() << "Error: Timer doesnt exist!";
 }
 
 void RTCounter::stopTimer(GLuint timerNumber)
 {
-	if (timerNumber < stopwatch.size())
+	if (timerNumber < LocalTimers.size())
 	{
-		stopwatch[timerNumber].stopTime = static_cast<float>(glfwGetTime());
-		float dTime = stopwatch[timerNumber].stopTime - stopwatch[timerNumber].startTime;
-		stopwatch[timerNumber].dTimes.push_back(dTime);
-		stopwatch[timerNumber].sum += dTime;
+		LocalTimers[timerNumber].stopTime = static_cast<float>(glfwGetTime());
+		float dTime = LocalTimers[timerNumber].stopTime - LocalTimers[timerNumber].startTime;
+		LocalTimers[timerNumber].dTimes.push_back(dTime);
+		LocalTimers[timerNumber].sum += dTime;
 
-		if (stopwatch[timerNumber].dTimes.size() > windowSize) {
-			stopwatch[timerNumber].sum -= stopwatch[timerNumber].dTimes.front();
-			stopwatch[timerNumber].dTimes.pop_front();
+		if (LocalTimers[timerNumber].dTimes.size() > windowSize) {
+			LocalTimers[timerNumber].sum -= LocalTimers[timerNumber].dTimes.front();
+			LocalTimers[timerNumber].dTimes.pop_front();
 		}
-		stopwatch[timerNumber].avrDeltaTime = stopwatch[timerNumber].sum / stopwatch[timerNumber].dTimes.size();
-		stopwatch[timerNumber].FPS = 1.0f / stopwatch[timerNumber].avrDeltaTime;
+		LocalTimers[timerNumber].avrDeltaTime = LocalTimers[timerNumber].sum / LocalTimers[timerNumber].dTimes.size();
+		LocalTimers[timerNumber].FPS = 1.0f / LocalTimers[timerNumber].avrDeltaTime;
 	}
 	else
-		std::cout << "Error: Timer doesnt exist!";
+		Console::red() << "Error: Timer doesnt exist!";
 }
 
 float RTCounter::getFPS(GLuint timerNumber)
 {
-	if (timerNumber < stopwatch.size())
+	if (timerNumber < LocalTimers.size())
 	{
-		return stopwatch[timerNumber].FPS;
+		return LocalTimers[timerNumber].FPS;
 	}
 	else
-		std::cout << "Error: Timer doesnt exist!";
+		Console::red() << "Error: Timer doesnt exist!";
 	return 0.0f;
 }
 
 float RTCounter::getDeltaTime(GLuint timerNumber)
 {
-	if (timerNumber < stopwatch.size())
+	if (timerNumber < LocalTimers.size())
 	{
-		return stopwatch[timerNumber].avrDeltaTime;
+		return LocalTimers[timerNumber].avrDeltaTime;
 	}
 	else
-		std::cout << "Error: Timer doesnt exist!";
+		Console::red() << "Error: Timer doesnt exist!";
 	return 0.0f;
 }
 
-void RTCounter::updateTimer()
+//--- Console general FPS timer ---
+void RTCounter::StartMainTimer()
 {
-	// per-frame time logic
-	float currentFrame = static_cast<float>(glfwGetTime());
-	deltaTime = currentFrame - lastFrameTime;
-	lastFrameTime = currentFrame;
+	MainTimer.startTime = static_cast<float>(glfwGetTime());
 }
 
-void RTCounter::printFPS_Console()
+void RTCounter::StopMainTimer()
+{
+	MainTimer.stopTime = static_cast<float>(glfwGetTime());
+	float dTime = MainTimer.stopTime - MainTimer.startTime;
+	MainTimer.dTimes.push_back(dTime);
+	MainTimer.sum += dTime;
+
+	if (MainTimer.dTimes.size() > windowSize) {
+		MainTimer.sum -= MainTimer.dTimes.front();
+		MainTimer.dTimes.pop_front();
+	}
+	MainTimer.avrDeltaTime = MainTimer.sum / MainTimer.dTimes.size();
+	MainTimer.FPS = 1.0f / MainTimer.avrDeltaTime;
+}
+
+void RTCounter::updateMainTimer()
+{
+	MainTimer.stopTime = static_cast<float>(glfwGetTime());
+	float dTime = MainTimer.stopTime - MainTimer.startTime;
+	MainTimer.startTime = MainTimer.stopTime;	//New timelap start from end of last lap
+	MainTimer.dTimes.push_back(dTime);
+	MainTimer.sum += dTime;
+
+	if (MainTimer.dTimes.size() > windowSize) {
+		MainTimer.sum -= MainTimer.dTimes.front();
+		MainTimer.dTimes.pop_front();
+	}
+	MainTimer.avrDeltaTime = MainTimer.sum / MainTimer.dTimes.size();
+	MainTimer.FPS = 1.0f / MainTimer.avrDeltaTime;
+}
+
+void RTCounter::printMainFPS_Console()
 {
 	float currentTime = static_cast<float>(glfwGetTime());
-	if (currentTime - lastPrintTime >= 0.25f)
+	if (currentTime - lastPrintTime >= 0.33f)
 	{
-		std::cout << '\r' << std::fixed << std::setprecision(1) << 1.0f / deltaTime << "  ";
+		Console::blue() << '\r' << std::fixed << std::setprecision(1) << MainTimer.FPS << "  ";
 		lastPrintTime = currentTime;
 	}
 }
 
-float RTCounter::getDeltaTime()
+float RTCounter::getMainDeltaTime()
 {
-	return deltaTime;
+	return MainTimer.avrDeltaTime;
 }

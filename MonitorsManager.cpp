@@ -4,9 +4,9 @@ MonitorsManager::MonitorsManager()
 {
     // ----------------- Monitors state ----------------------
     GLFWmonitor** monitorsPtr = glfwGetMonitors(&monitorsCount);
-    std::cout << "Monitors curently connected: " << monitorsCount << std::endl;
+    Console::log() << "Monitors curently connected: " << monitorsCount << std::endl;
     if (!monitorsPtr) {
-        std::cout << "No monitors were found!" << std::endl;
+    Console::red() << "No monitors were found!" << std::endl;
         glfwTerminate();
         throw std::runtime_error("No monitors were found!");   //Refactoring !!! Add tray/catch
     }

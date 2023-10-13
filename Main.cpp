@@ -6,16 +6,16 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <peak/peak.hpp>
-#include "stb_image.h"
 
 #include "config.h"
 #include "MonitorsManager.h"
 #include "shader.h"
 #include "geometryData.h"
 #include "AcquisitionWorker.h"
-//#include "peakInitializer.h"
 #include "IDSPeak.h"
+#include "texture.h"
+#include "videoTexture.h"
+#include "imageTexture.h"
 
 void appInit()
 {
@@ -33,35 +33,62 @@ void appInit()
     IDSPeak::Initialize();
 }
 
+void InitFoneTextures(std::vector<std::shared_ptr<texture>>& textures)
+{
+    textures.push_back(std::make_shared<videoTexture>(usbCamera_1, GL_RGB, GL_BGR, false, true, false, nullptr, usbCam01Params));
+    textures.push_back(std::make_shared<videoTexture>(usbCamera_2, GL_RGB, GL_BGR, true, true, false, nullptr, usbCam02Params));
+    textures.push_back(std::make_shared<videoTexture>(usbCamera_3, GL_RGB, GL_BGR, false, true, false, nullptr, usbCam03Params));
+    textures.push_back(std::make_shared<videoTexture>(IDSPeak::GetWorker(),                 GL_RGB, GL_BGR, false, true, false, nullptr, usbCam03Params));
+}
+
+void InitObjectTextures(std::vector<std::shared_ptr<texture>>& textures)
+{
+    textures.push_back(std::make_shared<imageTexture>(std::string("img/white.jpg"),         GL_RGB, GL_RGB, false, false, false,    nullptr));
+    textures.push_back(std::make_shared<imageTexture>(std::string("img/border.png"),        GL_RGB, GL_RGB, false, false, true,     std::make_shared<std::vector<int>>(markerIdsCube)));
+    textures.push_back(std::make_shared<imageTexture>(std::string("img/border.png"),        GL_RGB, GL_RGB, false, false, true,     std::make_shared<std::vector<int>>(markerIdsBrdCube)));
+    textures.push_back(std::make_shared<videoTexture>(std::string("video/video (1080p).mp4"), GL_RGB, GL_BGR, false, false, true,   std::make_shared<std::vector<int>>(markerIdsCubes), " "));
+
+    textures.push_back(std::make_shared<imageTexture>(std::string("img/rome.jpg"),          GL_RGB, GL_RGB, false, false, true,     std::make_shared<std::vector<int>>(markerIdsSurfWall_40)));
+    textures.push_back(std::make_shared<imageTexture>(std::string("img/moon.jpg"),          GL_RGB, GL_RGB, false, false,  true,    std::make_shared<std::vector<int>>(markerIdsSurfWall_41)));
+    textures.push_back(std::make_shared<imageTexture>(std::string("img/krasnii-kover-13.jpg"), GL_RGB, GL_RGB, false, false, true,  std::make_shared<std::vector<int>>(markerIdsSurfWall_42)));
+    textures.push_back(std::make_shared<imageTexture>(std::string("img/Alon.png"),          GL_RGBA, GL_RGBA, false, false, true,   std::make_shared<std::vector<int>>(markerIdsSurfFace_37)));
+    textures.push_back(std::make_shared<imageTexture>(std::string("img/Eres.png"),          GL_RGBA, GL_RGBA, false, false, true,   std::make_shared<std::vector<int>>(markerIdsSurfFace_38)));
+    textures.push_back(std::make_shared<imageTexture>(std::string("img/kot.png"),           GL_RGBA, GL_RGBA, false, false, true,   std::make_shared<std::vector<int>>(markerIdsSurfWall_39)));
+}
+
 //------------- helper: set geometry objects --------------
-void loadObjects(GWindow& window, Shader& shaderProgObjWin, Shader& shaderProgBgrWin, int cameraId, std::shared_ptr<AcquisitionWorker> cameraIDSworkerPtr, std::string& cameraParams, bool rotateCamera = false)
+void loadObjects(GWindow& window, Shader& shaderProgObjWin, Shader& shaderProgBgrWin, std::shared_ptr<texture> foneTexture, std::vector<std::shared_ptr<texture>>& objectTextures)
 {
     shaderProgObjWin.use();
     shaderProgObjWin.setInt("texture", 0);
     shaderProgBgrWin.use();
     shaderProgBgrWin.setInt("texture", 0);
 
-    if (cameraIDSworkerPtr != nullptr)
-        window.addGLObject(verticesSurfFull, indicesSurf, initStateSurfFullScr, &shaderProgBgrWin, cameraIDSworkerPtr,                  GL_RGB, GL_BGR, false, rotateCamera, true, false, nullptr, cameraParams);
-    else
-        window.addGLObject(verticesSurfFull, indicesSurf, initStateSurfFullScr, &shaderProgBgrWin, std::to_string(cameraId),            GL_RGB, GL_BGR, false, rotateCamera, true, false, nullptr, cameraParams);
-    window.addGLObject(verticesOrigin, indicesOrigin, initStateOrigin,      &shaderProgObjWin, std::string("img/white.jpg"),            GL_RGB, GL_RGB, false, false, false, false, nullptr, "");
-    window.addGLObject(verticesCube, indicesCube, initStateCube,            &shaderProgObjWin, std::string("img/border.png"),           GL_RGB, GL_RGB, false, false, false, true, std::make_shared<std::vector<int>>(markerIdsCube), "");
-    window.addGLObject(verticesBrdCube, indicesBrdCube, initStateBrdCube,   &shaderProgObjWin, std::string("img/border.png"),           GL_RGB, GL_RGB, false, false, false, true, std::make_shared<std::vector<int>>(markerIdsBrdCube), "");
-    window.addGLObject(verticesCube, indicesCube, initStateCubes,           &shaderProgObjWin, std::string("video/video (1080p).mp4"),  GL_RGB, GL_BGR, false, false, false, true, std::make_shared<std::vector<int>>(markerIdsCubes), "");
-    
-    window.addGLObject(verticesSurfWall, indicesSurfWall, initStateSurfWall, &shaderProgObjWin, std::string("img/rome.jpg"),            GL_RGB, GL_RGB, false, false, false, true, std::make_shared<std::vector<int>>(markerIdsSurfWall_40), "");
-    window.addGLObject(verticesSurfWall, indicesSurfWall, initStateSurfWall, &shaderProgObjWin, std::string("img/moon.jpg"),            GL_RGB, GL_RGB, false, false, false, true, std::make_shared<std::vector<int>>(markerIdsSurfWall_41), "");
-    window.addGLObject(verticesSurfWall, indicesSurfWall, initStateSurfWall, &shaderProgObjWin, std::string("img/krasnii-kover-13.jpg"),GL_RGB, GL_RGB, false, false, false, true, std::make_shared<std::vector<int>>(markerIdsSurfWall_42), "");
-    window.addGLObject(verticesSurfFace, indicesSurfFace, initStateSurfFace, &shaderProgObjWin, std::string("img/Alon.png"),            GL_RGBA, GL_RGBA, false, false, false, true, std::make_shared<std::vector<int>>(markerIdsSurfFace_37), "");
-    window.addGLObject(verticesSurfFace, indicesSurfFace, initStateSurfFace, &shaderProgObjWin, std::string("img/Eres.png"),            GL_RGBA, GL_RGBA, false, false, false, true, std::make_shared<std::vector<int>>(markerIdsSurfFace_38), "");
-    window.addGLObject(verticesSurfWall, indicesSurfWall, initStateSurfWall, &shaderProgObjWin, std::string("img/kot.png"),             GL_RGBA, GL_RGBA, false, false, false, true, std::make_shared<std::vector<int>>(markerIdsSurfWall_39), "");
+    window.addGLObject(verticesSurfFull, indicesSurf, initStateSurfFullScr,  &shaderProgBgrWin, foneTexture, false);
+                               
+   window.addGLObject(verticesOrigin, indicesOrigin, initStateOrigin,       &shaderProgObjWin, objectTextures.at(0), false);
+   window.addGLObject(verticesCube, indicesCube, initStateCube,             &shaderProgObjWin, objectTextures.at(1), false);
+   window.addGLObject(verticesBrdCube, indicesBrdCube, initStateBrdCube,    &shaderProgObjWin, objectTextures.at(2), false);
+   window.addGLObject(verticesCube, indicesCube, initStateCubes,            &shaderProgObjWin, objectTextures.at(3), false);
+                                                                                               
+   window.addGLObject(verticesSurfWall, indicesSurfWall, initStateSurfWall, &shaderProgObjWin, objectTextures.at(4), false);
+   window.addGLObject(verticesSurfWall, indicesSurfWall, initStateSurfWall, &shaderProgObjWin, objectTextures.at(5), false);
+   window.addGLObject(verticesSurfWall, indicesSurfWall, initStateSurfWall, &shaderProgObjWin, objectTextures.at(6), false);
+   window.addGLObject(verticesSurfFace, indicesSurfFace, initStateSurfFace, &shaderProgObjWin, objectTextures.at(7), false);
+   window.addGLObject(verticesSurfFace, indicesSurfFace, initStateSurfFace, &shaderProgObjWin, objectTextures.at(8), false);
+   window.addGLObject(verticesSurfWall, indicesSurfWall, initStateSurfWall, &shaderProgObjWin, objectTextures.at(9), false);
 }
 
 int main()
 {
+    //Console::test();
     //******************** Initialisation ********************
     appInit();
+    std::vector<std::shared_ptr<texture>> foneTextures;
+    std::vector<std::shared_ptr<texture>> objectTextures;
+    InitFoneTextures(foneTextures);
+    InitObjectTextures(objectTextures);
+
     MonitorsManager monitors;
     // ------------------ Windows init ---------------------
     const MonitorData& data = monitors.getMonitor(0);
@@ -79,28 +106,38 @@ int main()
     Shader shaderProgObjWin_3(window_3, "shaderObj.vs", "shader.fs");
     Shader shaderProgBgrWin_3(window_3, "shaderBgr.vs", "shader.fs");
 
-    loadObjects(window_1, shaderProgObjWin_1, shaderProgBgrWin_1, usbCamera_1, nullptr, usbCam01Params);
-    loadObjects(window_2, shaderProgObjWin_2, shaderProgBgrWin_2, usbCamera_2, nullptr, usbCam02Params, true);
-    //loadObjects(window_3, shaderProgObjWin_3, shaderProgBgrWin_3, usbCamera_3, nullptr, usbCam03Params);
-    loadObjects(window_3, shaderProgObjWin_3, shaderProgBgrWin_3, 0, IDSPeak::GetWorker(), usbCam03Params);
+    loadObjects(window_1, shaderProgObjWin_1, shaderProgBgrWin_1, foneTextures.at(0), objectTextures);
+    loadObjects(window_2, shaderProgObjWin_2, shaderProgBgrWin_2, foneTextures.at(1), objectTextures);
+    loadObjects(window_3, shaderProgObjWin_3, shaderProgBgrWin_3, foneTextures.at(2), objectTextures);
 
     while (!glfwWindowShouldClose(window_1) && !glfwWindowShouldClose(window_2) && !glfwWindowShouldClose(window_3))
     {
-        window_1.renderFrame(RTCounter::getDeltaTime());
-        window_2.renderFrame(RTCounter::getDeltaTime());
-        window_3.renderFrame(RTCounter::getDeltaTime());
+        //std::this_thread::sleep_for(std::chrono::milliseconds(20));
 
-        // Show IDS stream directly
-        //cv::Mat IDSframe;
-        //if (IDSPeak::GetWorker()->TryGetImage(IDSframe))
-        //{
-        //    cv::imshow("IDS camera", IDSframe);
-        //}
+        //RTCounter::StartMainTimer();
+        //RTCounter::startTimer(4 * 3 +1);
+        //Console::log() << std::setprecision(8);
+        //float start = static_cast<float>(glfwGetTime());
+        //Console::log() << "Start:\t" << start << '\n';
+        window_1.renderFrame(RTCounter::getMainDeltaTime());
+        //RTCounter::StopMainTimer();
+        //RTCounter::stopTimer(4 * 3 + 1);
+        //float stop = static_cast<float>(glfwGetTime());
+        //Console::log() << "Stop:\t" << stop << "\n";
+        //Console::log() << "Difer:\t" << stop - start << "\n\n";
+        window_2.renderFrame(RTCounter::getMainDeltaTime());
+        window_3.renderFrame(RTCounter::getMainDeltaTime());
 
-        RTCounter::updateTimer();
-        RTCounter::printFPS_Console();
+        RTCounter::updateMainTimer();
+        RTCounter::printMainFPS_Console();
     }
+
+    foneTextures.clear();
+    objectTextures.clear();
     glfwTerminate();
+    window_1.Close();
+    window_2.Close();
+    window_3.Close();
     IDSPeak::CloseLibrary();
 
 	return 0;

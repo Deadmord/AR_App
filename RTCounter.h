@@ -5,12 +5,13 @@
 #include <GLFW/glfw3.h>
 #include <vector>
 #include <deque>
+#include "Console.h"
 
 struct FrameTiming
 {
 	float startTime;
 	float stopTime;
-	float avrDeltaTime;
+	float avrDeltaTime; // Avarage time between start and stop
 	float FPS;
 
 	float sum;
@@ -31,18 +32,20 @@ public:
 
 	//------- methods for count FPS in mainloop ----------
 
-	static void updateTimer();
+	static void StartMainTimer();
 
-	static void printFPS_Console();
+	static void StopMainTimer();
 
-	static float getDeltaTime();
+	static void updateMainTimer();
+
+	static void printMainFPS_Console();
+
+	static float getMainDeltaTime();
 
 private:
 	const static size_t windowSize;	//setting for count avarege freq
-	static std::vector<FrameTiming> stopwatch;	//data for calculate time and freq
-
-	static float deltaTime;	// Time between current frame and last frame
-	static float lastFrameTime; // Time of last frame
+	static std::vector<FrameTiming> LocalTimers;	//data for calculate time and freq
+	static FrameTiming MainTimer;
 	static float lastPrintTime; // Time of last print FPS
 };
 

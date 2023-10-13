@@ -51,6 +51,21 @@ Device::Device()
     DisableAutoFeatures();
 }
 
+std::shared_ptr<peak::core::DataStream> Device::DataSteam()
+{
+    return m_dataStream;
+}
+
+std::shared_ptr<peak::core::NodeMap> Device::RemoteNodeMap()
+{
+    return m_nodemapRemoteDevice;
+}
+
+double Device::Framerate()
+{
+    return m_frameRate;
+}
+
 void Device::FindAndOpen()
 {
     auto& deviceManager = peak::DeviceManager::Instance();
