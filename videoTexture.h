@@ -58,6 +58,9 @@ public:
 				data_ = frameVideo.data;
 				isOpened_ = true;
 
+				double frameRate = vidCapture_.get(cv::CAP_PROP_FPS); // Get the current frame rate
+				Console::log() << "Frame Rate: " << frameRate << " fps" << std::endl;
+
 				//m_running_ = true;
 				////m_captureLoopThread_ = std::make_shared<std::thread>(&GLObject::captureLoop, this);
 				//m_captureLoopThread_ = std::make_shared<std::thread>([this]() {captureLoop(); });

@@ -1,4 +1,5 @@
 #include "videoTexture.h"
+#include <GLFW/glfw3.h>
 
 videoTexture::~videoTexture()
 {
@@ -56,19 +57,20 @@ void videoTexture::captureLoop()
 {
 	if (isStream_ || isVideo_)
 	{
+		float start{ 0 }, stop{ 0 };
 		while (m_running_)
 		{
 			try
 			{
 				// checking
-				if (!vidCapture_.isOpened())		//может быть заменить на textures[index].isOpened ?
+				if (!vidCapture_.isOpened())
 				{
 					isOpened_ = false;
 					throw std::runtime_error("Error: Video stream can't be open");
 				}
 				cv::Mat frameVideo;
 				bool isSuccessStream = vidCapture_.read(frameVideo);
-				//while (inputVideo.grab()) {           использовать для асинхронного захвата видео кадра, наверное лучше разместить в конце метода и сделать исинхронной чтобы выполнялась пока обрабатывается остальные потоки.
+				//while (inputVideo.grab()) {          //actualy grub/retrive doesnt give additional acceleration or any fitures. read() include both operations
 				//    inputVideo.retrieve(image);
 				//}
 				if (!isSuccessStream && isVideo_)
@@ -103,7 +105,13 @@ void videoTexture::captureLoop()
 					//glTexImage2D(GL_TEXTURE_2D, 0, textures[index].internalformat, textures[index].width, textures[index].height, 0, textures[index].format, GL_UNSIGNED_BYTE, frameVideo.data);
 
 					currentValue_.push(std::move(frameVideo));
-					std::this_thread::sleep_for(std::chrono::milliseconds(5)); // Sleep for decrise utilization CPU
+					if(false){
+						Console::log() << std::setprecision(8);
+						stop = static_cast<float>(glfwGetTime());
+						Console::log() << "FPS :\t" << 1.0f / (stop - start) << "\tVideo " + (isVideo_ ? filePath_ : ("live: " + std::to_string(streamIndex_))) << '\n';
+						start = stop;
+					}
+					std::this_thread::sleep_for(std::chrono::milliseconds(30)); // Sleep for decrise utilization CPU
 				}
 			}
 			catch (const std::exception& e)

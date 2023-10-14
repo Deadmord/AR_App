@@ -77,7 +77,7 @@ void GLObject::renderObject(Camera& camera, PrintInFrameCallback printCallback)
     cv::Mat textureFrame;
     if (texture_->isStream() || texture_->isVideo() || texture_->isIDSPeak())
     {
-        texture_->waitAndPop(textureFrame);
+        texture_->waitAndGet(textureFrame);
 
         //возвращать реальный TryPopImage затем уже цикле GLObject перерисовывать или оставл€ть предыдущую картинку. 
         //    “аким образом мы не будем ждать по€влени€ новых результатов и не будем тратить врем€ на отрисовку той же самой картинки, 
@@ -98,7 +98,7 @@ void GLObject::renderObject(Camera& camera, PrintInFrameCallback printCallback)
 
     if (texture_->isBackground())
     {
-        //arucoProcessorPtr_->detectMarkers(textureFrame, textureFrame);
+        arucoProcessorPtr_->detectMarkers(textureFrame, textureFrame);
         printCallback(textureFrame, arucoProcessorPtr_->getFrameSize());
     }
     if(texture_->isImg())
