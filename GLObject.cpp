@@ -98,7 +98,7 @@ void GLObject::renderObject(Camera& camera, PrintInFrameCallback printCallback)
 
     if (texture_->isBackground())
     {
-        arucoProcessorPtr_->detectMarkers(textureFrame, textureFrame);
+        //arucoProcessorPtr_->detectMarkers(textureFrame, textureFrame);
         printCallback(textureFrame, arucoProcessorPtr_->getFrameSize());
     }
     if(texture_->isImg())

@@ -103,6 +103,7 @@ void videoTexture::captureLoop()
 					//glTexImage2D(GL_TEXTURE_2D, 0, textures[index].internalformat, textures[index].width, textures[index].height, 0, textures[index].format, GL_UNSIGNED_BYTE, frameVideo.data);
 
 					currentValue_.push(std::move(frameVideo));
+					std::this_thread::sleep_for(std::chrono::milliseconds(5)); // Sleep for decrise utilization CPU
 				}
 			}
 			catch (const std::exception& e)
