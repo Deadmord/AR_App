@@ -16,7 +16,7 @@ void RTCounter::startTimer(GLuint timerNumber)
 		LocalTimers[timerNumber].startTime = static_cast<float>(glfwGetTime());
 	}
 	else
-	Console::red() << "Error: Timer doesnt exist!";
+	Console::red() << "Error: Timer doesnt exist!" << std::endl;
 }
 
 void RTCounter::stopTimer(GLuint timerNumber)
@@ -36,7 +36,7 @@ void RTCounter::stopTimer(GLuint timerNumber)
 		LocalTimers[timerNumber].FPS = 1.0f / LocalTimers[timerNumber].avrDeltaTime;
 	}
 	else
-		Console::red() << "Error: Timer doesnt exist!";
+		Console::red() << "Error: Timer doesnt exist!" << std::endl;
 }
 
 float RTCounter::getFPS(GLuint timerNumber)
@@ -46,7 +46,7 @@ float RTCounter::getFPS(GLuint timerNumber)
 		return LocalTimers[timerNumber].FPS;
 	}
 	else
-		Console::red() << "Error: Timer doesnt exist!";
+		Console::red() << "Error: Timer doesnt exist!" << std::endl;
 	return 0.0f;
 }
 
@@ -57,7 +57,7 @@ float RTCounter::getDeltaTime(GLuint timerNumber)
 		return LocalTimers[timerNumber].avrDeltaTime;
 	}
 	else
-		Console::red() << "Error: Timer doesnt exist!";
+		Console::red() << "Error: Timer doesnt exist!" << std::endl;
 	return 0.0f;
 }
 
@@ -103,7 +103,7 @@ void RTCounter::printMainFPS_Console()
 	float currentTime = static_cast<float>(glfwGetTime());
 	if (currentTime - lastPrintTime >= 0.33f)
 	{
-		Console::blue() << '\r' << std::fixed << std::setprecision(1) << MainTimer.FPS << "  ";
+		Console::blue() << '\r' << std::fixed << std::setprecision(1) << MainTimer.FPS << "  " << std::ends;
 		lastPrintTime = currentTime;
 	}
 }

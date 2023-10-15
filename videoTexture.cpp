@@ -108,7 +108,7 @@ void videoTexture::captureLoop()
 					if(false){
 						Console::log() << std::setprecision(8);
 						stop = static_cast<float>(glfwGetTime());
-						Console::log() << "FPS :\t" << 1.0f / (stop - start) << "\tVideo " + (isVideo_ ? filePath_ : ("live: " + std::to_string(streamIndex_))) << '\n';
+						Console::log() << "FPS :\t" << 1.0f / (stop - start) << "\tVideo " + (isVideo_ ? filePath_ : ("live: " + std::to_string(streamIndex_))) << std::endl;
 						start = stop;
 					}
 					std::this_thread::sleep_for(std::chrono::milliseconds(30)); // Sleep for decrise utilization CPU

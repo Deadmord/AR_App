@@ -13,10 +13,9 @@ const std::string ANSI_BLUE = "\033[34m";
 
 class Console {
 public:
-    // Define a special nested class for handling output with color
     class LogStream {
     public:
-        LogStream(std::ostream& stream, const std::string& color) : stream_(stream), color_(color) {}
+        LogStream(std::ostringstream& stream, const std::string& color) : stream_(stream), color_(color) {}
 
         template <typename T>
         LogStream& operator<<(const T& value) {
@@ -26,42 +25,47 @@ public:
 
         LogStream& operator<<(std::ostream& (*manip)(std::ostream&)) {
             stream_ << manip;
+            flush();
             return *this;
         }
 
     private:
-        std::ostream& stream_;
+        std::ostringstream& stream_;
         const std::string color_;
     };
 
-    // Static methods to get instances of LogStream with different colors
     static LogStream red() {
-        std::lock_guard<std::mutex> lock(consoleMutex);
-        return LogStream(std::cout, ANSI_RED);
+        return LogStream(getBuffer(), ANSI_RED);
     }
 
     static LogStream green() {
-        std::lock_guard<std::mutex> lock(consoleMutex);
-        return LogStream(std::cout, ANSI_GREEN);
+        return LogStream(getBuffer(), ANSI_GREEN);
     }
 
     static LogStream yellow() {
-        std::lock_guard<std::mutex> lock(consoleMutex);
-        return LogStream(std::cout, ANSI_YELLOW);
+        return LogStream(getBuffer(), ANSI_YELLOW);
     }
 
     static LogStream blue() {
-        std::lock_guard<std::mutex> lock(consoleMutex);
-        return LogStream(std::cout, ANSI_BLUE);
+        return LogStream(getBuffer(), ANSI_BLUE);
     }
 
     static LogStream log() {
+        return LogStream(getBuffer(), ANSI_RESET);
+    }
+
+    static void flush() {
         std::lock_guard<std::mutex> lock(consoleMutex);
-        return LogStream(std::cout, ANSI_RESET);
+        std::cout << getBuffer().str();
+        getBuffer().str("");
     }
 
 private:
     static std::mutex consoleMutex;
+    static std::ostringstream& getBuffer() {
+        static thread_local std::ostringstream buffer;
+        return buffer;
+    }
 };
 
 static void test() {

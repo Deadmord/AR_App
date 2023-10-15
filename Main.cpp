@@ -118,13 +118,13 @@ int main()
         //RTCounter::startTimer(4 * 3 +1);
         //Console::log() << std::setprecision(8);
         //float start = static_cast<float>(glfwGetTime());
-        //Console::log() << "Start:\t" << start << '\n';
+        //Console::log() << "Start:\t" << start << std::endl;
         window_1.renderFrame(RTCounter::getMainDeltaTime());
         //RTCounter::StopMainTimer();
         //RTCounter::stopTimer(4 * 3 + 1);
         //float stop = static_cast<float>(glfwGetTime());
-        //Console::log() << "Stop:\t" << stop << "\n";
-        //Console::log() << "Difer:\t" << stop - start << "\n\n";
+        //Console::log() << "Stop:\t" << stop << std::endl;
+        //Console::log() << "Difer:\t" << stop - start << std::endl << std::endl;
         window_2.renderFrame(RTCounter::getMainDeltaTime());
         window_3.renderFrame(RTCounter::getMainDeltaTime());
 

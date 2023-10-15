@@ -160,7 +160,7 @@ glm::mat4 ArucoProcessor::createViewMatrix(cv::Mat cameraMatrix, cv::Vec3d rvec,
 
 	return glmTransformationMatrix;
 
-	//Console::log() << "Transformation Matrix:\n" << glm::to_string(glmTransformationMatrix) << "\n\n";    //Print matrix example
+	//Console::log() << "Transformation Matrix:\n" << glm::to_string(glmTransformationMatrix) << std::endl << std::endl;    //Print matrix example
 }
 
 inline glm::mat4 ArucoProcessor::createProjectionMatrix(float FOV, cv::Size frameSize, float nearPlane, float farPlane)
