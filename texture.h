@@ -3,6 +3,7 @@
 #include <opencv2/opencv.hpp>
 #include <memory>
 #include "ThreadSafeValue.h"
+#include "config.h"
 #include "Console.h"
 
 

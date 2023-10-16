@@ -15,6 +15,7 @@
 //#include "aruco/ArucoProcessor.h"
 
 #include "RTCounter.h"
+#include "ScreanShot.h"
 #include "config.h"
 
 class GWindow

@@ -42,7 +42,7 @@ public:
 
 	void drowObject(glm::mat4& viewMat, glm::mat4& projectionMat, bool background = false);
 
-
+	cv::Mat getTextureImage();
 
 private:
 	GeometryObject geometryObject_;

@@ -35,6 +35,9 @@
     <Filter Include="Modules\textures">
       <UniqueIdentifier>{d4b47b83-9d29-4b6d-b82c-ccc01f8e0d0d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Modules\ScreanShot">
+      <UniqueIdentifier>{29edd5b4-196d-4668-a189-25c5564cd3cb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RTCounter.cpp">
@@ -115,6 +118,9 @@
     <ClCompile Include="Console.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
+    <ClCompile Include="ScreanShot.cpp">
+      <Filter>Modules\ScreanShot</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="appState.h">
@@ -191,6 +197,9 @@
     </ClInclude>
     <ClInclude Include="Console.h">
       <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreanShot.h">
+      <Filter>Modules\ScreanShot</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

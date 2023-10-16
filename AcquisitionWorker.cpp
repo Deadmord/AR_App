@@ -116,10 +116,13 @@ void AcquisitionWorker::SetDataStream(std::shared_ptr<peak::core::DataStream> da
 }
 
 bool AcquisitionWorker::TryPopImage(cv::Mat& image) {
-    imageItem.waitAndPop(image);
-    return true;
-    //ToDo Реализовать возврат "false" при срабатывании watchdog таймера!
-    //-------------------------------------------------------------------
+    if (m_running)
+    {
+        imageItem.waitAndPop(image);
+        return true;
+    }
+    else 
+        return false;
 }
 
 bool AcquisitionWorker::isRunning()

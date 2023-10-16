@@ -55,9 +55,9 @@ void videoTexture::setHeight(GLint height)
 
 void videoTexture::captureLoop()
 {
+	float start{ 0 }, stop{ 0 };
 	if (isStream_ || isVideo_)
 	{
-		float start{ 0 }, stop{ 0 };
 		while (m_running_)
 		{
 			try
@@ -111,7 +111,7 @@ void videoTexture::captureLoop()
 						Console::log() << "FPS :\t" << 1.0f / (stop - start) << "\tVideo " + (isVideo_ ? filePath_ : ("live: " + std::to_string(streamIndex_))) << std::endl;
 						start = stop;
 					}
-					std::this_thread::sleep_for(std::chrono::milliseconds(30)); // Sleep for decrise utilization CPU
+					std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime)); // Sleep for decrise utilization CPU
 				}
 			}
 			catch (const std::exception& e)
@@ -159,7 +159,15 @@ void videoTexture::captureLoop()
 					//else
 					//glTexImage2D(GL_TEXTURE_2D, 0, textures[index].internalformat, textures[index].width, textures[index].height, 0, textures[index].format, GL_UNSIGNED_BYTE, frameVideo.data);
 
-					currentValue_.push(std::move(frameVideo));
+					//currentValue_.push(std::move(frameVideo));
+					currentValue_.push(frameVideo.clone());	//create a copy instead of moving
+					if (false) {
+						Console::log() << std::setprecision(8);
+						stop = static_cast<float>(glfwGetTime());
+						Console::log() << "FPS :\t" << 1.0f / (stop - start) << "\tVideo " + (isVideo_ ? filePath_ : ("live: " + std::to_string(streamIndex_))) << std::endl;
+						start = stop;
+					}
+					std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime)); // Sleep for decrise utilization CPU
 				}
 			}
 			catch (const std::exception& e)

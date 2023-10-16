@@ -40,6 +40,9 @@ constexpr int usbCamera_1 = 1;
 constexpr int usbCamera_2 = 3;
 constexpr int usbCamera_3 = 0;
 
+// ---------------------- textures -----------------------
+constexpr int sleepTime = 30;	//Sleep time for VideoCapturing Loops
+
 // -------------------- IDS Cameras ----------------------
 constexpr int skip_frames = 2;
 constexpr int skip_frames_min = 1;

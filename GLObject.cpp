@@ -74,7 +74,7 @@ void GLObject::renderObject(Camera& camera, PrintInFrameCallback printCallback)
         return;
     }
 
-    cv::Mat textureFrame;
+    cv::Mat textureFrame, textureFrameAruco;
     if (texture_->isStream() || texture_->isVideo() || texture_->isIDSPeak())
     {
         texture_->waitAndGet(textureFrame);
@@ -98,13 +98,13 @@ void GLObject::renderObject(Camera& camera, PrintInFrameCallback printCallback)
 
     if (texture_->isBackground())
     {
-        arucoProcessorPtr_->detectMarkers(textureFrame, textureFrame);
-        printCallback(textureFrame, arucoProcessorPtr_->getFrameSize());
+        arucoProcessorPtr_->detectMarkers(textureFrame, textureFrameAruco);
+        printCallback(textureFrameAruco, arucoProcessorPtr_->getFrameSize());
     }
     if(texture_->isImg())
         glTexImage2D(GL_TEXTURE_2D, 0, texture_->getInternalFormat(), texture_->getWidth(), texture_->getHeight(), 0, texture_->getFormat(), GL_UNSIGNED_BYTE, texture_->getData());
     else
-        glTexImage2D(GL_TEXTURE_2D, 0, texture_->getInternalFormat(), texture_->getWidth(), texture_->getHeight(), 0, texture_->getFormat(), GL_UNSIGNED_BYTE, textureFrame.data);
+        glTexImage2D(GL_TEXTURE_2D, 0, texture_->getInternalFormat(), texture_->getWidth(), texture_->getHeight(), 0, texture_->getFormat(), GL_UNSIGNED_BYTE, textureFrameAruco.data);
         
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);
@@ -167,4 +167,11 @@ void GLObject::drowObject(glm::mat4& viewMat, glm::mat4& projectionMat, bool bac
     }
 
     if (background) glClear(GL_DEPTH_BUFFER_BIT);	// first object is background
+}
+
+cv::Mat GLObject::getTextureImage()
+{
+    cv::Mat image;
+    texture_->waitAndGet(image);
+    return image;
 }
