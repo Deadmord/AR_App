@@ -69,7 +69,7 @@ void AcquisitionWorker::Start()
     }
     catch (const std::exception& e)
     {
-        Console::red() << "Exception: " << e.what() << std::endl;
+        Console::red() << "AcquisitionWorker::Start Exception: " << e.what() << std::endl;
         throw std::runtime_error(e.what());
     }
 

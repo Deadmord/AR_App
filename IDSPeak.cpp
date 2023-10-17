@@ -21,7 +21,7 @@ void IDSPeak::Initialize()
     }
     catch (const std::exception& e)
     {
-        Console::red() << "Exception" << e.what() << std::endl;
+        Console::red() << "IDSPeak::Initialize Exception: " << e.what() << std::endl;
         CloseDevice();
     }
 }
