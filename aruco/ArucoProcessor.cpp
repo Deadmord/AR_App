@@ -45,9 +45,6 @@ ArucoProcessor::ArucoProcessor(float markerLength, cv::aruco::PredefinedDictiona
 
 bool ArucoProcessor::detectMarkers(const cv::Mat& frame, cv::Mat& frameCopy)
 {
-	//double tick = (double)cv::getTickCount();
-
-	// detect markers and estimate pose
 	try {
 		detector.detectMarkers(frame, markers.corners, markers.ids, markers.rejected);
 	}
@@ -56,6 +53,16 @@ bool ArucoProcessor::detectMarkers(const cv::Mat& frame, cv::Mat& frameCopy)
 		std::cout << "Exception Aruco: " << e.what() << std::endl;
 	}
 
+	//use to track IDs that have been discovered previously
+	std::unordered_set<int> detectedMarkerIdsSet(detectedMarkerIds.begin(), detectedMarkerIds.end());
+	for (int id : markers.ids) {
+		if (!detectedMarkerIdsSet.count(id)) {
+			detectedMarkerIds.push_back(id);
+			detectedMarkerIdsSet.insert(id);
+		}
+	}
+
+	sortDetectedMarkers(markers.ids, markers.corners);
 
 	size_t  nMarkers = markers.corners.size();
 	markers.rvecs.resize(nMarkers);
@@ -193,4 +200,22 @@ void ArucoProcessor::addValueAndAverage(const cv::Vec3d& new_rvec, const cv::Vec
 	//calculate average values
 	averaged_rvec = std::accumulate(rvecs_history.begin(), rvecs_history.end(), cv::Vec3d(0, 0, 0)) / double(rvecs_history.size());
 	averaged_tvec = std::accumulate(tvecs_history.begin(), tvecs_history.end(), cv::Vec3d(0, 0, 0)) / double(tvecs_history.size());
+}
+
+void ArucoProcessor::sortDetectedMarkers(std::vector<int>& ids, std::vector<std::vector<cv::Point2f>>& corners)
+{
+	//use to map marker IDs to their angles to quickly sort markers in the order they were originally discovered
+	std::unordered_map<int, std::vector<cv::Point2f>> idToCornersMap;
+	for (size_t i = 0; i < ids.size(); ++i) {
+		idToCornersMap[ids[i]] = corners[i];
+	}
+
+	size_t index = 0;
+	for (int detectedId : detectedMarkerIds) {
+		if (idToCornersMap.count(detectedId)) {
+			ids[index] = detectedId;
+			corners[index] = idToCornersMap[detectedId];
+			++index;
+		}
+	}
 }

@@ -54,6 +54,7 @@ private:
 
 	void initializeObjPoints();
 	void addValueAndAverage(const cv::Vec3d& new_rvec, const cv::Vec3d& new_tvec, cv::Vec3d& averaged_rvec, cv::Vec3d& averaged_tvec);
+	void sortDetectedMarkers(std::vector<int>& ids, std::vector<std::vector<cv::Point2f>>& corners);
 
 private:
 	float markerLength;
@@ -80,5 +81,6 @@ private:
 	const int N = 10; // 5? 10? 15? 20?
 	std::deque<cv::Vec3d> rvecs_history;
 	std::deque<cv::Vec3d> tvecs_history;
+	std::vector<int> detectedMarkerIds;
 };
 

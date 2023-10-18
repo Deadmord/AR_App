@@ -2,6 +2,7 @@
 #include <opencv2/objdetect/aruco_detector.hpp>
 #include <opencv2/calib3d.hpp>
 #include <ctime>
+#include <peak/peak.hpp>
 
 namespace {
 inline static bool readCameraParameters(std::string filename, cv::Size &resolutin, cv::Mat &camMatrix, cv::Mat &distCoeffs) {
