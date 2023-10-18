@@ -114,6 +114,7 @@ void GLObject::renderObject(Camera& camera, PrintInFrameCallback printCallback)
 
     if (texture_->isShowOnMarker() /*&& !arucoProcessorPtr->getMarkers().ids.empty()*/)       //if ids list is empty it will be drow objects on top of all markers
     {
+        // markers = ArucoThreadWrapper::GetDetectedMarkers()
         if (texture_->getMarkerIds() == nullptr)
         {
             for (glm::mat4 view : arucoProcessorPtr_->getMarkers().viewMatrixes)       //drow objects for all markers

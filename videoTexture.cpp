@@ -88,22 +88,6 @@ void videoTexture::captureLoop()
 					if (rotate_)
 						cv::rotate(frameVideo, frameVideo, cv::ROTATE_180);
 
-					//calc and apply distortion correction, very heavy hendling!!!
-					//cv::Mat undistortedFrame;
-					//cv::undistort(frameVideo, undistortedFrame, arucoProcessorPtr->getCameraMat(), arucoProcessorPtr->getDistortCoeff());
-
-					//only apply distortion maps, mach more faster!!!
-					//cv::Mat undistortedFrame;
-					//cv::remap(frameVideo, undistortedFrame, arucoProcessorPtr->getUndistortMap1(), arucoProcessorPtr->getUndistortMap2(), cv::INTER_LINEAR);
-
-					//check stream videoframe for aruco markers
-					//if (textures[index].isStream && arucoProcessorPtr->detectMarkers(frameVideo, frameVideoAruco))
-					//{
-					//    glTexImage2D(GL_TEXTURE_2D, 0, textures[index].internalformat, textures[index].width, textures[index].height, 0, textures[index].format, GL_UNSIGNED_BYTE, frameVideoAruco.data);
-					//}
-					//else
-					//glTexImage2D(GL_TEXTURE_2D, 0, textures[index].internalformat, textures[index].width, textures[index].height, 0, textures[index].format, GL_UNSIGNED_BYTE, frameVideo.data);
-
 					currentValue_.push(std::move(frameVideo));
 					if(false){
 						Console::log() << std::setprecision(8);
@@ -142,22 +126,6 @@ void videoTexture::captureLoop()
 				{
 					if (rotate_)
 						cv::rotate(frameVideo, frameVideo, cv::ROTATE_180);
-
-					//calc and apply distortion correction, very heavy hendling!!!
-					//cv::Mat undistortedFrame;
-					//cv::undistort(frameVideo, undistortedFrame, arucoProcessorPtr->getCameraMat(), arucoProcessorPtr->getDistortCoeff());
-
-					//only apply distortion maps, mach more faster!!!
-					//cv::Mat undistortedFrame;
-					//cv::remap(frameVideo, undistortedFrame, arucoProcessorPtr->getUndistortMap1(), arucoProcessorPtr->getUndistortMap2(), cv::INTER_LINEAR);
-
-					//check stream videoframe for aruco markers
-					//if (textures[index].isStream && arucoProcessorPtr->detectMarkers(frameVideo, frameVideoAruco))
-					//{
-					//    glTexImage2D(GL_TEXTURE_2D, 0, textures[index].internalformat, textures[index].width, textures[index].height, 0, textures[index].format, GL_UNSIGNED_BYTE, frameVideoAruco.data);
-					//}
-					//else
-					//glTexImage2D(GL_TEXTURE_2D, 0, textures[index].internalformat, textures[index].width, textures[index].height, 0, textures[index].format, GL_UNSIGNED_BYTE, frameVideo.data);
 
 					//currentValue_.push(std::move(frameVideo));
 					currentValue_.push(frameVideo.clone());	//create a copy instead of moving

@@ -1,57 +1,74 @@
 #include "ArucoThreadWrapper.h"
 
-ArucoThreadWrapper::ArucoThreadWrapper(float markerLength, cv::aruco::PredefinedDictionaryType dictionaryId, std::string cameraParams, bool showRejected) : stopThread(false)
+ArucoThreadWrapper::ArucoThreadWrapper(float markerLength, cv::aruco::PredefinedDictionaryType dictionaryId, std::string cameraParams, bool showRejected) : m_running(false)
 {
-	arucoProcessor = std::make_shared<ArucoProcessor>(markerLength, dictionaryId, cameraParams, showRejected);
+	m_arucoProcessor = std::make_shared<ArucoProcessor>(markerLength, dictionaryId, cameraParams, showRejected);
+	StartThread();
 }
 
-void ArucoThreadWrapper::threadFunction()
+ArucoThreadWrapper::~ArucoThreadWrapper()
+{
+	StopThread();
+}
+
+void ArucoThreadWrapper::processFrame(const cv::Mat& frameIn)
 {
 	try
 	{
-		while (!stopThread)
-		{
-			cv::Mat frameToProcess;
-			{
-				std::unique_lock<std::mutex> lock(dataMutex);
-				dataCondVar.wait(lock, [this]() {
-					return !currentFrame.empty() || stopThread;
-					});
-				frameToProcess = currentFrame.clone();
-				currentFrame.release();
-			}
-			if (!frameToProcess.empty()) {
-				cv::Mat resultFrame;
-				arucoProcessor->detectMarkers(frameToProcess, resultFrame);
-			}
-		}
+		m_currentFrame.push(frameIn.clone());
 	}
 	catch (const std::exception& e)
 	{
-		std::cerr << "ArucoThreadWrapper::threadFunction: " << e.what() << std::endl;
+		std::cerr << "ArucoThreadWrapper::processFrame: " << e.what() << std::endl;
 	}
 }
 
-void ArucoThreadWrapper::ProcessFrame(const cv::Mat& frame)
+inline void ArucoThreadWrapper::undistortFrame(const cv::Mat& frameIn, cv::Mat& frameOut)
+{
+	//calc and apply distortion correction, very heavy hendling!!!
+	//cv::Mat undistortedFrame;
+	//cv::undistort(frameVideo, undistortedFrame, arucoProcessorPtr->getCameraMat(), arucoProcessorPtr->getDistortCoeff());
+
+	//only apply distortion maps, mach more faster!!!
+	// попробовать сохранить UndistortMap1/2 в самом классе ArucoThreadWrapper, мб будет быстрее...
+	cv::remap(frameIn, frameOut, m_arucoProcessor->getUndistortMap1(), m_arucoProcessor->getUndistortMap2(), cv::INTER_LINEAR);
+}
+
+bool ArucoThreadWrapper::tryGetProcessedFrame(cv::Mat& frameOut)
 {
 	try
 	{
-		std::lock_guard<std::mutex> lock(dataMutex);
-		currentFrame = frame.clone();
-		dataCondVar.notify_one();
+		return m_detectedFrame.tryGet(frameOut);
 	}
 	catch (const std::exception& e)
 	{
-		std::cerr << "ArucoThreadWrapper::ProcessFrame: " << e.what() << std::endl;
+		std::cerr << "ArucoThreadWrapper::tryGetProcessedFrame: " << e.what() << std::endl;
 	}
 }
 
-const Markers& ArucoThreadWrapper::GetDetectedMarkers() const
+bool ArucoThreadWrapper::tryPopProcessedFrame(cv::Mat& frameOut)
 {
 	try
 	{
-		std::lock_guard<std::mutex> lock(dataMutex);
-		return arucoProcessor->getMarkers();
+		return m_detectedFrame.tryPop(frameOut);
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << "ArucoThreadWrapper::tryPopProcessedFrame: " << e.what() << std::endl;
+	}
+}
+
+Markers ArucoThreadWrapper::GetDetectedMarkers()
+{
+	try
+	{
+		Markers markers;
+		m_markers.waitAndGet(markers);
+		return std::move(markers);
+
+		//auto markers = std::make_shared<Markers>();		// option with pointer for reference
+		//m_markers.waitAndGet(*markers);
+		//return markers;
 	}
 	catch (const std::exception& e)
 	{
@@ -59,13 +76,23 @@ const Markers& ArucoThreadWrapper::GetDetectedMarkers() const
 	}
 }
 
+const cv::Size& ArucoThreadWrapper::GetFrameSize() const
+{
+	return m_arucoProcessor->getFrameSize();
+}
+
+const glm::mat4& ArucoThreadWrapper::GetProjectionMat() const
+{
+	return m_arucoProcessor->getProjectionMat();
+}
+
 void ArucoThreadWrapper::StartThread()
 {
 	try
 	{
-		if (!arucoThread.joinable()) {
-			stopThread = false;
-			arucoThread = std::thread(&ArucoThreadWrapper::threadFunction, this);
+		if (!m_arucoLoopThread.joinable()) {
+			m_running = true;
+			m_arucoLoopThread = std::thread(&ArucoThreadWrapper::detectionLoop, this);
 		}
 	}
 	catch (const std::exception& e)
@@ -78,13 +105,9 @@ void ArucoThreadWrapper::StopThread()
 {
 	try
 	{
-		{
-			std::lock_guard<std::mutex> lock(dataMutex);
-			stopThread = true;
-			dataCondVar.notify_one();
-		}
-		if (arucoThread.joinable()) {
-			arucoThread.join();
+		m_running = false;
+		if (m_arucoLoopThread.joinable()) {
+			m_arucoLoopThread.join();
 		}
 	}
 	catch (const std::exception& e)
@@ -93,34 +116,25 @@ void ArucoThreadWrapper::StopThread()
 	}
 }
 
-bool ArucoThreadWrapper::DetectMarkers(const cv::Mat& frame, cv::Mat& frameCopy)
-{
-	return arucoProcessor->detectMarkers(frame, frameCopy);
-}
-
-const cv::Size& ArucoThreadWrapper::GetFrameSize() const
-{
-	return arucoProcessor->getFrameSize();
-}
-
-const glm::mat4& ArucoThreadWrapper::GetProjectionMat() const
-{
-	return arucoProcessor->getProjectionMat();
-}
-
-ArucoThreadWrapper::~ArucoThreadWrapper()
+void ArucoThreadWrapper::detectionLoop()
 {
 	try
 	{
+		while (m_running)
 		{
-			std::lock_guard<std::mutex> lock(dataMutex);
-			stopThread = true;
-			dataCondVar.notify_one();
+			cv::Mat frameToProcess;
+			m_currentFrame.waitAndPop(frameToProcess);
+			if (!frameToProcess.empty()) {
+				cv::Mat resultFrame;
+
+				m_arucoProcessor->detectMarkers(frameToProcess, resultFrame);
+				m_detectedFrame.push(std::move(resultFrame));
+				m_markers.push(Markers(m_arucoProcessor->getMarkers()));
+			}
 		}
-		arucoThread.join();
 	}
 	catch (const std::exception& e)
 	{
-		std::cerr << "ArucoThreadWrapper::~ArucoThreadWrapper: " << e.what() << std::endl;
+		std::cerr << "ArucoThreadWrapper::detectionLoop: " << e.what() << std::endl;
 	}
 }

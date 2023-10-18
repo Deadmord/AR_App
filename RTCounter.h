@@ -49,3 +49,9 @@ private:
 	static float lastPrintTime; // Time of last print FPS
 };
 
+//// Hight accuracy timer --------------------------------
+//
+//int64 start = cv::getTickCount();
+//// Some load operations
+//int64 end = cv::getTickCount();
+//double duration = (end - start) / cv::getTickFrequency();

@@ -51,8 +51,6 @@ ArucoProcessor::~ArucoProcessor()
 
 bool ArucoProcessor::detectMarkers(const cv::Mat& frame, cv::Mat& frameCopy)
 {
-	//double tick = (double)cv::getTickCount();
-
 	// detect markers and estimate pose
 	try {
 		detector.detectMarkers(std::move(frame), markers.corners, markers.ids, markers.rejected);
