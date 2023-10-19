@@ -195,6 +195,6 @@ void GLObject::renderMarkers(Camera& camera, glm::mat4& projection)
 
 GLObject::~GLObject()
 {
-    if (arucoThreadWrapperPtr)
-        arucoThreadWrapperPtr->StopThread();
+    //if (arucoThreadWrapperPtr)
+    //    arucoThreadWrapperPtr->StopThread();
 }

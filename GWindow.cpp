@@ -52,7 +52,7 @@ void GWindow::addGLObject(const std::vector<float>& objVBO, const std::vector<un
         glfwMakeContextCurrent(window);
         GLObject newGLObject(objVBO, objEBO, objState, linePolygonMode);
         newGLObject.setupShaderProgram(shaderProgPtr);
-        newGLObject.setupArUcoPtr(arucoThreadWrapper);
+        newGLObject.setupArUcoPtr(std::shared_ptr<ArucoThreadWrapper>(&arucoThreadWrapper, [](ArucoThreadWrapper*) {}));
 
         if (texturePath.empty()) {
             throwError("Invalid texture file path!", texturePath);
@@ -62,7 +62,7 @@ void GWindow::addGLObject(const std::vector<float>& objVBO, const std::vector<un
         std::string fileExtension = std::filesystem::path(texturePath).extension().generic_string();
         setupTextureBasedOnExtension(newGLObject, fileExtension, texturePath, internalformat, format, rotate, isBackground, showOnMarker, markerIds, cameraParams);
 
-        glObjects.push_back(newGLObject);
+        glObjects.push_back(std::move(newGLObject));
     }
     catch (const std::exception& e)
     {
@@ -77,7 +77,8 @@ void GWindow::addGLObject(const std::vector<float>& objVBO, const std::vector<un
         glfwMakeContextCurrent(window);
         GLObject newGLObject(objVBO, objEBO, objState, linePolygonMode);
         newGLObject.setupShaderProgram(shaderProgPtr);
-        newGLObject.setupArUcoPtr(arucoThreadWrapper);
+        newGLObject.setupArUcoPtr(std::shared_ptr<ArucoThreadWrapper>(&arucoThreadWrapper, [](ArucoThreadWrapper*) {}));
+        //newGLObject.setupArUcoPtr(std::move(std::make_shared<ArucoThreadWrapper>(arucoThreadWrapper)));
 
         if (workerPtr != nullptr)
         {

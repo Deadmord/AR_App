@@ -66,6 +66,6 @@ private:
 	glm::vec4 bgColor;
 
 	std::vector<GLObject> glObjects;
-	std::shared_ptr<ArucoThreadWrapper> arucoThreadWrapper;
+	ArucoThreadWrapper arucoThreadWrapper;
 };
 
