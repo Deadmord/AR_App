@@ -2,8 +2,8 @@
 #define DEVICE_H
 
 #include <peak/peak.hpp>
-
 #include <memory>
+#include "Console.h"
 
 class Device
 {

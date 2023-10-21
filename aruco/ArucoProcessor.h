@@ -49,7 +49,7 @@ public:
 	const float& getFOVdeg() const;
 
 private:
-	glm::mat4 createViewMatrix(cv::Mat cameraMatrix, cv::Vec3d rvec, cv::Vec3d tvec);
+	glm::mat4 createViewMatrix(const cv::Vec3d& rvec, const cv::Vec3d& tvec);
 
 	glm::mat4 createProjectionMatrix(float FOV, cv::Size frameSize, float nearPlane = 0.1f, float farPlane = 100.0f);
 

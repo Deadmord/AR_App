@@ -10,7 +10,7 @@ FrameTiming RTCounter::MainTimer;
 //--- Local Timers and FPS ---
 bool RTCounter::isValidTimer(GLuint timerNumber) {
 	if (timerNumber >= LocalTimers.size()) {
-		std::cerr << "Error: Timer doesn't exist!" << std::endl;
+		Console::red() << "Error: Timer doesn't exist! Num: " << timerNumber << std::endl;
 		return false;
 	}
 	return true;
