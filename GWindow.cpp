@@ -86,32 +86,32 @@ void GWindow::renderFrame(float deltaTime)
     glClearColor(bgColor.r, bgColor.g, bgColor.b, bgColor.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // also clear the depth buffer now!
 
+    // Render object method reqaer camera veuw matrix and printState functions in some caces
+    // create alias for lambda function
+    using RenderCallback = std::function<void(const cv::Mat&, cv::Size)>;
+
+    // define lambda f()
+    RenderCallback renderCallback = [&](const cv::Mat& frame, cv::Size frameSize) {
+        showInFrame(frame, cv::Size(WinWidth, WinHeight), frameSize, RTCounter::getFPS(wndID),
+            { RTCounter::getDeltaTime(wndID),
+            RTCounter::getDeltaTime((4 * 1) + wndID),
+            RTCounter::getDeltaTime((4 * 2) + wndID),
+            RTCounter::getDeltaTime((4 * 3) + wndID),
+            RTCounter::getDeltaTime((4 * 4) + wndID),
+            RTCounter::getDeltaTime((4 * 5) + wndID),
+            RTCounter::getDeltaTime((4 * 6) + wndID),
+            RTCounter::getDeltaTime((4 * 7) + wndID),
+            RTCounter::getDeltaTime((4 * 8) + wndID),
+            RTCounter::getDeltaTime((4 * 9) + wndID),
+            RTCounter::getDeltaTime((4 * 10) + wndID),
+            RTCounter::getDeltaTime((4 * 11) + wndID)
+            }
+        );
+    };
+
     for (GLsizei index{ 0 }; index < glObjects.size(); index++)
     {
         RTCounter::startTimer((index + 1) * 4 + wndID);      // For debugging perfomance, remove it!!!
-
-        // Render object method reqaer camera veuw matrix and printState functions in some caces
-        // create alias for lambda function
-        using RenderCallback = std::function<void(const cv::Mat&, cv::Size)>;
-
-        // define lambda f()
-        RenderCallback renderCallback = [&](const cv::Mat& frame, cv::Size frameSize) {
-            showInFrame(frame, cv::Size(WinWidth, WinHeight), frameSize, RTCounter::getFPS(wndID), 
-                { RTCounter::getDeltaTime(wndID),
-                RTCounter::getDeltaTime((4 * 1) + wndID), 
-                RTCounter::getDeltaTime((4 * 2) + wndID), 
-                RTCounter::getDeltaTime((4 * 3) + wndID),
-                RTCounter::getDeltaTime((4 * 4) + wndID),
-                RTCounter::getDeltaTime((4 * 5) + wndID),
-                RTCounter::getDeltaTime((4 * 6) + wndID),
-                RTCounter::getDeltaTime((4 * 7) + wndID),
-                RTCounter::getDeltaTime((4 * 8) + wndID),
-                RTCounter::getDeltaTime((4 * 9) + wndID),
-                RTCounter::getDeltaTime((4 * 10) + wndID),
-                RTCounter::getDeltaTime((4 * 11) + wndID)
-                }
-            );
-        };
 
         glObjects[index].renderObject(camera, renderCallback);
 

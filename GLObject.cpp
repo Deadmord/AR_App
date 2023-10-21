@@ -53,7 +53,7 @@ void GLObject::renderObject(Camera& camera, PrintInFrameCallback printCallback)
     shader_->use();
     geometryObject_.bindVertexArray();
 
-    // checking capturing
+    // Checking capturing
     if (!texture_->isOpened())
     {
         if (texture_->isStream() || texture_->isVideo() || texture_->isIDSPeak())
@@ -61,7 +61,7 @@ void GLObject::renderObject(Camera& camera, PrintInFrameCallback printCallback)
             Console::red() << "Error: Video stream not run. " << texture_ << std::endl;
             return;
         }
-        if (texture_ ->isImg())		//может быть заменить на textures[index].isOpened ?
+        if (texture_ ->isImg())
         {
             Console::red() << "Error: Img can't be open" << texture_ << std::endl;
             return;
@@ -70,21 +70,15 @@ void GLObject::renderObject(Camera& camera, PrintInFrameCallback printCallback)
         return;
     }
 
+    // Update frame
     cv::Mat textureFrame, textureFrameAruco;
     if (texture_->isStream() || texture_->isVideo() || texture_->isIDSPeak())
     {
         texture_->waitAndGet(textureFrame);
-
-        //возвращать реальный TryPopImage затем уже цикле GLObject перерисовывать или оставлять предыдущую картинку. 
-        //    Таким образом мы не будем ждать появления новых результатов и не будем тратить время на отрисовку той же самой картинки, 
-        //    если она не изменилась
-        //if (!texture_->tryPop(textureFrame))
-        //    return;
     }
-    else if (texture_->isImg())		//может быть заменить на textures[index].isOpened ?
+    else if (texture_->isImg())
     {
         texture_->waitAndGet(textureFrame);
-        //auto res = currentFrame.tryGet(frameVideo);
     }
     else 
     {
@@ -92,6 +86,7 @@ void GLObject::renderObject(Camera& camera, PrintInFrameCallback printCallback)
         return;
     }
 
+    // Process background frame
     if (texture_->isBackground())
     {
         //arucoThreadWrapperPtr_->undistortFrame(textureFrame, textureFrame);
@@ -101,6 +96,8 @@ void GLObject::renderObject(Camera& camera, PrintInFrameCallback printCallback)
         //if(!arucoThreadWrapperPtr_->tryGetProcessedFrame(textureFrameAruco)) textureFrameAruco = textureFrame;
         printCallback(textureFrame, arucoThreadWrapperPtr_->getFrameSize());
     }
+
+    // Set OpenGL texture
     if(texture_->isImg())
         glTexImage2D(GL_TEXTURE_2D, 0, texture_->getInternalFormat(), texture_->getWidth(), texture_->getHeight(), 0, texture_->getFormat(), GL_UNSIGNED_BYTE, texture_->getData());
     else
@@ -112,6 +109,7 @@ void GLObject::renderObject(Camera& camera, PrintInFrameCallback printCallback)
     //projection = glm::perspective(glm::radians(camera.Zoom), (float)WinWidth / (float)WinHeight, 0.1f, 100.0f);
     //projection = glm::perspective(glm::radians(42.0f), (float)WinWidth / (float)WinHeight, 0.1f, 100.0f);
 
+    // Render OpenGL object
     if (texture_->isShowOnMarker() /*&& !arucoProcessorPtr->getMarkers().ids.empty()*/)       //if ids list is empty it will be drow objects on top of all markers
     {
         Markers markers = arucoThreadWrapperPtr_->getDetectedMarkers();

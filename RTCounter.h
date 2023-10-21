@@ -21,6 +21,7 @@ struct FrameTiming
 class RTCounter
 {
 public:
+	static bool isValidTimer(GLuint timerNumber);
 	
 	static void startTimer(GLuint timerNumber);
 

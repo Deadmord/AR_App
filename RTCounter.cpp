@@ -8,57 +8,50 @@ std::vector<FrameTiming> RTCounter::LocalTimers(NUMBER_STOPWATCHS);
 FrameTiming RTCounter::MainTimer;
 
 //--- Local Timers and FPS ---
+bool RTCounter::isValidTimer(GLuint timerNumber) {
+	if (timerNumber >= LocalTimers.size()) {
+		std::cerr << "Error: Timer doesn't exist!" << std::endl;
+		return false;
+	}
+	return true;
+}
 
 void RTCounter::startTimer(GLuint timerNumber)
 {
-	if (timerNumber < LocalTimers.size())
-	{
-		LocalTimers[timerNumber].startTime = static_cast<float>(glfwGetTime());
-	}
-	else
-	Console::red() << "Error: Timer doesnt exist!" << std::endl;
+	if (!isValidTimer(timerNumber)) return;
+
+	LocalTimers[timerNumber].startTime = static_cast<float>(glfwGetTime());
 }
 
 void RTCounter::stopTimer(GLuint timerNumber)
 {
-	if (timerNumber < LocalTimers.size())
-	{
-		LocalTimers[timerNumber].stopTime = static_cast<float>(glfwGetTime());
-		float dTime = LocalTimers[timerNumber].stopTime - LocalTimers[timerNumber].startTime;
-		LocalTimers[timerNumber].dTimes.push_back(dTime);
-		LocalTimers[timerNumber].sum += dTime;
+	if (!isValidTimer(timerNumber)) return;
 
-		if (LocalTimers[timerNumber].dTimes.size() > windowSize) {
-			LocalTimers[timerNumber].sum -= LocalTimers[timerNumber].dTimes.front();
-			LocalTimers[timerNumber].dTimes.pop_front();
-		}
-		LocalTimers[timerNumber].avrDeltaTime = LocalTimers[timerNumber].sum / LocalTimers[timerNumber].dTimes.size();
-		LocalTimers[timerNumber].FPS = 1.0f / LocalTimers[timerNumber].avrDeltaTime;
+	LocalTimers[timerNumber].stopTime = static_cast<float>(glfwGetTime());
+	float dTime = LocalTimers[timerNumber].stopTime - LocalTimers[timerNumber].startTime;
+	LocalTimers[timerNumber].dTimes.push_back(dTime);
+	LocalTimers[timerNumber].sum += dTime;
+
+	if (LocalTimers[timerNumber].dTimes.size() > windowSize) {
+		LocalTimers[timerNumber].sum -= LocalTimers[timerNumber].dTimes.front();
+		LocalTimers[timerNumber].dTimes.pop_front();
 	}
-	else
-		Console::red() << "Error: Timer doesnt exist!" << std::endl;
+	LocalTimers[timerNumber].avrDeltaTime = LocalTimers[timerNumber].sum / LocalTimers[timerNumber].dTimes.size();
+	LocalTimers[timerNumber].FPS = 1.0f / LocalTimers[timerNumber].avrDeltaTime;
 }
 
 float RTCounter::getFPS(GLuint timerNumber)
 {
-	if (timerNumber < LocalTimers.size())
-	{
-		return LocalTimers[timerNumber].FPS;
-	}
-	else
-		Console::red() << "Error: Timer doesnt exist!" << std::endl;
-	return 0.0f;
+	if (!isValidTimer(timerNumber)) return 0.0f;
+
+	return LocalTimers[timerNumber].FPS;
 }
 
 float RTCounter::getDeltaTime(GLuint timerNumber)
 {
-	if (timerNumber < LocalTimers.size())
-	{
-		return LocalTimers[timerNumber].avrDeltaTime;
-	}
-	else
-		Console::red() << "Error: Timer doesnt exist!" << std::endl;
-	return 0.0f;
+	if (!isValidTimer(timerNumber)) return 0.0f;
+
+	return LocalTimers[timerNumber].avrDeltaTime;
 }
 
 //--- Console general FPS timer ---
