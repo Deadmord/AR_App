@@ -65,7 +65,7 @@ private:
 	GLuint WinHeight = 600;
 	glm::vec4 bgColor;
 
-	std::vector<GLObject> glObjects;
+	std::vector<std::shared_ptr<GLObject>> glObjects;
 	ArucoThreadWrapper arucoThreadWrapper;
 
 	std::mutex frameMutex;
