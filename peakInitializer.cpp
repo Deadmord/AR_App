@@ -249,7 +249,6 @@ std::shared_ptr<AcquisitionWorkerOld> peakInitializer::InitializeWorkerById()
     //}
 }
 
-void peakInitializer::CloseLibrary() {  //сделать из этого гласса синглтонн а из этого метода деструктор
-    //m_acquisitionWorkers->Stop();
+void peakInitializer::CloseLibrary() { 
     peak::Library::Close();
 }

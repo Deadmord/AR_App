@@ -6,6 +6,7 @@
 #include <opencv2/opencv.hpp>
 #include "autofeatures.h"
 #include "ThreadSafeValue.h"
+#include "Console.h"
 
 class AcquisitionWorker
 {
@@ -21,7 +22,9 @@ public:
     void ResetAutoFeatures();
 
     void SetDataStream(std::shared_ptr<peak::core::DataStream> dataStream);
-    bool TryGetImage(cv::Mat& image);
+    bool TryPopImage(cv::Mat& image);
+
+    bool isRunning();
 
     size_t getImageWidth();
     size_t getImageHeight();
@@ -29,7 +32,7 @@ public:
 private:
     //основной цикл, выполняется в отдельном потоке - завершение буфера - снова в очередь
     void AcquisitionLoop();
-    void imageReceived(const peak::ipl::Image* image);
+    void imageReceived(const peak::ipl::Image& image);
     cv::Mat ConvertPeakImageToCvMat(const peak::ipl::Image& peakImage);
 
     std::shared_ptr<peak::core::DataStream> m_dataStream;

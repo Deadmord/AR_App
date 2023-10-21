@@ -1,45 +1,34 @@
 #include "device.h"
 
+
 namespace
 {
 bool IsAccessable(const std::shared_ptr<peak::core::nodes::Node>& node)
 {
     try
     {
-        if ((peak::core::nodes::NodeAccessStatus::NotAvailable == node->AccessStatus())
-            || (peak::core::nodes::NodeAccessStatus::NotImplemented == node->AccessStatus()))
-        {
-            return false;
-        }
-        else
-        {
-            return true;
-        }
+        auto status = node->AccessStatus();
+        return (status != peak::core::nodes::NodeAccessStatus::NotAvailable && status != peak::core::nodes::NodeAccessStatus::NotImplemented);
     }
-    catch (const std::exception&)
-    {}
-
-    return false;
+    catch (const std::exception& e)
+    {
+        Console::red() << "Exception IDS device IsAccessable check: " << e.what() << std::endl;
+        return false;
+    }
 }
 
 bool IsWriteAble(const std::shared_ptr<peak::core::nodes::Node>& node)
 {
     try
     {
-        if (peak::core::nodes::NodeAccessStatus::ReadWrite == node->AccessStatus()
-            || peak::core::nodes::NodeAccessStatus::WriteOnly == node->AccessStatus())
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        auto status = node->AccessStatus();
+        return (status == peak::core::nodes::NodeAccessStatus::ReadWrite || status == peak::core::nodes::NodeAccessStatus::WriteOnly);
     }
-    catch (const std::exception&)
-    {}
-
-    return false;
+    catch (const std::exception& e)
+    {
+        Console::red() << "Exception IDS device IsWriteAble check: " << e.what() << std::endl;
+        return false;
+    }
 }
 } // namespace
 
@@ -49,6 +38,21 @@ Device::Device()
     OpenDataStream();
     LoadDefaults();
     DisableAutoFeatures();
+}
+
+std::shared_ptr<peak::core::DataStream> Device::DataSteam()
+{
+    return m_dataStream;
+}
+
+std::shared_ptr<peak::core::NodeMap> Device::RemoteNodeMap()
+{
+    return m_nodemapRemoteDevice;
+}
+
+double Device::Framerate()
+{
+    return m_frameRate;
 }
 
 void Device::FindAndOpen()
@@ -235,8 +239,10 @@ bool Device::HasGain()
             }
         }
     }
-    catch (std::exception&)
-    {}
+    catch (std::exception& e)
+    {
+        Console::red() << "Device::HasGain Exception: " << e.what() << std::endl;
+    }
 
     return false;
 }

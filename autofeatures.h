@@ -8,6 +8,7 @@
 #include <iostream>
 #include <memory>
 #include <functional>
+#include "Console.h"
 
 class AutoFeatures
 {
@@ -15,7 +16,7 @@ public:
     AutoFeatures(std::shared_ptr<peak::core::NodeMap> nodemap);
     ~AutoFeatures();
 
-    void ProcessImage(const peak::ipl::Image* image);
+    void ProcessImage(const peak::ipl::Image& image);
     
     void SetExposureMode(peak_afl_controller_automode mode);
     void SetGainMode(peak_afl_controller_automode mode);

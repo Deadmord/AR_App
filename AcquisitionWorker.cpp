@@ -9,6 +9,10 @@
 #include <iostream>
 #include "config.h"
 
+#include <future>
+
+// Define a flag to indicate a timeout.
+std::atomic<bool> timeoutOccurred(false);
 
 AcquisitionWorker::AcquisitionWorker(std::shared_ptr<peak::core::DataStream> dataStream)
 {
@@ -65,18 +69,19 @@ void AcquisitionWorker::Start()
     }
     catch (const std::exception& e)
     {
-        std::cout << "Exception: " << e.what();
+        Console::red() << "AcquisitionWorker::Start Exception: " << e.what() << std::endl;
         throw std::runtime_error(e.what());
     }
 
     m_running = true;
 
     m_acquisitionLoopthread = std::thread(&AcquisitionWorker::AcquisitionLoop, this);
-    std::cout << "AcquisitionWorker thread: " << m_acquisitionLoopthread.get_id() << std::endl;
+    Console::yellow() << "IDS AcquisitionWorker thread start: " << m_acquisitionLoopthread.get_id() << std::endl;
 }
 
 void AcquisitionWorker::Stop()
 {
+    Console::yellow() << "IDS AcquisitionWorker thread stop: " << m_acquisitionLoopthread.get_id() << std::endl;
     m_running = false;
     m_acquisitionLoopthread.join();
     m_autoFeatures = nullptr;
@@ -86,9 +91,9 @@ void AcquisitionWorker::Stop()
 void AcquisitionWorker::CreateAutoFeatures()
 {
     m_autoFeatures = std::make_shared<AutoFeatures>(m_nodemapRemoteDevice);
-    m_autoFeatures->RegisterGainCallback([&] { std::cout << "Info: GainAutoFeature Register"; });
-    m_autoFeatures->RegisterExposureCallback([&] { std::cout << "Info: ExposureAutoFeature Register"; });
-    m_autoFeatures->RegisterWhiteBalanceCallback([&] { std::cout << "Info: WhiteBalanceAutoFeature Register"; });
+    m_autoFeatures->RegisterGainCallback([&] { Console::log() << "Info: GainAutoFeature Register" << std::endl; });
+    m_autoFeatures->RegisterExposureCallback([&] { Console::log() << "Info: ExposureAutoFeature Register" << std::endl; });
+    m_autoFeatures->RegisterWhiteBalanceCallback([&] { Console::log() << "Info: WhiteBalanceAutoFeature Register" << std::endl; });
 }
 
 void AcquisitionWorker::InitAutoFeatures()
@@ -110,8 +115,19 @@ void AcquisitionWorker::SetDataStream(std::shared_ptr<peak::core::DataStream> da
     m_nodemapRemoteDevice = m_dataStream->ParentDevice()->RemoteDevice()->NodeMaps().at(0);
 }
 
-bool AcquisitionWorker::TryGetImage(cv::Mat& image) {
-    return imageItem.tryGet(image);
+bool AcquisitionWorker::TryPopImage(cv::Mat& image) {
+    if (m_running)
+    {
+        imageItem.waitAndPop(image);
+        return true;
+    }
+    else 
+        return false;
+}
+
+bool AcquisitionWorker::isRunning()
+{
+    return m_running;
 }
 
 size_t AcquisitionWorker::getImageWidth()
@@ -162,7 +178,7 @@ void AcquisitionWorker::AcquisitionLoop() {
             
             tempImage = peak::BufferTo<peak::ipl::Image>(buffer).Clone();
 
-            imageReceived(&tempImage);
+            imageReceived(tempImage);
 
             // Convert peak::ipl::Image to cv::Mat
             tempImage = m_imageConverter->Convert(tempImage, peak::ipl::PixelFormatName::BGR8);
@@ -180,22 +196,22 @@ void AcquisitionWorker::AcquisitionLoop() {
         catch (const peak::core::TimeoutException& e)
         {
             m_errorCounter++;
-            std::cout << "Timeout Exception getting frame: " << e.what() << std::endl;
+            Console::red() << "Timeout Exception getting frame: " << e.what() << std::endl;
         }
         catch (const std::exception& e)
         {
             m_errorCounter++;
-            std::cout << "Exception: " << e.what();
+            Console::red() << "Exception: " << e.what() << std::endl;
         }
     }
 }
 
-void AcquisitionWorker::imageReceived(const peak::ipl::Image* image)
+void AcquisitionWorker::imageReceived(const peak::ipl::Image& image)
 {
     // create and run in thread autoFeatures for IDS Peak camera
     m_autoFeaturesThread = std::thread([this, image]()
         {
             m_autoFeatures->ProcessImage(image);
         });
-    //std::cout << "AutoFeatures thread: " << m_autoFeaturesThread.get_id() << std::endl;
+    //Console::yellow() << "AutoFeatures thread: " << m_autoFeaturesThread.get_id() << std::endl;
 }

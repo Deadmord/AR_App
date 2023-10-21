@@ -175,6 +175,7 @@ copy "$(IDS_PEAK_GENERIC_SDK_PATH)\afl\lib\x86_64\*.dll" "$(OutDir)"</Command>
     <ClCompile Include="acquisitionworker.cpp" />
     <ClCompile Include="AcquisitionWorkerOld.cpp" />
     <ClCompile Include="appState.cpp" />
+    <ClCompile Include="ArucoThreadWrapper.cpp" />
     <ClCompile Include="aruco\ArucoProcessor.cpp" />
     <ClCompile Include="autofeatures.cpp" />
     <ClCompile Include="camera.cpp" />
@@ -182,6 +183,7 @@ copy "$(IDS_PEAK_GENERIC_SDK_PATH)\afl\lib\x86_64\*.dll" "$(OutDir)"</Command>
     <ClCompile Include="device.cpp" />
     <ClCompile Include="GLObject.cpp" />
     <ClCompile Include="IDSPeak.cpp" />
+    <ClCompile Include="imageTexture.cpp" />
     <ClCompile Include="MonitorsManager.cpp" />
     <ClCompile Include="peakInitializer.cpp" />
     <ClCompile Include="RTCounter.cpp" />
@@ -190,15 +192,20 @@ copy "$(IDS_PEAK_GENERIC_SDK_PATH)\afl\lib\x86_64\*.dll" "$(OutDir)"</Command>
     <ClCompile Include="glad.c" />
     <ClCompile Include="GWindow.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="ScreanShot.cpp" />
     <ClCompile Include="shader.cpp" />
+    <ClCompile Include="Console.cpp" />
     <ClCompile Include="stb_image_implementation.cpp" />
+    <ClCompile Include="texture.cpp" />
     <ClCompile Include="ThreadSafeQueue.cpp" />
     <ClCompile Include="ThreadSafeValue.cpp" />
+    <ClCompile Include="videoTexture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="acquisitionworker.h" />
     <ClInclude Include="AcquisitionWorkerOld.h" />
     <ClInclude Include="appState.h" />
+    <ClInclude Include="ArucoThreadWrapper.h" />
     <ClInclude Include="aruco\ArucoProcessor.h" />
     <ClInclude Include="aruco\aruco_utilities.hpp" />
     <ClInclude Include="autofeatures.h" />
@@ -206,17 +213,22 @@ copy "$(IDS_PEAK_GENERIC_SDK_PATH)\afl\lib\x86_64\*.dll" "$(OutDir)"</Command>
     <ClInclude Include="config.h" />
     <ClInclude Include="device.h" />
     <ClInclude Include="GLObject.h" />
+    <ClInclude Include="Console.h" />
     <ClInclude Include="IDSPeak.h" />
+    <ClInclude Include="imageTexture.h" />
     <ClInclude Include="MonitorsManager.h" />
     <ClInclude Include="peakInitializer.h" />
     <ClInclude Include="RTCounter.h" />
     <ClInclude Include="geometryData.h" />
     <ClInclude Include="geometryObject.h" />
     <ClInclude Include="GWindow.h" />
+    <ClInclude Include="ScreanShot.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="stb_image.h" />
+    <ClInclude Include="texture.h" />
     <ClInclude Include="ThreadSafeQueue.h" />
     <ClInclude Include="ThreadSafeValue.h" />
+    <ClInclude Include="videoTexture.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="shaderObj.vs" />

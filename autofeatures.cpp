@@ -49,7 +49,7 @@ void AutoFeatures::CreateAutoControllers()
     m_autoFeaturesManager->AddController(m_autoWhiteBalanceController);
 }
 
-void AutoFeatures::ProcessImage(const peak::ipl::Image* image)
+void AutoFeatures::ProcessImage(const peak::ipl::Image& image)
 {
     if (m_autoFeaturesManager->Status())
     {
@@ -58,11 +58,11 @@ void AutoFeatures::ProcessImage(const peak::ipl::Image* image)
 
     try
     {
-        m_autoFeaturesManager->Process(*image);
+        m_autoFeaturesManager->Process(image);
     }
     catch (const std::exception& e)
     {
-        std::cout << "Processing image failed: " << e.what();
+        Console::yellow() << "Processing image failed: " << e.what() << std::endl;
     }
 }
 

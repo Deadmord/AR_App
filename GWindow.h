@@ -15,22 +15,24 @@
 //#include "aruco/ArucoProcessor.h"
 
 #include "RTCounter.h"
+#include "ScreanShot.h"
 #include "config.h"
 
 class GWindow
 {
 public:
 	GWindow(unsigned int WinID, unsigned int WinWidth, unsigned int WinHeight, unsigned int WinPosX, unsigned int WinPosY, const std::string& name, GLFWmonitor* monitor, glm::vec4 bgColor = BG_CLR);
-	~GWindow(){}
+	~GWindow();
+
+	void Close();
+
 	operator GLFWwindow* () const
 	{
 		return window;
 	}
 
 	void addGLObject(const std::vector<float>& objVBO, const std::vector<unsigned int>& objEBO, const std::vector<InitState>& objState, Shader* shaderProgPtr,
-		const std::string& texturePath, GLenum internalformat, GLenum format, bool linePolygonMode = false, bool rotate = false, bool isBackground = false, bool showOnMarker = false, std::shared_ptr<std::vector<int>> markerIds = nullptr, std::string cameraParams = nullptr);
-	void addGLObject(const std::vector<float>& objVBO, const std::vector<unsigned int>& objEBO, const std::vector<InitState>& objState, Shader* shaderProgPtr,
-		const std::shared_ptr<AcquisitionWorker> workerPtr, GLenum internalformat, GLenum format, bool linePolygonMode = false, bool rotate = false, bool isBackground = false, bool showOnMarker = false, std::shared_ptr<std::vector<int>> markerIds = nullptr, std::string cameraParams = nullptr);
+		const std::shared_ptr<texture> texture, bool linePolygonMode = false);
 
 	void renderFrame(float deltaTime);
 
@@ -64,6 +66,8 @@ private:
 	glm::vec4 bgColor;
 
 	std::vector<GLObject> glObjects;
-	std::shared_ptr<ArucoProcessor> arucoProcessorPtr;
+	ArucoThreadWrapper arucoThreadWrapper;
+
+	std::mutex frameMutex;
 };
 

@@ -7,6 +7,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/string_cast.hpp> // For glm::value_ptr è glm::to_string
 #include "aruco_utilities.hpp"
+#include "../Console.h"
 
 struct Markers
 {
@@ -22,7 +23,8 @@ class ArucoProcessor
 public:
 	ArucoProcessor(float markerLength, cv::aruco::PredefinedDictionaryType dictionaryId = cv::aruco::DICT_6X6_250, std::string cameraParams = nullptr, bool showRejected = false);
 
-	~ArucoProcessor() = default;
+	~ArucoProcessor();
+
 	ArucoProcessor(const ArucoProcessor&) = default;
 	ArucoProcessor& operator=(const ArucoProcessor&) = default;
 
@@ -47,7 +49,7 @@ public:
 	const float& getFOVdeg() const;
 
 private:
-	glm::mat4 createViewMatrix(cv::Mat cameraMatrix, cv::Vec3d rvec, cv::Vec3d tvec);
+	glm::mat4 createViewMatrix(const cv::Vec3d& rvec, const cv::Vec3d& tvec);
 
 	glm::mat4 createProjectionMatrix(float FOV, cv::Size frameSize, float nearPlane = 0.1f, float farPlane = 100.0f);
 

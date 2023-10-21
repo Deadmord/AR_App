@@ -10,9 +10,10 @@ glm::mat4 INVERSE_MATRIX
 ArucoProcessor::ArucoProcessor(float markerLength, cv::aruco::PredefinedDictionaryType dictionaryId, std::string cameraParams, bool showRejected)
 	:markerLength(markerLength), showRejected(showRejected), objPoints(std::make_unique<cv::Mat>(4, 1, CV_32FC3))
 {
+	Console::yellow() << "ArucoProcessor created: " << this << std::endl;
 	//override cornerRefinementMethod read from config file
 	detectorParams.cornerRefinementMethod = cv::aruco::CORNER_REFINE_SUBPIX;
-	std::cout << "Corner refinement method (0: None, 1: Subpixel, 2:contour, 3: AprilTag 2): " << (int)detectorParams.cornerRefinementMethod << std::endl;
+	Console::log() << "Corner refinement method (0: None, 1: Subpixel, 2:contour, 3: AprilTag 2): " << (int)detectorParams.cornerRefinementMethod << std::endl;
 	dictionary = cv::aruco::getPredefinedDictionary(dictionaryId);
 	detector = cv::aruco::ArucoDetector(dictionary, detectorParams);
 
@@ -20,7 +21,7 @@ ArucoProcessor::ArucoProcessor(float markerLength, cv::aruco::PredefinedDictiona
 	if (estimatePose) {
 		bool readOk = readCameraParameters(cameraParams, frameSize, camMatrix, distCoeffs);
 		if (!readOk) {
-			std::cerr << "Invalid camera file" << std::endl;
+			Console::red() << "Invalid camera file" << std::endl;
 			throw std::runtime_error("Invalid camera parameters file");   //Refactoring !!! Add tray/catch
 		}
 
@@ -43,17 +44,20 @@ ArucoProcessor::ArucoProcessor(float markerLength, cv::aruco::PredefinedDictiona
 	initializeObjPoints();
 }
 
+ArucoProcessor::~ArucoProcessor()
+{
+	Console::yellow() << "ArucoProcessor deleted: " << this << std::endl;
+}
+
 bool ArucoProcessor::detectMarkers(const cv::Mat& frame, cv::Mat& frameCopy)
 {
-	//double tick = (double)cv::getTickCount();
-
 	// detect markers and estimate pose
 	try {
-		detector.detectMarkers(frame, markers.corners, markers.ids, markers.rejected);
+		detector.detectMarkers(std::move(frame), markers.corners, markers.ids, markers.rejected);
 	}
 	catch (const std::exception& e)
 	{
-		std::cout << "Exception Aruco: " << e.what() << std::endl;
+		Console::red() << "Exception Aruco: " << e.what() << std::endl;
 	}
 
 
@@ -66,20 +70,13 @@ bool ArucoProcessor::detectMarkers(const cv::Mat& frame, cv::Mat& frameCopy)
 		// Calculate pose for each marker
 		for (size_t i = 0; i < nMarkers; i++) {
 			solvePnP(*objPoints, markers.corners.at(i), camMatrix, distCoeffs, markers.rvecs.at(i), markers.tvecs.at(i));
-			markers.viewMatrixes.at(i) = createViewMatrix(camMatrix, markers.rvecs.at(i), markers.tvecs.at(i));
+			markers.viewMatrixes.at(i) = createViewMatrix(markers.rvecs.at(i), markers.tvecs.at(i));
 		}
 	}
 
-	//double currentTime = ((double)cv::getTickCount() - tick) / cv::getTickFrequency();
-	//totalTime += currentTime;
-	//totalIterations++;
-	//if (totalIterations % 30 == 0) {
-	//	cout << "Detection Time = " << currentTime * 1000 << " ms "
-	//		<< "(Mean = " << 1000 * totalTime / double(totalIterations) << " ms)" << endl;
-	//}
-
 	// draw results
-	frame.copyTo(frameCopy);
+	if(&frame != &frameCopy)	
+		frame.copyTo(frameCopy);
 	if (!markers.ids.empty()) {
 		cv::aruco::drawDetectedMarkers(frameCopy, markers.corners, markers.ids);
 
@@ -140,7 +137,7 @@ const float& ArucoProcessor::getFOVdeg() const
 	return FOV_Deg;
 }
 
-glm::mat4 ArucoProcessor::createViewMatrix(cv::Mat cameraMatrix, cv::Vec3d rvec, cv::Vec3d tvec) {
+glm::mat4 ArucoProcessor::createViewMatrix(const cv::Vec3d& rvec, const cv::Vec3d& tvec) {
 	// Convert rotation vector to rotation matrix
 	cv::Mat rotationMatrix;
 	cv::Rodrigues(rvec, rotationMatrix);
@@ -161,7 +158,7 @@ glm::mat4 ArucoProcessor::createViewMatrix(cv::Mat cameraMatrix, cv::Vec3d rvec,
 
 	return glmTransformationMatrix;
 
-	//std::cout << "Transformation Matrix:\n" << glm::to_string(glmTransformationMatrix) << "\n\n";    //Print matrix example
+	//Console::log() << "Transformation Matrix:\n" << glm::to_string(glmTransformationMatrix) << std::endl << std::endl;    //Print matrix example
 }
 
 inline glm::mat4 ArucoProcessor::createProjectionMatrix(float FOV, cv::Size frameSize, float nearPlane, float farPlane)

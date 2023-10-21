@@ -10,10 +10,7 @@ class IDSPeak
 public:
 	static void Initialize();
 	static void CloseLibrary();
-	static std::shared_ptr<AcquisitionWorker> GetWorker() 
-	{
-		return m_acquisitionWorker;
-	};
+	static std::shared_ptr<AcquisitionWorker> GetWorker();;
 
 private:
 	static void OpenDevice();
