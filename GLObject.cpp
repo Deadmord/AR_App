@@ -94,6 +94,7 @@ void GLObject::renderObject(Camera& camera, PrintInFrameCallback printCallback)
 
     if (texture_->isBackground())
     {
+        //arucoThreadWrapperPtr_->undistortFrame(textureFrame, textureFrame);
         textureFrameAruco = textureFrame.clone();
         arucoThreadWrapperPtr_->processFrame(textureFrameAruco);
         //while (!arucoThreadWrapperPtr_->tryGetProcessedFrame(textureFrameAruco)) {}

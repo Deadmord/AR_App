@@ -40,7 +40,7 @@ void ArucoThreadWrapper::processFrame(cv::Mat& frameIn)
 	}
 }
 
-inline void ArucoThreadWrapper::undistortFrame(const cv::Mat& frameIn, cv::Mat& frameOut)
+void ArucoThreadWrapper::undistortFrame(const cv::Mat& frameIn, cv::Mat& frameOut)
 {
 	try
 	{
