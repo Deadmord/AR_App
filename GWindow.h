@@ -66,7 +66,7 @@ private:
 	glm::vec4 bgColor;
 
 	std::vector<GLObject> glObjects;
-	std::shared_ptr<ArucoProcessor> arucoProcessorPtr;
+	ArucoThreadWrapper arucoThreadWrapper;
 
 	std::mutex frameMutex;
 };

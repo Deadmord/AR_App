@@ -106,7 +106,7 @@ int main()
     Shader shaderProgObjWin_3(window_3, "shaderObj.vs", "shader.fs");
     Shader shaderProgBgrWin_3(window_3, "shaderBgr.vs", "shader.fs");
 
-    loadObjects(window_1, shaderProgObjWin_1, shaderProgBgrWin_1, foneTextures.at(0), objectTextures);
+    loadObjects(window_1, shaderProgObjWin_1, shaderProgBgrWin_1, foneTextures.at(3), objectTextures);
     loadObjects(window_2, shaderProgObjWin_2, shaderProgBgrWin_2, foneTextures.at(1), objectTextures);
     loadObjects(window_3, shaderProgObjWin_3, shaderProgBgrWin_3, foneTextures.at(2), objectTextures);
 

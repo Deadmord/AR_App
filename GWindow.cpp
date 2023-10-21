@@ -43,14 +43,13 @@ GWindow::~GWindow()
 void GWindow::Close()
 {
     glObjects.clear();
-    arucoProcessorPtr = nullptr;
 }
 
 void GWindow::addGLObject(const std::vector<float>& objVBO, const std::vector<unsigned int>& objEBO, const std::vector<InitState>& objState, Shader* shaderProgPtr, const std::shared_ptr<texture> texture, bool linePolygonMode)
 {
     glfwMakeContextCurrent(window);
     GLObject newGLObject(objVBO, objEBO, objState, linePolygonMode);
-    newGLObject.setupArUcoPtr(arucoProcessorPtr);
+    newGLObject.setupArUcoPtr(std::shared_ptr<ArucoThreadWrapper>(&arucoThreadWrapper, [](ArucoThreadWrapper*) {})); // Create a shared_ptr to ArucoThreadWrapper directly, without triggering the copy constructor
 
     if (shaderProgPtr != nullptr)
     {
@@ -98,7 +97,8 @@ void GWindow::renderFrame(float deltaTime)
         // define lambda f()
         RenderCallback renderCallback = [&](const cv::Mat& frame, cv::Size frameSize) {
             showInFrame(frame, cv::Size(WinWidth, WinHeight), frameSize, RTCounter::getFPS(wndID), 
-                { RTCounter::getDeltaTime((4 * 1) + wndID), 
+                { RTCounter::getDeltaTime(wndID),
+                RTCounter::getDeltaTime((4 * 1) + wndID), 
                 RTCounter::getDeltaTime((4 * 2) + wndID), 
                 RTCounter::getDeltaTime((4 * 3) + wndID),
                 RTCounter::getDeltaTime((4 * 4) + wndID),
@@ -108,7 +108,7 @@ void GWindow::renderFrame(float deltaTime)
                 RTCounter::getDeltaTime((4 * 8) + wndID),
                 RTCounter::getDeltaTime((4 * 9) + wndID),
                 RTCounter::getDeltaTime((4 * 10) + wndID),
-                RTCounter::getDeltaTime(wndID) 
+                RTCounter::getDeltaTime((4 * 11) + wndID)
                 }
             );
         };

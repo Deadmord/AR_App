@@ -6,7 +6,7 @@
 #include "shader.h"				//move it up if problem
 #include "geometryObject.h"
 #include "geometryData.h"
-#include "aruco/ArucoProcessor.h"
+#include "ArucoThreadWrapper.h"
 #include "texture.h"
 #include "config.h"
 #include "Console.h"
@@ -34,7 +34,7 @@ public:
 
 	void setupShaderProgram(Shader* shaderProgPtr);
 
-	void setupArUcoPtr(std::shared_ptr<ArucoProcessor>& arucoProcessorPtr);
+	void setupArUcoPtr(std::shared_ptr<ArucoThreadWrapper> arucoThreadWrapper);
 
 	void setupTexture(const std::shared_ptr<texture> texture);
 
@@ -48,8 +48,7 @@ private:
 	GeometryObject geometryObject_;
 	Shader* shader_;
 
-	std::shared_ptr<ArucoProcessor> arucoProcessorPtr_;
-	std::shared_ptr<ArucoProcessor>* arucoProcessorPtrToPtr_;
+	std::shared_ptr<ArucoThreadWrapper> arucoThreadWrapperPtr_;
 
 	std::shared_ptr<texture> texture_;
 };

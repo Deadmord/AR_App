@@ -1,7 +1,7 @@
 #include "GLObject.h"
 
 GLObject::GLObject(const std::vector<float>& objVBO, const std::vector<unsigned int>& objEBO, const std::vector<InitState>& objState, bool linePolygonMode)
-    :geometryObject_(objVBO.size(), objVBO.data(), objEBO.size(), objEBO.data(), objState), shader_(nullptr), arucoProcessorPtr_(nullptr), arucoProcessorPtrToPtr_(nullptr)
+    :geometryObject_(objVBO.size(), objVBO.data(), objEBO.size(), objEBO.data(), objState), shader_(nullptr), arucoThreadWrapperPtr_(nullptr)
 {
     geometryObject_.initObjectTexture(linePolygonMode);
     Console::yellow() << "Object created: " << this << std::endl;
@@ -30,10 +30,9 @@ void GLObject::setupShaderProgram(Shader* shaderProgPtr)
     shader_ = shaderProgPtr;
 }
 
-void GLObject::setupArUcoPtr(std::shared_ptr<ArucoProcessor>& arucoProcessorPtr)
+void GLObject::setupArUcoPtr(std::shared_ptr<ArucoThreadWrapper> arucoThreadWrapper)
 {
-    arucoProcessorPtrToPtr_ = &arucoProcessorPtr;
-    arucoProcessorPtr_ = *arucoProcessorPtrToPtr_;
+    arucoThreadWrapperPtr_ = arucoThreadWrapper;
 }
 
 void GLObject::setupTexture(const std::shared_ptr<texture> texture)
@@ -43,17 +42,14 @@ void GLObject::setupTexture(const std::shared_ptr<texture> texture)
     //----------- Init ArUco and set resolution -----------
     if ((texture_->isStream() || texture_->isIDSPeak()) && texture_->isBackground())
     {
-        // ArUco init
-        *arucoProcessorPtrToPtr_ = std::make_shared<ArucoProcessor>(ArUcoMarkerLength, ArUcoDictionaryId, texture_->getCameraParams(), ArUcoShowRejected);
-        arucoProcessorPtr_ = *arucoProcessorPtrToPtr_;
-        texture_->setWidth(arucoProcessorPtr_->getFrameSize().width);
-        texture_->setHeight(arucoProcessorPtr_->getFrameSize().height);
+        arucoThreadWrapperPtr_->initAndStartAruco(ArUcoMarkerLength, ArUcoDictionaryId, texture_->getCameraParams(), ArUcoShowRejected);
+        texture_->setWidth(arucoThreadWrapperPtr_->getFrameSize().width);
+        texture_->setHeight(arucoThreadWrapperPtr_->getFrameSize().height);
     }
 }
 
 void GLObject::renderObject(Camera& camera, PrintInFrameCallback printCallback)
 {
-    arucoProcessorPtr_ = *arucoProcessorPtrToPtr_;
     shader_->use();
     geometryObject_.bindVertexArray();
 
@@ -98,38 +94,41 @@ void GLObject::renderObject(Camera& camera, PrintInFrameCallback printCallback)
 
     if (texture_->isBackground())
     {
-        arucoProcessorPtr_->detectMarkers(textureFrame, textureFrameAruco);
-        printCallback(textureFrameAruco, arucoProcessorPtr_->getFrameSize());
+        textureFrameAruco = textureFrame.clone();
+        arucoThreadWrapperPtr_->processFrame(textureFrameAruco);
+        //while (!arucoThreadWrapperPtr_->tryGetProcessedFrame(textureFrameAruco)) {}
+        //if(!arucoThreadWrapperPtr_->tryGetProcessedFrame(textureFrameAruco)) textureFrameAruco = textureFrame;
+        printCallback(textureFrame, arucoThreadWrapperPtr_->getFrameSize());
     }
     if(texture_->isImg())
         glTexImage2D(GL_TEXTURE_2D, 0, texture_->getInternalFormat(), texture_->getWidth(), texture_->getHeight(), 0, texture_->getFormat(), GL_UNSIGNED_BYTE, texture_->getData());
     else
-        glTexImage2D(GL_TEXTURE_2D, 0, texture_->getInternalFormat(), texture_->getWidth(), texture_->getHeight(), 0, texture_->getFormat(), GL_UNSIGNED_BYTE, textureFrameAruco.data);
+        glTexImage2D(GL_TEXTURE_2D, 0, texture_->getInternalFormat(), texture_->getWidth(), texture_->getHeight(), 0, texture_->getFormat(), GL_UNSIGNED_BYTE, textureFrame.data);
         
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);
-    projection = arucoProcessorPtr_->getProjectionMat();
+    projection = arucoThreadWrapperPtr_->getProjectionMat();
     //projection = glm::perspective(glm::radians(camera.Zoom), (float)WinWidth / (float)WinHeight, 0.1f, 100.0f);
     //projection = glm::perspective(glm::radians(42.0f), (float)WinWidth / (float)WinHeight, 0.1f, 100.0f);
 
     if (texture_->isShowOnMarker() /*&& !arucoProcessorPtr->getMarkers().ids.empty()*/)       //if ids list is empty it will be drow objects on top of all markers
     {
-        // markers = ArucoThreadWrapper::GetDetectedMarkers()
+        Markers markers = arucoThreadWrapperPtr_->getDetectedMarkers();
         if (texture_->getMarkerIds() == nullptr)
         {
-            for (glm::mat4 view : arucoProcessorPtr_->getMarkers().viewMatrixes)       //drow objects for all markers
+            for (glm::mat4 view : markers.viewMatrixes)       //drow objects for all markers
             {
                 drowObject(view, projection, texture_->isBackground());
             }
         }
         else
         {
-            for (int markerIndex{ 0 }; markerIndex < arucoProcessorPtr_->getMarkers().ids.size(); markerIndex++)
+            for (int markerIndex{ 0 }; markerIndex < markers.ids.size(); markerIndex++)
             {
-                int target = arucoProcessorPtr_->getMarkers().ids.at(markerIndex);
+                int target = markers.ids.at(markerIndex);
                 if (std::ranges::any_of(*(texture_->getMarkerIds().get()), [target](int value) { return value == target; }))
                 {
-                    view = arucoProcessorPtr_->getMarkers().viewMatrixes.at(markerIndex);
+                    view = markers.viewMatrixes.at(markerIndex);
                     drowObject(view, projection, texture_->isBackground());
                 }
 
