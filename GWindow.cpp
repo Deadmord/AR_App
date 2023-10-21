@@ -48,12 +48,13 @@ void GWindow::Close()
 void GWindow::addGLObject(const std::vector<float>& objVBO, const std::vector<unsigned int>& objEBO, const std::vector<InitState>& objState, Shader* shaderProgPtr, const std::shared_ptr<texture> texture, bool linePolygonMode)
 {
     glfwMakeContextCurrent(window);
-    GLObject newGLObject(objVBO, objEBO, objState, linePolygonMode);
-    newGLObject.setupArUcoPtr(std::shared_ptr<ArucoThreadWrapper>(&arucoThreadWrapper, [](ArucoThreadWrapper*) {})); // Create a shared_ptr to ArucoThreadWrapper directly, without triggering the copy constructor
+    auto newGLObject(std::make_shared<GLObject>(objVBO, objEBO, objState, linePolygonMode));
+    //GLObject newGLObject(objVBO, objEBO, objState, linePolygonMode);
+    newGLObject->setupArUcoPtr(std::shared_ptr<ArucoThreadWrapper>(&arucoThreadWrapper, [](ArucoThreadWrapper*) {})); // Create a shared_ptr to ArucoThreadWrapper directly, without triggering the copy constructor
 
     if (shaderProgPtr != nullptr)
     {
-        newGLObject.setupShaderProgram(shaderProgPtr);
+        newGLObject->setupShaderProgram(shaderProgPtr);
     }
     else
     {
@@ -63,14 +64,14 @@ void GWindow::addGLObject(const std::vector<float>& objVBO, const std::vector<un
 
     if (texture != nullptr)
     {
-        newGLObject.setupTexture(texture);
+        newGLObject->setupTexture(texture);
     }
     else
     {
         Console::red() << "Invalid texture pointer!" << std::endl;
         throw std::runtime_error("Invalid texture pointer!");   //Refactoring !!! Add tray/catch
     }
-    glObjects.push_back(std::move(newGLObject));
+    glObjects.push_back(newGLObject);
 }
 
 void GWindow::renderFrame(float deltaTime)
@@ -113,7 +114,7 @@ void GWindow::renderFrame(float deltaTime)
     {
         RTCounter::startTimer((index + 1) * 4 + wndID);      // For debugging perfomance, remove it!!!
 
-        glObjects[index].renderObject(camera, renderCallback);
+        glObjects[index]->renderObject(camera, renderCallback);
 
         RTCounter::stopTimer((index + 1) * 4 + wndID);      // For debugging perfomance, remove it!!!
     }
@@ -221,7 +222,7 @@ void GWindow::processInput(GLFWwindow* window, float deltaTime)
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
             camera.ProcessKeyboard(RIGHT, deltaTime);
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-            ScreanShot::makeAndSave(wndID, glObjects.at(0).getTextureImage());
+            ScreanShot::makeAndSave(wndID, glObjects.at(0)->getTextureImage());
     }
     catch (const std::exception& e)
     {
