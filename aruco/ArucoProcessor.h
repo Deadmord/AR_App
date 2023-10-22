@@ -53,7 +53,7 @@ private:
 	glm::mat4 createProjectionMatrix(float FOV, cv::Size& frameSize, float nearPlane = 0.1f, float farPlane = 100.0f);
 
 	void initializeObjPoints();
-	void addValueAndAverage(const cv::Vec3d& new_rvec, const cv::Vec3d& new_tvec, cv::Vec3d& averaged_rvec, cv::Vec3d& averaged_tvec);
+	void addValueAndAverage(const cv::Vec3d& new_rvec, const cv::Vec3d& new_tvec, cv::Vec3d& smoothed_rvec, cv::Vec3d& smoothed_tvec);
 	void sortDetectedMarkers(std::vector<int>& ids, std::vector<std::vector<cv::Point2f>>& corners);
 
 private:
@@ -82,5 +82,12 @@ private:
 	std::deque<cv::Vec3d> rvecs_history;
 	std::deque<cv::Vec3d> tvecs_history;
 	std::vector<int> detectedMarkerIds;
+
+	cv::Vec3d prev_smoothed_rvec;
+	cv::Vec3d prev_smoothed_tvec;
+	//smoothing factor
+	const double alpha = 0.2;
+	cv::Vec3d avg_rvec;
+	cv::Vec3d avg_tvec;
 };
 

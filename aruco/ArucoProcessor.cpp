@@ -16,6 +16,11 @@ ArucoProcessor::ArucoProcessor(float markerLength, cv::aruco::PredefinedDictiona
 	dictionary = cv::aruco::getPredefinedDictionary(dictionaryId);
 	detector = cv::aruco::ArucoDetector(dictionary, detectorParams);
 
+	prev_smoothed_rvec = cv::Vec3d(0, 0, 0);
+	prev_smoothed_tvec = cv::Vec3d(0, 0, 0);
+	avg_rvec = cv::Vec3d(0, 0, 0);
+	avg_tvec = cv::Vec3d(0, 0, 0);
+
 	estimatePose = !cameraParams.empty();
 	if (estimatePose) {
 		bool readOk = readCameraParameters(cameraParams, frameSize, camMatrix, distCoeffs);
@@ -184,22 +189,41 @@ void ArucoProcessor::initializeObjPoints() {
 	(*objPoints).ptr<cv::Vec3f>(0)[3] = cv::Vec3f(-markerLength / 2.f, -markerLength / 2.f, 0);
 }
 
-void ArucoProcessor::addValueAndAverage(const cv::Vec3d& new_rvec, const cv::Vec3d& new_tvec, cv::Vec3d& averaged_rvec, cv::Vec3d& averaged_tvec)
+void ArucoProcessor::addValueAndAverage(const cv::Vec3d& new_rvec, const cv::Vec3d& new_tvec, cv::Vec3d& smoothed_rvec, cv::Vec3d& smoothed_tvec)
 {
-	//add new values
-	rvecs_history.push_back(new_rvec);
-	tvecs_history.push_back(new_tvec);
+	//intermediate value using exponential smoothing
+	cv::Vec3d intermediate_rvec = alpha * new_rvec + (1 - alpha) * prev_smoothed_rvec;
+	cv::Vec3d intermediate_tvec = alpha * new_tvec + (1 - alpha) * prev_smoothed_tvec;
 
-	//delete old values if there are more than N of them
-	if (rvecs_history.size() > N) 
-	{
+	//If the history has reached its maximum size, removes the first (oldest) value from the average
+	if (rvecs_history.size() == N) {
+		avg_rvec -= rvecs_history.front();
+		avg_tvec -= tvecs_history.front();
+	}
+
+	//Adds the intermediate value to the average value
+	avg_rvec += intermediate_rvec;
+	avg_tvec += intermediate_tvec;
+
+	//Adds an intermediate value to history
+	rvecs_history.push_back(intermediate_rvec);
+	tvecs_history.push_back(intermediate_tvec);
+
+	//Checks if there are values in history
+	if (rvecs_history.size() > 0) {
+		//Calculates the smoothed value by dividing the average by the number of items in the history
+		smoothed_rvec = avg_rvec / static_cast<double>(rvecs_history.size());
+		smoothed_tvec = avg_tvec / static_cast<double>(tvecs_history.size());
+	}
+
+	if (rvecs_history.size() > N) {
 		rvecs_history.pop_front();
 		tvecs_history.pop_front();
 	}
 
-	//calculate average values
-	averaged_rvec = std::accumulate(rvecs_history.begin(), rvecs_history.end(), cv::Vec3d(0, 0, 0)) / double(rvecs_history.size());
-	averaged_tvec = std::accumulate(tvecs_history.begin(), tvecs_history.end(), cv::Vec3d(0, 0, 0)) / double(tvecs_history.size());
+	//Updates the previous smoothed value
+	prev_smoothed_rvec = smoothed_rvec;
+	prev_smoothed_tvec = smoothed_tvec;
 }
 
 void ArucoProcessor::sortDetectedMarkers(std::vector<int>& ids, std::vector<std::vector<cv::Point2f>>& corners)
