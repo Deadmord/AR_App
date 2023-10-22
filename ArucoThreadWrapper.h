@@ -15,10 +15,13 @@ private:
 	cv::Mat currentFrame;
 
 	void threadFunction();
-	std::shared_ptr <ArucoProcessor> arucoProcessor;
+	std::shared_ptr <ArucoProcessor> arucoProcessor = nullptr;
 
 public:
+	ArucoThreadWrapper();
 	ArucoThreadWrapper(float markerLength, cv::aruco::PredefinedDictionaryType dictionaryId = cv::aruco::DICT_6X6_250, std::string cameraParams = nullptr, bool showRejected = false);
+
+	void initAruco(float markerLength, cv::aruco::PredefinedDictionaryType dictionaryId = cv::aruco::DICT_6X6_250, std::string cameraParams = nullptr, bool showRejected = false);
 	void ProcessFrame(const cv::Mat& frame);
 	const Markers& GetDetectedMarkers() const;
 	void StartThread();

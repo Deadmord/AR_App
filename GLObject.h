@@ -22,7 +22,7 @@ public:
 
 	void setupShaderProgram(Shader* shaderProgPtr);
 
-	void setupArUcoPtr(std::shared_ptr<ArucoThreadWrapper>& arucoThreadWrapper)
+	void setupArUcoPtr(std::shared_ptr<ArucoThreadWrapper> arucoThreadWrapper)
 	{
 		this->arucoThreadWrapperPtr = arucoThreadWrapper;
 	}
@@ -49,7 +49,7 @@ public:
 			// ArUco init
 			//*arucoProcessorPtrToPtr = std::make_shared<ArucoProcessor>(ArUcoMarkerLength, ArUcoDictionaryId, cameraParams, ArUcoShowRejected);
 			//arucoProcessorPtr = *arucoProcessorPtrToPtr;
-			arucoThreadWrapperPtr = std::make_shared<ArucoThreadWrapper>(ArUcoMarkerLength, ArUcoDictionaryId, cameraParams, ArUcoShowRejected);
+			arucoThreadWrapperPtr->initAruco(ArUcoMarkerLength, ArUcoDictionaryId, cameraParams, ArUcoShowRejected);
 			this->vidCapture.set(cv::CAP_PROP_FRAME_WIDTH, arucoThreadWrapperPtr->GetFrameSize().width);
 			this->vidCapture.set(cv::CAP_PROP_FRAME_HEIGHT, arucoThreadWrapperPtr->GetFrameSize().height);
 			arucoThreadWrapperPtr->StartThread();
@@ -99,7 +99,7 @@ public:
 			// ArUco init
 			//*arucoProcessorPtrToPtr = std::make_shared<ArucoProcessor>(ArUcoMarkerLength, ArUcoDictionaryId, cameraParams, ArUcoShowRejected);
 			//arucoProcessorPtr = *arucoProcessorPtrToPtr;
-			arucoThreadWrapperPtr = std::make_shared<ArucoThreadWrapper>(ArUcoMarkerLength, ArUcoDictionaryId, cameraParams, ArUcoShowRejected);
+			arucoThreadWrapperPtr->initAruco(ArUcoMarkerLength, ArUcoDictionaryId, cameraParams, ArUcoShowRejected);
 			arucoThreadWrapperPtr->StartThread();
 		}
 		//------------------------------------------

@@ -1,5 +1,8 @@
 #include "ArucoThreadWrapper.h"
 
+ArucoThreadWrapper::ArucoThreadWrapper() : arucoProcessor(nullptr), stopThread(false)
+{}
+
 ArucoThreadWrapper::ArucoThreadWrapper(float markerLength, cv::aruco::PredefinedDictionaryType dictionaryId, std::string cameraParams, bool showRejected) : stopThread(false)
 {
 	arucoProcessor = std::make_shared<ArucoProcessor>(markerLength, dictionaryId, cameraParams, showRejected);
@@ -15,7 +18,7 @@ void ArucoThreadWrapper::threadFunction()
 			{
 				std::unique_lock<std::mutex> lock(dataMutex);
 				dataCondVar.wait(lock, [this]() {
-					return !currentFrame.empty() || stopThread;
+					return (!currentFrame.empty() || stopThread);
 					});
 				frameToProcess = currentFrame.clone();
 				currentFrame.release();
@@ -30,6 +33,11 @@ void ArucoThreadWrapper::threadFunction()
 	{
 		std::cerr << "ArucoThreadWrapper::threadFunction: " << e.what() << std::endl;
 	}
+}
+
+void ArucoThreadWrapper::initAruco(float markerLength, cv::aruco::PredefinedDictionaryType dictionaryId, std::string cameraParams, bool showRejected)
+{
+	arucoProcessor = std::make_shared<ArucoProcessor>(markerLength, dictionaryId, cameraParams, showRejected);
 }
 
 void ArucoThreadWrapper::ProcessFrame(const cv::Mat& frame)
