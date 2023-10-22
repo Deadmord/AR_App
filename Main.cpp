@@ -38,7 +38,7 @@ void InitFoneTextures(std::vector<std::shared_ptr<texture>>& textures)
     textures.push_back(std::make_shared<videoTexture>(usbCamera_1, GL_RGB, GL_BGR, false, true, false, nullptr, usbCam01Params));
     textures.push_back(std::make_shared<videoTexture>(usbCamera_2, GL_RGB, GL_BGR, true, true, false, nullptr, usbCam02Params));
     textures.push_back(std::make_shared<videoTexture>(usbCamera_3, GL_RGB, GL_BGR, false, true, false, nullptr, usbCam03Params));
-    textures.push_back(std::make_shared<videoTexture>(IDSPeak::GetWorker(),                 GL_RGB, GL_BGR, false, true, false, nullptr, usbCam03Params));
+    textures.push_back(std::make_shared<videoTexture>(IDSPeak::GetWorker(),                 GL_RGB, GL_BGR, false, true, false, nullptr, idsCamParams));
 }
 
 void InitObjectTextures(std::vector<std::shared_ptr<texture>>& textures)
