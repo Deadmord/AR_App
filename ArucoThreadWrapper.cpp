@@ -46,7 +46,7 @@ void ArucoThreadWrapper::undistortFrame(const cv::Mat& frameIn, cv::Mat& frameOu
 	{
 		//calc and apply distortion correction, very heavy hendling!!!
 		//cv::Mat undistortedFrame;
-		//cv::undistort(frameVideo, undistortedFrame, arucoProcessorPtr->getCameraMat(), arucoProcessorPtr->getDistortCoeff());
+		//cv::undistort(frameIn, frameOut, m_arucoProcessor->getCameraMat(), m_arucoProcessor->getDistortCoeff());
 
 		//only apply distortion maps, mach more faster!!!
 		// попробовать сохранить UndistortMap1/2 в самом классе ArucoThreadWrapper, мб будет быстрее...

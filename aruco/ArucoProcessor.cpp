@@ -10,38 +10,45 @@ glm::mat4 INVERSE_MATRIX
 ArucoProcessor::ArucoProcessor(float markerLength, cv::aruco::PredefinedDictionaryType dictionaryId, std::string cameraParams, bool showRejected)
 	:markerLength(markerLength), showRejected(showRejected), objPoints(std::make_unique<cv::Mat>(4, 1, CV_32FC3))
 {
-	Console::yellow() << "ArucoProcessor created: " << this << std::endl;
-	//override cornerRefinementMethod read from config file
-	detectorParams.cornerRefinementMethod = cv::aruco::CORNER_REFINE_SUBPIX;
-	Console::log() << "Corner refinement method (0: None, 1: Subpixel, 2:contour, 3: AprilTag 2): " << (int)detectorParams.cornerRefinementMethod << std::endl;
-	dictionary = cv::aruco::getPredefinedDictionary(dictionaryId);
-	detector = cv::aruco::ArucoDetector(dictionary, detectorParams);
+	try
+	{
+		Console::yellow() << "ArucoProcessor created: " << this << std::endl;
+		//override cornerRefinementMethod read from config file
+		detectorParams.cornerRefinementMethod = cv::aruco::CORNER_REFINE_SUBPIX;
+		Console::log() << "Corner refinement method (0: None, 1: Subpixel, 2:contour, 3: AprilTag 2): " << (int)detectorParams.cornerRefinementMethod << std::endl;
+		dictionary = cv::aruco::getPredefinedDictionary(dictionaryId);
+		detector = cv::aruco::ArucoDetector(dictionary, detectorParams);
 
-	estimatePose = !cameraParams.empty();
-	if (estimatePose) {
-		bool readOk = readCameraParameters(cameraParams, frameSize, camMatrix, distCoeffs);
-		if (!readOk) {
-			Console::red() << "Invalid camera file" << std::endl;
-			throw std::runtime_error("Invalid camera parameters file");   //Refactoring !!! Add tray/catch
+		estimatePose = !cameraParams.empty();
+		if (estimatePose) {
+			bool readOk = readCameraParameters(cameraParams, frameSize, camMatrix, distCoeffs);
+			if (!readOk) {
+				Console::red() << "Invalid camera file" << std::endl;
+				throw std::runtime_error("Invalid camera parameters file");   //Refactoring !!! Add tray/catch
+			}
+
+			// Calculate the distortion correction for the camera matrix and get the undistortion matrices
+			cv::Mat newCamMatrix;
+			cv::initUndistortRectifyMap(camMatrix, distCoeffs, cv::Mat(), newCamMatrix, frameSize, CV_16SC2, undistortionMap1, undistortionMap2);
+
+			// Getting focal lenght from camera calibration parameters
+			double focal_length_x = camMatrix.at<double>(0, 0); // also could be camera_matrix.at<double>(1, 1); for f_y
+
+			// Calculate Field of View in radians and degrees
+			FOV = 2.0f * std::atan2(0.5f * frameSize.height, focal_length_x);
+			FOV_Deg = glm::degrees(FOV);
+
+			//hardware way: FOV = SD - WD / FL,
+			//где FOV - поле зрения; SD - размер датчика; WD - рабочее расстояние; FL - Фокусное расстояние линз.
+
+			projectionMatrix = createProjectionMatrix(FOV, frameSize, nearPlane, farPlane);
 		}
-
-		// Calculate the distortion correction for the camera matrix and get the undistortion matrices
-		cv::Mat newCamMatrix;
-		cv::initUndistortRectifyMap(camMatrix, distCoeffs, cv::Mat(), newCamMatrix, frameSize, CV_16SC2, undistortionMap1, undistortionMap2);
-
-		// Getting focal lenght from camera calibration parameters
-		double focal_length_x = camMatrix.at<double>(0, 0); // also could be camera_matrix.at<double>(1, 1); for f_y
-
-		// Calculate Field of View in radians and degrees
-		FOV = 2.0f * std::atan2(0.5f * frameSize.height, focal_length_x);
-		FOV_Deg = glm::degrees(FOV);
-
-		//hardware way: FOV = SD - WD / FL,
-		//где FOV - поле зрения; SD - размер датчика; WD - рабочее расстояние; FL - Фокусное расстояние линз.
-
-		projectionMatrix = createProjectionMatrix(FOV, frameSize, nearPlane, farPlane);
+		initializeObjPoints();
 	}
-	initializeObjPoints();
+	catch (const std::exception& e)
+	{
+		Console::red() << "ArucoProcessor::ArucoProcessor exception: " << e.what() << std::endl;
+	}
 }
 
 ArucoProcessor::~ArucoProcessor()
@@ -54,42 +61,40 @@ bool ArucoProcessor::detectMarkers(const cv::Mat& frame, cv::Mat& frameCopy)
 	// detect markers and estimate pose
 	try {
 		detector.detectMarkers(std::move(frame), markers.corners, markers.ids, markers.rejected);
+		size_t  nMarkers = markers.corners.size();
+		markers.rvecs.resize(nMarkers);
+		markers.tvecs.resize(nMarkers);
+		markers.viewMatrixes.resize(nMarkers);
+
+		if (estimatePose && !markers.ids.empty()) {
+			// Calculate pose for each marker
+			for (size_t i = 0; i < nMarkers; i++) {
+				solvePnP(*objPoints, markers.corners.at(i), camMatrix, distCoeffs, markers.rvecs.at(i), markers.tvecs.at(i));
+				markers.viewMatrixes.at(i) = createViewMatrix(markers.rvecs.at(i), markers.tvecs.at(i));
+			}
+		}
+
+		// draw results
+		if (&frame != &frameCopy)
+			frame.copyTo(frameCopy);
+		if (!markers.ids.empty()) {
+			cv::aruco::drawDetectedMarkers(frameCopy, markers.corners, markers.ids);
+
+			if (estimatePose) {
+				for (unsigned int i = 0; i < markers.ids.size(); i++)
+					cv::drawFrameAxes(frameCopy, camMatrix, distCoeffs, markers.rvecs[i], markers.tvecs[i], markerLength * 1.0f, 2);
+			}
+		}
+
+		if (showRejected && !markers.rejected.empty())
+			cv::aruco::drawDetectedMarkers(frameCopy, markers.rejected, cv::noArray(), cv::Scalar(100, 0, 255));
+
+		return !markers.ids.empty();
 	}
 	catch (const std::exception& e)
 	{
 		Console::red() << "Exception Aruco: " << e.what() << std::endl;
 	}
-
-
-	size_t  nMarkers = markers.corners.size();
-	markers.rvecs.resize(nMarkers);
-	markers.tvecs.resize(nMarkers);
-	markers.viewMatrixes.resize(nMarkers);
-
-	if (estimatePose && !markers.ids.empty()) {
-		// Calculate pose for each marker
-		for (size_t i = 0; i < nMarkers; i++) {
-			solvePnP(*objPoints, markers.corners.at(i), camMatrix, distCoeffs, markers.rvecs.at(i), markers.tvecs.at(i));
-			markers.viewMatrixes.at(i) = createViewMatrix(markers.rvecs.at(i), markers.tvecs.at(i));
-		}
-	}
-
-	// draw results
-	if(&frame != &frameCopy)	
-		frame.copyTo(frameCopy);
-	if (!markers.ids.empty()) {
-		cv::aruco::drawDetectedMarkers(frameCopy, markers.corners, markers.ids);
-
-		if (estimatePose) {
-			for (unsigned int i = 0; i < markers.ids.size(); i++)
-				cv::drawFrameAxes(frameCopy, camMatrix, distCoeffs, markers.rvecs[i], markers.tvecs[i], markerLength * 1.0f, 2);
-		}
-	}
-
-	if (showRejected && !markers.rejected.empty())
-		cv::aruco::drawDetectedMarkers(frameCopy, markers.rejected, cv::noArray(), cv::Scalar(100, 0, 255));
-
-	return !markers.ids.empty();
 }
 
 const Markers& ArucoProcessor::getMarkers() const
