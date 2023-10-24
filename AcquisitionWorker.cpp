@@ -60,7 +60,7 @@ void AcquisitionWorker::Start()
                 ->Value());
 
         m_imageConverter->PreAllocateConversion(
-            inputPixelFormat, peak::ipl::PixelFormatName::BGRa8, m_imageWidth, m_imageHeight, imageCount);
+            inputPixelFormat, peak::ipl::PixelFormatName::BGR8, m_imageWidth, m_imageHeight, imageCount);
 
         // Start acquisition
         m_dataStream->StartAcquisition();

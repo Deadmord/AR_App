@@ -38,6 +38,8 @@ Device::Device()
     OpenDataStream();
     LoadDefaults();
     DisableAutoFeatures();
+
+    Console::green() << "IDS camera found. Model: " << m_deviceModel << std::endl;
 }
 
 std::shared_ptr<peak::core::DataStream> Device::DataSteam()
@@ -116,6 +118,8 @@ void Device::OpenDataStream()
             auto buffer = m_dataStream->AllocAndAnnounceBuffer(static_cast<size_t>(payloadSize), nullptr);
             m_dataStream->QueueBuffer(buffer);
         }
+
+        m_deviceModel = m_nodemapRemoteDevice->FindNode<peak::core::nodes::StringNode>("DeviceModelName")->Value();
     }
 }
 
@@ -139,16 +143,16 @@ void Device::LoadDefaults()
         // Set frame rate
         const auto frameRate = (std::min)(
             m_nodemapRemoteDevice->FindNode<peak::core::nodes::FloatNode>("AcquisitionFrameRate")->Maximum(),
-            25.0);
+            30.0);
         m_nodemapRemoteDevice->FindNode<peak::core::nodes::FloatNode>("AcquisitionFrameRate")
             ->SetValue(frameRate);
 
         m_frameRate = m_nodemapRemoteDevice->FindNode<peak::core::nodes::FloatNode>("AcquisitionFrameRate")
                           ->Value();
     }
-    catch (const peak::core::NotFoundException&)
+    catch (const peak::core::NotFoundException& e)
     {
-        // UserSet is not available
+        Console::red() << "UserSet is not available. Exception: " << e.what() << std::endl;
     }
 }
 

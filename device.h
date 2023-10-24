@@ -30,6 +30,7 @@ private:
     std::shared_ptr<peak::core::NodeMap> m_nodemapRemoteDevice{};
 
     double m_frameRate;
+    std::string m_deviceModel;
 };
 
 #endif // DEVICE_H
