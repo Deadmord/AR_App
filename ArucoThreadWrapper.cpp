@@ -67,6 +67,7 @@ bool ArucoThreadWrapper::tryGetProcessedFrame(cv::Mat& frameOut)
 	catch (const std::exception& e)
 	{
 		Console::red() << "ArucoThreadWrapper::tryGetProcessedFrame: " << e.what() << std::endl;
+		return false;
 	}
 }
 
@@ -79,6 +80,7 @@ bool ArucoThreadWrapper::tryPopProcessedFrame(cv::Mat& frameOut)
 	catch (const std::exception& e)
 	{
 		Console::red() << "ArucoThreadWrapper::tryPopProcessedFrame: " << e.what() << std::endl;
+		return false;
 	}
 }
 
@@ -97,6 +99,7 @@ Markers ArucoThreadWrapper::getDetectedMarkers()
 	catch (const std::exception& e)
 	{
 		Console::red() << "ArucoThreadWrapper::GetDetectedMarkers: " << e.what() << std::endl;
+		return Markers();
 	}
 }
 

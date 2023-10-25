@@ -124,6 +124,12 @@
     <ClCompile Include="ArucoThreadWrapper.cpp">
       <Filter>Modules\ArUco</Filter>
     </ClCompile>
+    <ClCompile Include="Smoother.cpp">
+      <Filter>Modules\ArUco</Filter>
+    </ClCompile>
+    <ClCompile Include="SmootherWrapper.cpp">
+      <Filter>Modules\ArUco</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="appState.h">
@@ -205,6 +211,12 @@
       <Filter>Modules\ScreanShot</Filter>
     </ClInclude>
     <ClInclude Include="ArucoThreadWrapper.h">
+      <Filter>Modules\ArUco</Filter>
+    </ClInclude>
+    <ClInclude Include="Smoother.h">
+      <Filter>Modules\ArUco</Filter>
+    </ClInclude>
+    <ClInclude Include="SmootherWrapper.h">
       <Filter>Modules\ArUco</Filter>
     </ClInclude>
   </ItemGroup>

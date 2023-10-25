@@ -66,10 +66,36 @@ bool ArucoProcessor::detectMarkers(const cv::Mat& frame, cv::Mat& frameCopy)
 		markers.tvecs.resize(nMarkers);
 		markers.viewMatrixes.resize(nMarkers);
 
+		for (auto& pair : markerSmoothers) {
+			pair.second->increaseAbsense();
+		}
+
+		for (int id : markers.ids) {
+			if (markerSmoothers.find(id) == markerSmoothers.end()) {
+				markerSmoothers[id] = std::make_shared<SmootherWrapper>(alphaRvec, alphaTvec, maxHistorySize);
+			}
+			markerSmoothers[id]->resetAbsense();
+		}
+
+		for (auto it = markerSmoothers.begin(); it != markerSmoothers.end(); ) {
+			if (it->second->shouldRemove()) {
+				it = markerSmoothers.erase(it);
+			}
+			else {
+				++it;
+			}
+		}
+
 		if (estimatePose && !markers.ids.empty()) {
 			// Calculate pose for each marker
 			for (size_t i = 0; i < nMarkers; i++) {
 				solvePnP(*objPoints, markers.corners.at(i), camMatrix, distCoeffs, markers.rvecs.at(i), markers.tvecs.at(i));
+
+				int id = markers.ids[i];
+				markerSmoothers[id]->addValues(markers.rvecs.at(i), markers.tvecs.at(i));
+				markers.rvecs.at(i) = markerSmoothers[id]->getSmoothedRvec();
+				markers.tvecs.at(i) = markerSmoothers[id]->getSmoothedTvec();
+
 				markers.viewMatrixes.at(i) = createViewMatrix(markers.rvecs.at(i), markers.tvecs.at(i));
 			}
 		}
@@ -77,6 +103,7 @@ bool ArucoProcessor::detectMarkers(const cv::Mat& frame, cv::Mat& frameCopy)
 		// draw results
 		if (&frame != &frameCopy)
 			frame.copyTo(frameCopy);
+
 		if (!markers.ids.empty()) {
 			cv::aruco::drawDetectedMarkers(frameCopy, markers.corners, markers.ids);
 
@@ -94,6 +121,7 @@ bool ArucoProcessor::detectMarkers(const cv::Mat& frame, cv::Mat& frameCopy)
 	catch (const std::exception& e)
 	{
 		Console::red() << "Exception Aruco: " << e.what() << std::endl;
+		return false;
 	}
 }
 

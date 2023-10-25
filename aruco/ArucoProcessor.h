@@ -8,6 +8,7 @@
 #include <glm/gtx/string_cast.hpp> // For glm::value_ptr и glm::to_string
 #include "aruco_utilities.hpp"
 #include "../Console.h"
+#include "../SmootherWrapper.h"
 
 struct Markers
 {
@@ -70,10 +71,14 @@ private:
 	std::shared_ptr<cv::Mat> objPoints;
 	Markers markers;
 
+	std::unordered_map<int, std::shared_ptr<SmootherWrapper>> markerSmoothers;
 	// Примерные значения для FOV, nearPlane и farPlane
 	float FOV = 0.7854f;       // fielf of view in rad
 	float FOV_Deg = 45.0f;
 	const float nearPlane = 0.1f;  // Ближняя плоскость отсечения
 	const float farPlane = 100.0f; // Дальняя плоскость отсечения
+	float alphaRvec = 0.5;
+	float alphaTvec = 0.5;
+	int maxHistorySize = 10;
 };
 
