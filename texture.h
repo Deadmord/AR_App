@@ -17,6 +17,8 @@ public:
 
 	virtual uchar* getData() = 0;
 
+    virtual float getFPS() = 0;
+
     virtual const std::string& getCameraParams() const = 0;
 
     virtual void setWidth(GLint width) = 0;

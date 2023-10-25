@@ -21,6 +21,7 @@ AcquisitionWorker::AcquisitionWorker(std::shared_ptr<peak::core::DataStream> dat
     m_errorCounter = 0;
 
     SetDataStream(dataStream);
+    SetBinning(selector, horizontal, vertical);
     CreateAutoFeatures();
     InitAutoFeatures();
     m_imageConverter = std::make_unique<peak::ipl::ImageConverter>();

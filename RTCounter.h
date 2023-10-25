@@ -9,12 +9,12 @@
 
 struct FrameTiming
 {
-	float startTime;
-	float stopTime;
-	float avrDeltaTime; // Avarage time between start and stop
-	float FPS;
+	float startTime{0};
+	float stopTime{0};
+	float avrDeltaTime{0}; // Avarage time between start and stop
+	float FPS{0};
 
-	float sum;
+	float sum{0};
 	std::deque<float> dTimes;
 };
 
@@ -43,11 +43,23 @@ public:
 
 	static float getMainDeltaTime();
 
+	//------- methods timer instance ----------
+
+	void startTimer();
+	
+	void stopTimer();
+	
+	float getFPS();
+	
+	float getDeltaTime();
+
 private:
 	const static size_t windowSize;	//setting for count avarege freq
 	static std::vector<FrameTiming> LocalTimers;	//data for calculate time and freq
 	static FrameTiming MainTimer;
 	static float lastPrintTime; // Time of last print FPS
+
+	FrameTiming timer; //timer instance
 };
 
 //// Hight accuracy timer --------------------------------

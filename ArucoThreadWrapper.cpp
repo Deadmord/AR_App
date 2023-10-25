@@ -110,6 +110,11 @@ const glm::mat4& ArucoThreadWrapper::getProjectionMat() const
 	return m_arucoProcessor->getProjectionMat();
 }
 
+float ArucoThreadWrapper::getFPS()
+{
+	return FPStimer.getFPS();
+}
+
 void ArucoThreadWrapper::StartThread()
 {
 	try
@@ -149,6 +154,7 @@ void ArucoThreadWrapper::detectionLoop()
 	{
 		while (m_running)
 		{
+			FPStimer.startTimer();
 			cv::Mat frameToProcess;
 			if (m_currentFrame.tryPop(frameToProcess)) {
 				//Console::green() << static_cast<float>(glfwGetTime()) << "\t\t\tThread: " << std::this_thread::get_id() << std::endl;
@@ -164,6 +170,7 @@ void ArucoThreadWrapper::detectionLoop()
 				std::unique_lock<std::mutex> lock(m_mutex);
 				m_loopCondition.wait(lock);
 			}
+			FPStimer.stopTimer();
 		}
 	}
 	catch (const std::exception& e)

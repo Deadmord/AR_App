@@ -11,14 +11,14 @@ public:
 	~imageTexture();
 
 	void start() override
-	{
-	}
+	{}
 
 	void stop() override
-	{
-	}
+	{}
 
 	uchar* getData() override;
+
+	float getFPS() override;
 
 	void setWidth(GLint width) override;
 

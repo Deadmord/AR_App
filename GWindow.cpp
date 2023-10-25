@@ -89,11 +89,11 @@ void GWindow::renderFrame(float deltaTime)
 
     // Render object method reqaer camera veuw matrix and printState functions in some caces
     // create alias for lambda function
-    using RenderCallback = std::function<void(const cv::Mat&, cv::Size)>;
+    using RenderCallback = std::function<void(const cv::Mat&, cv::Size, float, float)>;
 
     // define lambda f()
-    RenderCallback renderCallback = [&](const cv::Mat& frame, cv::Size frameSize) {
-        showInFrame(frame, cv::Size(WinWidth, WinHeight), frameSize, RTCounter::getFPS(wndID),
+    RenderCallback renderCallback = [&](const cv::Mat& frame, cv::Size frameSize, float cameraFPS, float markerFPS) {
+        showInFrame(frame, cv::Size(WinWidth, WinHeight), frameSize, RTCounter::getFPS(wndID), cameraFPS, markerFPS,
             { RTCounter::getDeltaTime(wndID),
             RTCounter::getDeltaTime((4 * 1) + wndID),
             RTCounter::getDeltaTime((4 * 2) + wndID),
@@ -126,7 +126,7 @@ void GWindow::renderFrame(float deltaTime)
     RTCounter::stopTimer(wndID);
 }
 
-void GWindow::showInFrame(const cv::Mat& frame, cv::Size WindSize, cv::Size frameSize, float FPS, std::initializer_list<float> dTimes)
+void GWindow::showInFrame(const cv::Mat& frame, cv::Size WindSize, cv::Size frameSize, float renderFPS, float cameraFPS, float markerFPS, std::initializer_list<float> dTimes)
 {
     // Lock the mutex before accessing the frame
     std::lock_guard<std::mutex> lock(frameMutex);
@@ -134,16 +134,24 @@ void GWindow::showInFrame(const cv::Mat& frame, cv::Size WindSize, cv::Size fram
     std::ostringstream vector_to_marker;
 
     vector_to_marker.str(std::string());
-    vector_to_marker << std::setprecision(4) << "WindwRes: " << std::setw(2) << WindSize.width << " x " << WindSize.height;
+    vector_to_marker << std::setprecision(4) << "WindwRes: " << std::setw(2) << WindSize.width << "x" << WindSize.height;
     cv::putText(frame, vector_to_marker.str(), cv::Point(10, 25), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(32, 32, 240), 2);
 
     vector_to_marker.str(std::string());
-    vector_to_marker << std::setprecision(4) << "FrameRes: " << std::setw(4) << frameSize.width << " x " << frameSize.height;
-    cv::putText(frame, vector_to_marker.str(), cv::Point(250, 25), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(32, 240, 32), 2);
+    vector_to_marker << std::setprecision(4) << "FrameRes: " << std::setw(4) << frameSize.width << "x" << frameSize.height;
+    cv::putText(frame, vector_to_marker.str(), cv::Point(240, 25), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(32, 240, 32), 2);
 
     vector_to_marker.str(std::string());
-    vector_to_marker << std::setprecision(4) << "FPS: " << std::setw(6) << FPS;
-    cv::putText(frame, vector_to_marker.str(), cv::Point(500, 25), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(240, 32, 32), 2);
+    vector_to_marker << std::setprecision(3) << "FPSrend:  " << std::setw(2) << renderFPS;
+    cv::putText(frame, vector_to_marker.str(), cv::Point(480, 25), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(240, 32, 32), 2);
+
+    vector_to_marker.str(std::string());
+    vector_to_marker << std::setprecision(3) << "FPScamr: " << std::setw(2) << cameraFPS;
+    cv::putText(frame, vector_to_marker.str(), cv::Point(480, 50), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(240, 32, 32), 2);
+
+    vector_to_marker.str(std::string());
+    vector_to_marker << std::setprecision(3) << "FPSmark: " << std::setw(2) << markerFPS;
+    cv::putText(frame, vector_to_marker.str(), cv::Point(480, 75), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(240, 32, 32), 2);
 
     int shift{ 0 };
     int timerId{ 1 };

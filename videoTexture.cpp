@@ -30,6 +30,11 @@ uchar* videoTexture::getData() {
 	return frame.data;
 }
 
+float videoTexture::getFPS()
+{
+	return FPStimer.getFPS();
+}
+
 const std::string& videoTexture::getCameraParams() const
 {
 	return cameraParams_;
@@ -60,6 +65,7 @@ void videoTexture::captureLoop()
 	{
 		while (m_running_)
 		{
+			FPStimer.startTimer();
 			try
 			{
 				// checking
@@ -103,12 +109,14 @@ void videoTexture::captureLoop()
 				Console::red() << "Exception: " << e.what() << std::endl;
 				return;
 			}
+			FPStimer.stopTimer();
 		}
 	}
 	if (isIDSPeak_)
 	{
 		while (m_running_)
 		{
+			FPStimer.startTimer();
 			try
 			{
 				if (!workerIDSPtr_->isRunning())
@@ -143,6 +151,7 @@ void videoTexture::captureLoop()
 				Console::red() << "Exception: " << e.what() << std::endl;
 				return;
 			}
+			FPStimer.stopTimer();
 		}
 	}
 }

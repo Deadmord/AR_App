@@ -39,6 +39,11 @@ uchar* imageTexture::getData() {
     return data_;
 }
 
+float imageTexture::getFPS()
+{
+    return 0.0f;
+}
+
 void imageTexture::setWidth(GLint width)
 {
     if (isImg_) //реализовать изменение ширины для Img

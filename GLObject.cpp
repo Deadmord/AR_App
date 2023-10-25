@@ -94,7 +94,7 @@ void GLObject::renderObject(Camera& camera, PrintInFrameCallback printCallback)
         arucoThreadWrapperPtr_->processFrame(textureFrameAruco);
         //while (!arucoThreadWrapperPtr_->tryGetProcessedFrame(textureFrameAruco)) {}
         //if(!arucoThreadWrapperPtr_->tryGetProcessedFrame(textureFrameAruco)) textureFrameAruco = textureFrame;
-        printCallback(textureFrame, arucoThreadWrapperPtr_->getFrameSize());
+        printCallback(textureFrame, arucoThreadWrapperPtr_->getFrameSize(), texture_->getFPS(), arucoThreadWrapperPtr_->getFPS());
     }
 
     // Set OpenGL texture

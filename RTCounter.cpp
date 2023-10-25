@@ -1,7 +1,7 @@
 #include "RTCounter.h"
 
 const unsigned int NUMBER_STOPWATCHS = 64;
-const size_t RTCounter::windowSize = 25;
+const size_t RTCounter::windowSize = 50;
 
 float RTCounter::lastPrintTime = 0.0f;
 std::vector<FrameTiming> RTCounter::LocalTimers(NUMBER_STOPWATCHS);
@@ -104,4 +104,36 @@ void RTCounter::printMainFPS_Console()
 float RTCounter::getMainDeltaTime()
 {
 	return MainTimer.avrDeltaTime;
+}
+
+//------- methods timer instance ----------
+
+void RTCounter::startTimer()
+{
+	timer.startTime = static_cast<float>(glfwGetTime());
+}
+
+void RTCounter::stopTimer()
+{
+	timer.stopTime = static_cast<float>(glfwGetTime());
+	float dTime = timer.stopTime - timer.startTime;
+	timer.dTimes.push_back(dTime);
+	timer.sum += dTime;
+
+	if (timer.dTimes.size() > windowSize) {
+		timer.sum -= timer.dTimes.front();
+		timer.dTimes.pop_front();
+	}
+	timer.avrDeltaTime = timer.sum / timer.dTimes.size();
+	timer.FPS = 1.0f / timer.avrDeltaTime;
+}
+
+float RTCounter::getFPS()
+{
+	return timer.FPS;
+}
+
+float RTCounter::getDeltaTime()
+{
+	return timer.avrDeltaTime;
 }
