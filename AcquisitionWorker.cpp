@@ -143,8 +143,8 @@ size_t AcquisitionWorker::getImageHeight()
 
 cv::Mat AcquisitionWorker::ConvertPeakImageToCvMat(const peak::ipl::Image& peakImage) {
     // Create CV Mat image for debayering and convert it to RGB8 format
-    int width = peakImage.Width();
-    int height = peakImage.Height();
+    int width = static_cast<int>(peakImage.Width());
+    int height = static_cast<int>(peakImage.Height());
     auto PixelFormat = peakImage.PixelFormat();
     uint8_t* peakData = peakImage.Data();
 

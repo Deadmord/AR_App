@@ -58,6 +58,6 @@ void imageTexture::setHeight(GLint height)
 
 const std::string& imageTexture::getCameraParams() const
 {
-    return "";
     Console::red() << "CameraParams not exist for imageTexture." << std::endl;
+    return emptyString_;
 }

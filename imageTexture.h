@@ -27,6 +27,7 @@ public:
 	const std::string& getCameraParams() const;
 
 private:
-	std::string		filePath_;
+	std::string		filePath_; 
+	std::string		emptyString_;
 };
 

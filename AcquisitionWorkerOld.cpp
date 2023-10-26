@@ -106,7 +106,7 @@ bool AcquisitionWorkerOld::AllocAndAnnounceBuffers() {
             int64_t payloadSize = m_nodemapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("PayloadSize")->Value();
 
             // Get number of minimum required buffers
-            int numBuffersMinRequired = m_dataStream->NumBuffersAnnouncedMinRequired();
+            size_t numBuffersMinRequired = m_dataStream->NumBuffersAnnouncedMinRequired();
 
             // Alloc buffers
             for (size_t count = 0; count < numBuffersMinRequired; count++)
