@@ -7,16 +7,9 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/string_cast.hpp> // For glm::value_ptr и glm::to_string
 #include "aruco_utilities.hpp"
+#include "Markers.h"
+#include "PositionSmother.h"
 #include "../Console.h"
-
-struct Markers
-{
-	std::vector<int> ids;
-	std::vector<std::vector<cv::Point2f>> corners, rejected;
-	std::vector<cv::Vec3d> rvecs;
-	std::vector<cv::Vec3d> tvecs;
-	std::vector<glm::mat4> viewMatrixes;
-};
 
 class ArucoProcessor
 {
@@ -69,6 +62,7 @@ private:
 
 	std::shared_ptr<cv::Mat> objPoints;
 	Markers markers;
+	PositionSmother positionSmother;
 
 	// Примерные значения для FOV, nearPlane и farPlane
 	float FOV = 0.7854f;       // fielf of view in rad
