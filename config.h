@@ -44,6 +44,12 @@ constexpr int usbCamera_3 = 0;
 constexpr int sleepTime = 30;	//Sleep time for VideoCapturing Loops
 
 // -------------------- IDS Cameras ----------------------
+// Binning
+extern std::string selector;
+extern int horizontal;
+extern int vertical;
+
+// Auto features
 constexpr int skip_frames = 2;
 constexpr int skip_frames_min = 1;
 constexpr int skip_frames_max = 10;

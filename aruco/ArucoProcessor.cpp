@@ -35,7 +35,7 @@ ArucoProcessor::ArucoProcessor(float markerLength, cv::aruco::PredefinedDictiona
 			double focal_length_x = camMatrix.at<double>(0, 0); // also could be camera_matrix.at<double>(1, 1); for f_y
 
 			// Calculate Field of View in radians and degrees
-			FOV = 2.0f * std::atan2(0.5f * frameSize.height, focal_length_x);
+			FOV = 2.0f * static_cast<float>(std::atan2(0.5f * frameSize.height, focal_length_x));
 			FOV_Deg = glm::degrees(FOV);
 
 			//hardware way: FOV = SD - WD / FL,
@@ -94,6 +94,7 @@ bool ArucoProcessor::detectMarkers(const cv::Mat& frame, cv::Mat& frameCopy)
 	catch (const std::exception& e)
 	{
 		Console::red() << "Exception Aruco: " << e.what() << std::endl;
+		return false;
 	}
 }
 

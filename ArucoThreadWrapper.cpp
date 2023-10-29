@@ -67,6 +67,7 @@ bool ArucoThreadWrapper::tryGetProcessedFrame(cv::Mat& frameOut)
 	catch (const std::exception& e)
 	{
 		Console::red() << "ArucoThreadWrapper::tryGetProcessedFrame: " << e.what() << std::endl;
+		return false;
 	}
 }
 
@@ -79,6 +80,7 @@ bool ArucoThreadWrapper::tryPopProcessedFrame(cv::Mat& frameOut)
 	catch (const std::exception& e)
 	{
 		Console::red() << "ArucoThreadWrapper::tryPopProcessedFrame: " << e.what() << std::endl;
+		return false;
 	}
 }
 
@@ -97,6 +99,7 @@ Markers ArucoThreadWrapper::getDetectedMarkers()
 	catch (const std::exception& e)
 	{
 		Console::red() << "ArucoThreadWrapper::GetDetectedMarkers: " << e.what() << std::endl;
+		return Markers();
 	}
 }
 
@@ -108,6 +111,11 @@ const cv::Size& ArucoThreadWrapper::getFrameSize() const
 const glm::mat4& ArucoThreadWrapper::getProjectionMat() const
 {
 	return m_arucoProcessor->getProjectionMat();
+}
+
+float ArucoThreadWrapper::getFPS()
+{
+	return FPStimer.getFPS();
 }
 
 void ArucoThreadWrapper::StartThread()
@@ -149,6 +157,7 @@ void ArucoThreadWrapper::detectionLoop()
 	{
 		while (m_running)
 		{
+			FPStimer.startTimer();
 			cv::Mat frameToProcess;
 			if (m_currentFrame.tryPop(frameToProcess)) {
 				//Console::green() << static_cast<float>(glfwGetTime()) << "\t\t\tThread: " << std::this_thread::get_id() << std::endl;
@@ -164,6 +173,7 @@ void ArucoThreadWrapper::detectionLoop()
 				std::unique_lock<std::mutex> lock(m_mutex);
 				m_loopCondition.wait(lock);
 			}
+			FPStimer.stopTimer();
 		}
 	}
 	catch (const std::exception& e)

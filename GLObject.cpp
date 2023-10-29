@@ -94,7 +94,7 @@ void GLObject::renderObject(Camera& camera, PrintInFrameCallback printCallback)
         arucoThreadWrapperPtr_->processFrame(textureFrameAruco);
         //while (!arucoThreadWrapperPtr_->tryGetProcessedFrame(textureFrameAruco)) {}
         //if(!arucoThreadWrapperPtr_->tryGetProcessedFrame(textureFrameAruco)) textureFrameAruco = textureFrame;
-        printCallback(textureFrame, arucoThreadWrapperPtr_->getFrameSize());
+        printCallback(textureFrame, arucoThreadWrapperPtr_->getFrameSize(), texture_->getFPS(), arucoThreadWrapperPtr_->getFPS());
     }
 
     // Set OpenGL texture
@@ -148,7 +148,7 @@ void GLObject::drowObject(glm::mat4& viewMat, glm::mat4& projectionMat, bool bac
     // ------------- render objects copies from objState list ---------------
     std::shared_ptr <const std::vector<InitState>> objState = geometryObject_.getObjStatePtr();
 
-    const GLsizei objSize = geometryObject_.getObjSize();
+    const GLsizei objSize = static_cast<int>(geometryObject_.getObjSize());
     for (GLsizei i = 0; i < objState->size(); i++)
     {
         model = glm::mat4(1.0f);

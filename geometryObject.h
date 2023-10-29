@@ -19,13 +19,13 @@ public:
 
 	std::shared_ptr < const std::vector<InitState>> getObjStatePtr() const;
 
-	GLsizei getObjSize();
+	size_t getObjSize();
 
 private:
 	GLuint VAO;	// vertexes attribute objects GLindexes
 	GLuint VBO;	// vertexes buffer objects GLindexes
 	GLuint EBO;	// elements buffer objects indexes
-	GLsizei objSize;	//number of vertexes 
+	size_t objSize;	//number of vertexes 
 	std::shared_ptr<const std::vector<InitState>> objStatePtrs;	//Objects state pointer
 };
 

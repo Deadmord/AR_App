@@ -21,6 +21,7 @@ AcquisitionWorker::AcquisitionWorker(std::shared_ptr<peak::core::DataStream> dat
     m_errorCounter = 0;
 
     SetDataStream(dataStream);
+    SetBinning(selector, horizontal, vertical);
     CreateAutoFeatures();
     InitAutoFeatures();
     m_imageConverter = std::make_unique<peak::ipl::ImageConverter>();
@@ -60,7 +61,7 @@ void AcquisitionWorker::Start()
                 ->Value());
 
         m_imageConverter->PreAllocateConversion(
-            inputPixelFormat, peak::ipl::PixelFormatName::BGRa8, m_imageWidth, m_imageHeight, imageCount);
+            inputPixelFormat, peak::ipl::PixelFormatName::BGR8, m_imageWidth, m_imageHeight, imageCount);
 
         // Start acquisition
         m_dataStream->StartAcquisition();
@@ -142,8 +143,8 @@ size_t AcquisitionWorker::getImageHeight()
 
 cv::Mat AcquisitionWorker::ConvertPeakImageToCvMat(const peak::ipl::Image& peakImage) {
     // Create CV Mat image for debayering and convert it to RGB8 format
-    int width = peakImage.Width();
-    int height = peakImage.Height();
+    int width = static_cast<int>(peakImage.Width());
+    int height = static_cast<int>(peakImage.Height());
     auto PixelFormat = peakImage.PixelFormat();
     uint8_t* peakData = peakImage.Data();
 

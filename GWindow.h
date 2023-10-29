@@ -37,7 +37,7 @@ public:
 	void renderFrame(float deltaTime);
 
 private:
-	void showInFrame(const cv::Mat& frame, cv::Size WindSize, cv::Size frameSize, float FPS, std::initializer_list<float> dTimes);
+	void showInFrame(const cv::Mat& frame, cv::Size WindSize, cv::Size frameSize, float renderFPS, float cameraFPS, float markerFPS, std::initializer_list<float> dTimes);
 
 	static void framebufferSizeCallbackWrapper(GLFWwindow* window, int width, int height);
 	static void mouseButtonCallbackWrapper(GLFWwindow* window, int button, int action, int mods);

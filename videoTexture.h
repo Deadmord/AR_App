@@ -1,6 +1,7 @@
 #pragma once
 #include "texture.h"
 #include "acquisitionworker.h"
+#include "RTCounter.h"
 
 
 class videoTexture : public texture
@@ -113,6 +114,8 @@ public:
 
 	uchar* getData() override;
 
+	float getFPS() override;
+
 	const std::string& getCameraParams() const;
 
 	void setWidth(GLint width) override;
@@ -136,7 +139,7 @@ private:
 
 	bool			m_running_;
 	std::shared_ptr<std::thread> m_captureLoopThread_;
-
+	RTCounter FPStimer;
 
 };
 

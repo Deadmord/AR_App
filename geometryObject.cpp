@@ -73,7 +73,7 @@ std::shared_ptr<const std::vector<InitState>> GeometryObject::getObjStatePtr() c
     return objStatePtrs;
 }
 
-GLsizei GeometryObject::getObjSize()
+size_t GeometryObject::getObjSize()
 {
     return objSize;
 }

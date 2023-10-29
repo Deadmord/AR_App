@@ -3,6 +3,7 @@
 #include <thread>
 #include "ThreadSafeValue.h"
 #include "aruco/ArucoProcessor.h"
+#include "RTCounter.h"
 
 class ArucoThreadWrapper
 {
@@ -20,6 +21,7 @@ public:
 	Markers getDetectedMarkers();
 	const cv::Size& getFrameSize() const;
 	const glm::mat4& getProjectionMat() const;
+	float getFPS();
 
 private:
 	void StartThread();
@@ -35,6 +37,7 @@ private:
 	std::thread m_arucoLoopThread;
 	std::mutex m_mutex;							// Mutex for synchronizing access
 	std::condition_variable m_loopCondition;	// Conditional variable for waiting for data
+	RTCounter FPStimer;
 };
 
 

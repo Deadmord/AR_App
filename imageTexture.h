@@ -11,14 +11,14 @@ public:
 	~imageTexture();
 
 	void start() override
-	{
-	}
+	{}
 
 	void stop() override
-	{
-	}
+	{}
 
 	uchar* getData() override;
+
+	float getFPS() override;
 
 	void setWidth(GLint width) override;
 
@@ -27,6 +27,7 @@ public:
 	const std::string& getCameraParams() const;
 
 private:
-	std::string		filePath_;
+	std::string		filePath_; 
+	std::string		emptyString_;
 };
 
