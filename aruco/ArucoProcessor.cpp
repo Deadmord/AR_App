@@ -8,13 +8,13 @@ glm::mat4 INVERSE_MATRIX
 	0.0, 0.0, 0.0, 1.0);
 
 ArucoProcessor::ArucoProcessor(float markerLength, cv::aruco::PredefinedDictionaryType dictionaryId, std::string cameraParams, bool showRejected)
-	:markerLength(markerLength), showRejected(showRejected), objPoints(std::make_unique<cv::Mat>(4, 1, CV_32FC3))
+	:markerLength(markerLength), showRejected(showRejected), objPoints(std::make_unique<cv::Mat>(4, 1, CV_32FC3)), positionSmother(1.0f, 1.0f, 1, 5)
 {
 	try
 	{
 		Console::yellow() << "ArucoProcessor created: " << this << std::endl;
 		//override cornerRefinementMethod read from config file
-		detectorParams.cornerRefinementMethod = cv::aruco::CORNER_REFINE_SUBPIX;
+		detectorParams.cornerRefinementMethod = cv::aruco::CORNER_REFINE_CONTOUR;
 		Console::log() << "Corner refinement method (0: None, 1: Subpixel, 2:contour, 3: AprilTag 2): " << (int)detectorParams.cornerRefinementMethod << std::endl;
 		dictionary = cv::aruco::getPredefinedDictionary(dictionaryId);
 		detector = cv::aruco::ArucoDetector(dictionary, detectorParams);
@@ -70,6 +70,15 @@ bool ArucoProcessor::detectMarkers(const cv::Mat& frame, cv::Mat& frameCopy)
 			// Calculate pose for each marker
 			for (size_t i = 0; i < nMarkers; i++) {
 				solvePnP(*objPoints, markers.corners.at(i), camMatrix, distCoeffs, markers.rvecs.at(i), markers.tvecs.at(i));
+			}
+		}
+
+		positionSmother.processMarkers(markers);
+
+		if (!markers.ids.empty()) {
+			size_t  nMarkers = markers.corners.size();
+			// Calculate View Matrix for each marker
+			for (size_t i = 0; i < nMarkers; i++) {
 				markers.viewMatrixes.at(i) = createViewMatrix(markers.rvecs.at(i), markers.tvecs.at(i));
 			}
 		}
