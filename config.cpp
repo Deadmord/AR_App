@@ -12,5 +12,5 @@ std::string idsCamParams = "camera_params/camera_paramsIDS_U3-3566XLE.yml";
 
 // Binning IDS Cam
 std::string selector = "Sensor";
-int horizontal = 2;
-int vertical = 2;
+int horizontal = 1;
+int vertical = 1;

@@ -92,6 +92,7 @@ private:
     void AcquisitionLoop();
     void imageReceived(const peak::ipl::Image& image);
     cv::Mat ConvertPeakImageToCvMat(const peak::ipl::Image& peakImage);
+    cv::Mat ProcessImage(const peak::ipl::Image& peakImage, double scaleFactor);
 
     std::shared_ptr<peak::core::DataStream> m_dataStream;
     std::shared_ptr<peak::core::NodeMap> m_nodemapRemoteDevice;

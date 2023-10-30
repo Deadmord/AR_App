@@ -21,7 +21,7 @@ AcquisitionWorker::AcquisitionWorker(std::shared_ptr<peak::core::DataStream> dat
     m_errorCounter = 0;
 
     SetDataStream(dataStream);
-    SetBinning(selector, horizontal, vertical);
+    //SetBinning(selector, horizontal, vertical);
     CreateAutoFeatures();
     InitAutoFeatures();
     m_imageConverter = std::make_unique<peak::ipl::ImageConverter>();
@@ -176,17 +176,14 @@ void AcquisitionWorker::AcquisitionLoop() {
             // Get buffer from device's datastream
             const auto buffer = m_dataStream->WaitForFinishedBuffer(5000);
 
-            
+
             tempImage = peak::BufferTo<peak::ipl::Image>(buffer).Clone();
 
             imageReceived(tempImage);
 
-            // Convert peak::ipl::Image to cv::Mat
-            tempImage = m_imageConverter->Convert(tempImage, peak::ipl::PixelFormatName::BGR8);
-            //cv::Mat cvImage(ConvertPeakImageToCvMat(tempImage));
+            cv::Mat processedImage = ProcessImage(tempImage, 0.5);
 
-            // Put cvImage into ThreadSafeValue asynchronously
-            imageItem.push(ConvertPeakImageToCvMat(tempImage));
+            imageItem.push(std::move(processedImage));
 
             // Requeue buffer
             m_dataStream->QueueBuffer(buffer);
@@ -215,4 +212,24 @@ void AcquisitionWorker::imageReceived(const peak::ipl::Image& image)
             m_autoFeatures->ProcessImage(image);
         });
     //Console::yellow() << "AutoFeatures thread: " << m_autoFeaturesThread.get_id() << std::endl;
+}
+
+cv::Mat AcquisitionWorker::ProcessImage(const peak::ipl::Image& peakImage, double scaleFactor)
+{
+    // Convert peak::ipl::Image to cv::Mat
+    auto tempImage = m_imageConverter->Convert(peakImage, peak::ipl::PixelFormatName::BGR8);
+
+    // Convert the processed peak::ipl::Image to cv::Mat
+    cv::Mat cvImage = ConvertPeakImageToCvMat(tempImage);
+
+    // Apply Gaussian blur to improve quality
+    cv::GaussianBlur(cvImage, cvImage, cv::Size(3, 3), 0);
+
+    int newWidth = static_cast<int>(cvImage.cols * scaleFactor);
+    int newHeight = static_cast<int>(cvImage.rows * scaleFactor);
+
+    cv::Mat resizedImage;
+    cv::resize(cvImage, resizedImage, cv::Size(newWidth, newHeight), 0, 0, cv::INTER_AREA);
+
+    return resizedImage;
 }
