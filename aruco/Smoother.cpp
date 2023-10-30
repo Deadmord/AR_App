@@ -1,5 +1,7 @@
 #include "Smoother.h"
 
+Smoother::Smoother(double alpha_, size_t maxHistorySize_) : alpha(alpha_), maxHistorySize(maxHistorySize_) {}
+
 void Smoother::addValueAndAverage(const cv::Vec3d& newValue) {
 
 	cv::Vec3d intermediateValue = alpha * newValue + (1 - alpha) * prevSmoothedValue;

@@ -43,19 +43,32 @@ const std::string& videoTexture::getCameraParams() const
 void videoTexture::setWidth(GLint width)
 {
 	if (isVideo_ || isStream_)
+	{
 		vidCapture_.set(cv::CAP_PROP_FRAME_WIDTH, width);
+		width_ = static_cast<int>(vidCapture_.get(cv::CAP_PROP_FRAME_WIDTH));
+	}
 
-	if (isIDSPeak_) //реализовать изменение ширины для IDS Peak
-		Console::red() << "Error: The setWidth method for IDS video has not been implemented." << std::endl;
+
+	if (isIDSPeak_)
+	{
+		workerIDSPtr_->setImageWidth(width);
+		width_ = static_cast<int>(workerIDSPtr_->getImageWidth());
+	}
 }
 
 void videoTexture::setHeight(GLint height)
 {
 	if (isVideo_ || isStream_)
+	{
 		vidCapture_.set(cv::CAP_PROP_FRAME_HEIGHT, height);
+		height_ = static_cast<int>(vidCapture_.get(cv::CAP_PROP_FRAME_HEIGHT));
+	}
 
-	if (isIDSPeak_) //реализовать изменение высоты для IDS Peak
-		Console::red() << "Error: The setHeight method for IDS video has not been implemented." << std::endl;
+	if (isIDSPeak_)
+	{
+		workerIDSPtr_->setImageHeight(height);
+		height_ = static_cast<int>(workerIDSPtr_->getImageHeight());
+	}
 }
 
 void videoTexture::captureLoop()

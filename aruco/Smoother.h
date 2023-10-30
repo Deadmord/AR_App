@@ -5,7 +5,7 @@
 class Smoother
 {
 public:
-	Smoother(double alpha_, size_t maxHistorySize_) : alpha(alpha_), maxHistorySize(maxHistorySize_) {}
+	Smoother(double alpha_, size_t maxHistorySize_);
 
 	void addValueAndAverage(const cv::Vec3d& newValue);
 	cv::Vec3d getSmoothedValue() const;

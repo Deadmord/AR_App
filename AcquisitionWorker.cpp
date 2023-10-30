@@ -21,7 +21,7 @@ AcquisitionWorker::AcquisitionWorker(std::shared_ptr<peak::core::DataStream> dat
     m_errorCounter = 0;
 
     SetDataStream(dataStream);
-    SetBinning(selector, horizontal, vertical);
+    SetBinning(enableBinning, selector, horizontal, vertical);
     CreateAutoFeatures();
     InitAutoFeatures();
     m_imageConverter = std::make_unique<peak::ipl::ImageConverter>();
@@ -110,6 +110,65 @@ inline void AcquisitionWorker::ResetAutoFeatures()
     m_autoFeatures->Reset();
 }
 
+void AcquisitionWorker::SetBinning(bool enable, std::string selector, int64_t horizontal, int64_t vertical)
+{
+    if (!enable) return;
+    try
+    {
+        if (false)
+        {
+            Console::log() << "SetBinning " << std::endl;
+            // Determine the current entry of BinningSelector
+            std::string value = m_nodemapRemoteDevice->FindNode<peak::core::nodes::EnumerationNode>("BinningSelector")->CurrentEntry()->SymbolicValue();
+            // Get a list of all available entries of BinningSelector
+            auto allEntriesBinningSelector = m_nodemapRemoteDevice->FindNode<peak::core::nodes::EnumerationNode>("BinningSelector")->Entries();
+            std::vector<std::shared_ptr<peak::core::nodes::EnumerationEntryNode>> availableEntriesBinningSelector;
+            for (const auto& entry : allEntriesBinningSelector)
+            {
+                if ((entry->AccessStatus() != peak::core::nodes::NodeAccessStatus::NotAvailable)
+                    && (entry->AccessStatus() != peak::core::nodes::NodeAccessStatus::NotImplemented))
+                {
+                    Console::log() << "BinningSelector " << entry->SymbolicValue() << " is available." << std::endl;
+                    availableEntriesBinningSelector.emplace_back(entry);
+                }
+            }
+            // Determine the current BinningHorizontal
+            int64_t BinningHorizontalValue = m_nodemapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("BinningHorizontal")->Value();
+            // Determine the current BinningHorizontal
+            int64_t BinningVerticalValue = m_nodemapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("BinningVertical")->Value();
+
+            // Determine the current entry of BinningHorizontalMode
+            // std::string BinningHorizontalModeValue = m_nodemapRemoteDevice->FindNode<peak::core::nodes::EnumerationNode>("BinningHorizontalMode")->CurrentEntry()->SymbolicValue();
+            // Get a list of all available entries of BinningHorizontalMode
+            auto allEntriesBinningMode = m_nodemapRemoteDevice->FindNode<peak::core::nodes::EnumerationNode>("BinningHorizontalMode")->Entries();
+            std::vector<std::shared_ptr<peak::core::nodes::EnumerationEntryNode>> availableEntriesBinningMode;
+            for (const auto& entry : allEntriesBinningMode)
+            {
+                if ((entry->AccessStatus() != peak::core::nodes::NodeAccessStatus::NotAvailable)
+                    && (entry->AccessStatus() != peak::core::nodes::NodeAccessStatus::NotImplemented))
+                {
+                    Console::log() << "BinningSelector " << entry->SymbolicValue() << " is available." << std::endl;
+                    availableEntriesBinningMode.emplace_back(entry);
+                }
+            }
+        }
+
+        // Before accessing BinningHorizontal, make sure BinningSelector is set correctly
+        // Set BinningSelector
+        m_nodemapRemoteDevice->FindNode<peak::core::nodes::EnumerationNode>("BinningSelector")->SetCurrentEntry(selector);
+        // Set BinningHorizontal
+        m_nodemapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("BinningHorizontal")->SetValue(horizontal);
+        // Set BinningVertical
+        m_nodemapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("BinningVertical")->SetValue(vertical);
+
+    }
+    catch (const std::exception& e)
+    {
+        Console::red() << "AcquisitionWorker::SetBinning Exception: " << e.what() << std::endl;
+        throw std::runtime_error(e.what());
+    }
+}
+
 void AcquisitionWorker::SetDataStream(std::shared_ptr<peak::core::DataStream> dataStream)
 {
     m_dataStream = std::move(dataStream);
@@ -141,28 +200,16 @@ size_t AcquisitionWorker::getImageHeight()
     return m_imageHeight;
 }
 
-cv::Mat AcquisitionWorker::ConvertPeakImageToCvMat(const peak::ipl::Image& peakImage) {
-    // Create CV Mat image for debayering and convert it to RGB8 format
-    int width = static_cast<int>(peakImage.Width());
-    int height = static_cast<int>(peakImage.Height());
-    auto PixelFormat = peakImage.PixelFormat();
-    uint8_t* peakData = peakImage.Data();
+void AcquisitionWorker::setImageWidth(size_t width)
+{
+    Console::log() << "Frame width changed from " << m_imageWidth << " to " << width << std::endl;
+    m_imageWidth = width;
+}
 
-    if (peakImage.PixelFormat() == peak::ipl::PixelFormatName::BGRa8) {
-        cv::Mat bgraImage(height, width, CV_8UC4, peakData);
-        cv::Mat bgrImage;
-        cv::cvtColor(bgraImage, bgrImage, cv::COLOR_BGRA2BGR);      //very heavy operation
-        return bgrImage;
-        //return cv::Mat(height, width, CV_8UC4, peakData);
-    }
-    else if (peakImage.PixelFormat() == peak::ipl::PixelFormatName::BGR8) {
-        return cv::Mat(height, width, CV_8UC3, peakData);
-    }
-    else {
-        auto peakImg = m_imageConverter->Convert(peakImage, peak::ipl::PixelFormatName::BGR8);
-        peakData = peakImg.Data();
-        return cv::Mat(height, width, CV_8UC3, peakData);
-    }
+void AcquisitionWorker::setImageHeight(size_t height)
+{
+    Console::log() << "Frame height changed from " << m_imageHeight << " to " << height << std::endl;
+    m_imageHeight = height;
 }
 
 void AcquisitionWorker::AcquisitionLoop() {
@@ -176,17 +223,18 @@ void AcquisitionWorker::AcquisitionLoop() {
             // Get buffer from device's datastream
             const auto buffer = m_dataStream->WaitForFinishedBuffer(5000);
 
-            
+            // Clone buffer to tempImage
             tempImage = peak::BufferTo<peak::ipl::Image>(buffer).Clone();
 
+            // call autoFeatures for new image
             imageReceived(tempImage);
 
-            // Convert peak::ipl::Image to cv::Mat
+            // Convert BayerGR8 to BGR8
             tempImage = m_imageConverter->Convert(tempImage, peak::ipl::PixelFormatName::BGR8);
             //cv::Mat cvImage(ConvertPeakImageToCvMat(tempImage));
 
-            // Put cvImage into ThreadSafeValue asynchronously
-            imageItem.push(ConvertPeakImageToCvMat(tempImage));
+            // Perform cvImage and put into ThreadSafeValue asynchronously
+            imageItem.push(resizeFrame(ConvertPeakImageToCvMat(tempImage)));
 
             // Requeue buffer
             m_dataStream->QueueBuffer(buffer);
@@ -215,4 +263,35 @@ void AcquisitionWorker::imageReceived(const peak::ipl::Image& image)
             m_autoFeatures->ProcessImage(image);
         });
     //Console::yellow() << "AutoFeatures thread: " << m_autoFeaturesThread.get_id() << std::endl;
+}
+
+cv::Mat AcquisitionWorker::resizeFrame(const cv::Mat& image)
+{
+    cv::Mat resImage;
+    cv::resize(image, resImage, cv::Size(m_imageWidth, m_imageHeight), cv::INTER_LINEAR);
+    return resImage;
+}
+
+cv::Mat AcquisitionWorker::ConvertPeakImageToCvMat(const peak::ipl::Image& peakImage) {
+    // Create CV Mat image for debayering and convert it to RGB8 format
+    int width = static_cast<int>(peakImage.Width());
+    int height = static_cast<int>(peakImage.Height());
+    auto PixelFormat = peakImage.PixelFormat();
+    uint8_t* peakData = peakImage.Data();
+
+    if (peakImage.PixelFormat() == peak::ipl::PixelFormatName::BGRa8) {
+        cv::Mat bgraImage(height, width, CV_8UC4, peakData);
+        cv::Mat bgrImage;
+        cv::cvtColor(bgraImage, bgrImage, cv::COLOR_BGRA2BGR);      //very heavy operation
+        return bgrImage;
+        //return cv::Mat(height, width, CV_8UC4, peakData);
+    }
+    else if (peakImage.PixelFormat() == peak::ipl::PixelFormatName::BGR8) {
+        return cv::Mat(height, width, CV_8UC3, peakData);
+    }
+    else {
+        auto peakImg = m_imageConverter->Convert(peakImage, peak::ipl::PixelFormatName::BGR8);
+        peakData = peakImg.Data();
+        return cv::Mat(height, width, CV_8UC3, peakData);
+    }
 }

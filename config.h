@@ -45,6 +45,7 @@ constexpr int sleepTime = 30;	//Sleep time for VideoCapturing Loops
 
 // -------------------- IDS Cameras ----------------------
 // Binning
+constexpr bool enableBinning = false;
 extern std::string selector;
 extern int horizontal;
 extern int vertical;
