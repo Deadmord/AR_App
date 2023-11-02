@@ -268,7 +268,7 @@ void AcquisitionWorker::imageReceived(const peak::ipl::Image& image)
 cv::Mat AcquisitionWorker::resizeFrame(const cv::Mat& image)
 {
     cv::Mat resImage;
-    cv::resize(image, resImage, cv::Size(m_imageWidth, m_imageHeight), cv::INTER_LINEAR);
+    cv::resize(image, resImage, cv::Size(static_cast<int>(m_imageWidth), static_cast<int>(m_imageHeight)), cv::INTER_LINEAR);
     return resImage;
 }
 
