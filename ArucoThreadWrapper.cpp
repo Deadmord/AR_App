@@ -10,19 +10,19 @@ ArucoThreadWrapper::ArucoThreadWrapper(float markerLength, cv::aruco::Predefined
 {
 	Console::yellow() << "ArucoThreadWrapper created: " << this << std::endl;
 	m_arucoProcessor = std::make_shared<ArucoProcessor>(markerLength, dictionaryId, cameraParams, showRejected);
-	StartThread();
+	startThread();
 }
 
 ArucoThreadWrapper::~ArucoThreadWrapper()
 {
-	StopThread();
+	stopThread();
 	Console::yellow() << "ArucoThreadWrapper deleted: " << this << std::endl;
 }
 
 void ArucoThreadWrapper::initAndStartAruco(float markerLength, cv::aruco::PredefinedDictionaryType dictionaryId, std::string cameraParams, bool showRejected)
 {
 	m_arucoProcessor = std::make_shared<ArucoProcessor>(markerLength, dictionaryId, cameraParams, showRejected);
-	StartThread();
+	startThread();
 }
 
 void ArucoThreadWrapper::processFrame(cv::Mat& frameIn)
@@ -90,7 +90,7 @@ Markers ArucoThreadWrapper::getDetectedMarkers()
 	{
 		Markers markers;
 		m_markers.waitAndGet(markers);
-		return std::move(markers);
+		return markers;
 
 		//auto markers = std::make_shared<Markers>();		// option with pointer for reference
 		//m_markers.waitAndGet(*markers);
@@ -118,7 +118,7 @@ float ArucoThreadWrapper::getFPS()
 	return FPStimer.getFPS();
 }
 
-void ArucoThreadWrapper::StartThread()
+void ArucoThreadWrapper::startThread()
 {
 	try
 	{
@@ -134,7 +134,7 @@ void ArucoThreadWrapper::StartThread()
 	}
 }
 
-void ArucoThreadWrapper::StopThread()
+void ArucoThreadWrapper::stopThread()
 {
 	try
 	{

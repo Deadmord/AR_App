@@ -14,3 +14,11 @@ std::string idsCamParams = "camera_params/camera_paramsIDS_U3-3566XLE_med.yml";
 std::string selector = "Sensor";
 int horizontal = 2;
 int vertical = 2;
+
+// Cascade detector
+std::list<std::string> cascadeModelsList{ 
+	"C:/src/opencv_src/opencv/data/haarcascades/haarcascade_frontalface_default.xml",
+	"C:/src/opencv_src/opencv/data/haarcascades/haarcascade_upperbody.xml",
+	"C:/src/opencv_src/opencv/data/haarcascades/haarcascade_lowerbody.xml",
+	"C:/src/opencv_src/opencv/data/haarcascades/haarcascade_fullbody.xml"
+};

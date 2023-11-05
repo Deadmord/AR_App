@@ -65,6 +65,12 @@ void GWindow::addGLObject(const std::vector<float>& objVBO, const std::vector<un
     if (texture != nullptr)
     {
         newGLObject->setupTexture(texture);
+
+        // Set Object Detectors
+        if (enableCascadeDetection && texture->isBackground())
+        {
+            newGLObject->setupCascadeObjectDetector(std::make_shared<CascadeObjectDetector>(cascadeModelsList));
+        }
     }
     else
     {

@@ -38,6 +38,9 @@
     <Filter Include="Modules\ScreanShot">
       <UniqueIdentifier>{29edd5b4-196d-4668-a189-25c5564cd3cb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Modules\CascadeObjectDetector">
+      <UniqueIdentifier>{b6136a32-ab06-49b9-a744-d8bcef6f889f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RTCounter.cpp">
@@ -130,6 +133,9 @@
     <ClCompile Include="aruco\PositionSmother.cpp">
       <Filter>Modules\ArUco</Filter>
     </ClCompile>
+    <ClCompile Include="CascadeObjectDetector.cpp">
+      <Filter>Modules\CascadeObjectDetector</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="appState.h">
@@ -221,6 +227,9 @@
     </ClInclude>
     <ClInclude Include="aruco\Markers.h">
       <Filter>Modules\ArUco</Filter>
+    </ClInclude>
+    <ClInclude Include="CascadeObjectDetector.h">
+      <Filter>Modules\CascadeObjectDetector</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

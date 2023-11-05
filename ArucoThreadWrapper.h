@@ -24,8 +24,8 @@ public:
 	float getFPS();
 
 private:
-	void StartThread();
-	void StopThread();
+	void startThread();
+	void stopThread();
 	void detectionLoop();
 
 	bool m_running = false;
