@@ -6,8 +6,9 @@
 #include "shader.h"				//move it up if problem
 #include "geometryObject.h"
 #include "geometryData.h"
-#include "ArucoThreadWrapper.h"
 #include "texture.h"
+#include "ArucoThreadWrapper.h"
+#include "CascadeObjectDetector.h"
 #include "config.h"
 #include "Console.h"
 
@@ -36,20 +37,21 @@ public:
 
 	void setupArUcoPtr(std::shared_ptr<ArucoThreadWrapper> arucoThreadWrapper);
 
+	void setupCascadeObjectDetector(std::shared_ptr<CascadeObjectDetector> cascadeObjectDetector);
+
 	void setupTexture(const std::shared_ptr<texture> texture);
 
 	void renderObject(Camera& camera, PrintInFrameCallback printCallback);
 
-	void drowObject(glm::mat4& viewMat, glm::mat4& projectionMat, bool background = false);
+	void drawObject(glm::mat4& viewMat, glm::mat4& projectionMat, bool background = false);
 
 	cv::Mat getTextureImage();
 
 private:
 	GeometryObject geometryObject_;
 	Shader* shader_;
-
-	std::shared_ptr<ArucoThreadWrapper> arucoThreadWrapperPtr_;
-
 	std::shared_ptr<texture> texture_;
+	std::shared_ptr<ArucoThreadWrapper> arucoThreadWrapperPtr_;
+	std::shared_ptr<CascadeObjectDetector> cascadeObjectDetector_;
 };
 

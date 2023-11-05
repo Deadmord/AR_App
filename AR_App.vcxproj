@@ -181,6 +181,7 @@ copy "$(IDS_PEAK_GENERIC_SDK_PATH)\afl\lib\x86_64\*.dll" "$(OutDir)"</Command>
     <ClCompile Include="aruco\PositionSmother.cpp" />
     <ClCompile Include="autofeatures.cpp" />
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="CascadeObjectDetector.cpp" />
     <ClCompile Include="config.cpp" />
     <ClCompile Include="device.cpp" />
     <ClCompile Include="GLObject.cpp" />
@@ -215,6 +216,7 @@ copy "$(IDS_PEAK_GENERIC_SDK_PATH)\afl\lib\x86_64\*.dll" "$(OutDir)"</Command>
     <ClInclude Include="aruco\PositionSmother.h" />
     <ClInclude Include="autofeatures.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="CascadeObjectDetector.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="device.h" />
     <ClInclude Include="GLObject.h" />

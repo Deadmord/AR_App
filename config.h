@@ -59,5 +59,10 @@ constexpr auto exposureAutoFeatures = PEAK_AFL_CONTROLLER_AUTOMODE_CONTINUOUS;
 constexpr auto gainAutoFeatures = PEAK_AFL_CONTROLLER_AUTOMODE_CONTINUOUS;
 constexpr auto balanceWhiteAutoFeatures = PEAK_AFL_CONTROLLER_AUTOMODE_CONTINUOUS;
 
+// --------------- Object Detection -----------------
+// Cascade detector
+constexpr bool enableCascadeDetection = true;
+extern std::list<std::string> cascadeModelsList;
+
 #endif // CONFIG_H
 

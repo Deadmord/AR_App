@@ -35,6 +35,11 @@ void GLObject::setupArUcoPtr(std::shared_ptr<ArucoThreadWrapper> arucoThreadWrap
     arucoThreadWrapperPtr_ = arucoThreadWrapper;
 }
 
+void GLObject::setupCascadeObjectDetector(std::shared_ptr<CascadeObjectDetector> cascadeObjectDetector)
+{
+    cascadeObjectDetector_ = cascadeObjectDetector;
+}
+
 void GLObject::setupTexture(const std::shared_ptr<texture> texture)
 {
     texture_ = texture;
@@ -94,6 +99,14 @@ void GLObject::renderObject(Camera& camera, PrintInFrameCallback printCallback)
         arucoThreadWrapperPtr_->processFrame(textureFrameAruco);
         //while (!arucoThreadWrapperPtr_->tryGetProcessedFrame(textureFrameAruco)) {}
         //if(!arucoThreadWrapperPtr_->tryGetProcessedFrame(textureFrameAruco)) textureFrameAruco = textureFrame;
+        
+        // Object detection and draw rect
+        if (cascadeObjectDetector_ != nullptr)
+        {
+            cascadeObjectDetector_->processFrame(textureFrame);
+            cascadeObjectDetector_->drawObjects(textureFrame);
+        }
+
         printCallback(textureFrame, arucoThreadWrapperPtr_->getFrameSize(), texture_->getFPS(), arucoThreadWrapperPtr_->getFPS());
     }
 
@@ -110,14 +123,14 @@ void GLObject::renderObject(Camera& camera, PrintInFrameCallback printCallback)
     //projection = glm::perspective(glm::radians(42.0f), (float)WinWidth / (float)WinHeight, 0.1f, 100.0f);
 
     // Render OpenGL object
-    if (texture_->isShowOnMarker() /*&& !arucoProcessorPtr->getMarkers().ids.empty()*/)       //if ids list is empty it will be drow objects on top of all markers
+    if (texture_->isShowOnMarker() /*&& !arucoProcessorPtr->getMarkers().ids.empty()*/)       //if ids list is empty it will be draw objects on top of all markers
     {
         Markers markers = arucoThreadWrapperPtr_->getDetectedMarkers();
         if (texture_->getMarkerIds() == nullptr)
         {
-            for (glm::mat4 view : markers.viewMatrixes)       //drow objects for all markers
+            for (glm::mat4 view : markers.viewMatrixes)       //draw objects for all markers
             {
-                drowObject(view, projection, texture_->isBackground());
+                drawObject(view, projection, texture_->isBackground());
             }
         }
         else
@@ -128,7 +141,7 @@ void GLObject::renderObject(Camera& camera, PrintInFrameCallback printCallback)
                 if (std::ranges::any_of(*(texture_->getMarkerIds().get()), [target](int value) { return value == target; }))
                 {
                     view = markers.viewMatrixes.at(markerIndex);
-                    drowObject(view, projection, texture_->isBackground());
+                    drawObject(view, projection, texture_->isBackground());
                 }
 
             }
@@ -137,11 +150,11 @@ void GLObject::renderObject(Camera& camera, PrintInFrameCallback printCallback)
     else
     {
         view = camera.GetViewMatrix();
-        drowObject(view, projection, texture_->isBackground());
+        drawObject(view, projection, texture_->isBackground());
     }
 }
 
-void GLObject::drowObject(glm::mat4& viewMat, glm::mat4& projectionMat, bool background)
+void GLObject::drawObject(glm::mat4& viewMat, glm::mat4& projectionMat, bool background)
 {
     glm::mat4 model = glm::mat4(1.0f);
 
