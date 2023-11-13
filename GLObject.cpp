@@ -40,6 +40,11 @@ void GLObject::setupCascadeObjectDetector(std::shared_ptr<CascadeObjectDetector>
     cascadeObjectDetector_ = cascadeObjectDetector;
 }
 
+void GLObject::setupYOLOObjectDetector(std::shared_ptr<YOLOObjectDetector> yoloObjectDetector)
+{
+	yoloObjectDetector_ = yoloObjectDetector;
+}
+
 void GLObject::setupTexture(const std::shared_ptr<texture> texture)
 {
     texture_ = texture;
@@ -100,12 +105,17 @@ void GLObject::renderObject(Camera& camera, PrintInFrameCallback printCallback)
         //while (!arucoThreadWrapperPtr_->tryGetProcessedFrame(textureFrameAruco)) {}
         //if(!arucoThreadWrapperPtr_->tryGetProcessedFrame(textureFrameAruco)) textureFrameAruco = textureFrame;
         
-        // Object detection and draw rect
+        // Object detection and draw rects
         if (cascadeObjectDetector_ != nullptr)
         {
             cascadeObjectDetector_->processFrame(textureFrame);
-            cascadeObjectDetector_->drawObjects(textureFrame);
+            cascadeObjectDetector_->showObjects(textureFrame);
         }
+        if (yoloObjectDetector_ != nullptr)
+        {
+			yoloObjectDetector_->processFrame(textureFrame);
+            yoloObjectDetector_->showObjects(textureFrame);
+		}
 
         printCallback(textureFrame, arucoThreadWrapperPtr_->getFrameSize(), texture_->getFPS(), arucoThreadWrapperPtr_->getFPS());
     }

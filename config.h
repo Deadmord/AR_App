@@ -62,7 +62,12 @@ constexpr auto balanceWhiteAutoFeatures = PEAK_AFL_CONTROLLER_AUTOMODE_CONTINUOU
 // --------------- Object Detection -----------------
 // Cascade detector
 constexpr bool enableCascadeDetection = true;
-extern std::list<std::string> cascadeModelsList;
+extern std::list<std::string> cascadeModelList;
+
+// YOLO detector
+constexpr bool enableYOLODetection = true;
+extern std::string classList;
+extern std::string YOLOModel;
 
 #endif // CONFIG_H
 

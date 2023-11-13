@@ -9,6 +9,7 @@
 #include "texture.h"
 #include "ArucoThreadWrapper.h"
 #include "CascadeObjectDetector.h"
+#include "YOLOObjectDetector.h"
 #include "config.h"
 #include "Console.h"
 
@@ -39,6 +40,8 @@ public:
 
 	void setupCascadeObjectDetector(std::shared_ptr<CascadeObjectDetector> cascadeObjectDetector);
 
+	void setupYOLOObjectDetector(std::shared_ptr<YOLOObjectDetector> yoloObjectDetector);
+
 	void setupTexture(const std::shared_ptr<texture> texture);
 
 	void renderObject(Camera& camera, PrintInFrameCallback printCallback);
@@ -53,5 +56,6 @@ private:
 	std::shared_ptr<texture> texture_;
 	std::shared_ptr<ArucoThreadWrapper> arucoThreadWrapperPtr_;
 	std::shared_ptr<CascadeObjectDetector> cascadeObjectDetector_;
+	std::shared_ptr<YOLOObjectDetector> yoloObjectDetector_;
 };
 

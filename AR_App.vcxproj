@@ -203,6 +203,7 @@ copy "$(IDS_PEAK_GENERIC_SDK_PATH)\afl\lib\x86_64\*.dll" "$(OutDir)"</Command>
     <ClCompile Include="ThreadSafeQueue.cpp" />
     <ClCompile Include="ThreadSafeValue.cpp" />
     <ClCompile Include="videoTexture.cpp" />
+    <ClCompile Include="YOLOObjectDetector.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="acquisitionworker.h" />
@@ -236,6 +237,7 @@ copy "$(IDS_PEAK_GENERIC_SDK_PATH)\afl\lib\x86_64\*.dll" "$(OutDir)"</Command>
     <ClInclude Include="ThreadSafeQueue.h" />
     <ClInclude Include="ThreadSafeValue.h" />
     <ClInclude Include="videoTexture.h" />
+    <ClInclude Include="YOLOObjectDetector.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="shaderObj.vs" />
