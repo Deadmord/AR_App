@@ -69,7 +69,12 @@ void GWindow::addGLObject(const std::vector<float>& objVBO, const std::vector<un
         // Set Object Detectors
         if (enableCascadeDetection && texture->isBackground())
         {
-            newGLObject->setupCascadeObjectDetector(std::make_shared<CascadeObjectDetector>(cascadeModelsList));
+            newGLObject->setupCascadeObjectDetector(std::make_shared<CascadeObjectDetector>(cascadeModelList));
+        }
+
+        if (enableYOLODetection && texture->isBackground())
+        {
+			newGLObject->setupYOLOObjectDetector(std::make_shared<YOLOObjectDetector>(classList, YOLOModel));
         }
     }
     else

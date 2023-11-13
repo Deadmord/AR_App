@@ -6,26 +6,28 @@
 #include "Console.h"
 #include "RTCounter.h"
 
-// Constants.
-const float INPUT_WIDTH = 640.0f;
-const float INPUT_HEIGHT = 640.0f;
-const float SCORE_THRESHOLD = 0.5f;
-const float NMS_THRESHOLD = 0.45f;
-const float CONFIDENCE_THRESHOLD = 0.45f;
-
-// Text parameters.
-const float FONT_SCALE = 0.7f;
-const int FONT_FACE = cv::FONT_HERSHEY_SIMPLEX;
-const int THICKNESS = 1;
-
-// Colors.
-cv::Scalar BLACK = cv::Scalar(0, 0, 0);
-cv::Scalar BLUE = cv::Scalar(255, 178, 50);
-cv::Scalar YELLOW = cv::Scalar(0, 255, 255);
-cv::Scalar RED = cv::Scalar(0, 0, 255);
-
 class YOLOObjectDetector
 {
+    // Constants.
+    const float INPUT_WIDTH = 640.0f;
+    const float INPUT_HEIGHT = 640.0f;
+    const float SCORE_THRESHOLD = 0.5f;
+    const float NMS_THRESHOLD = 0.45f;
+    const float CONFIDENCE_THRESHOLD = 0.45f;
+
+    // Text parameters.
+    const float FONT_SCALE = 0.6f;
+    const int FONT_FACE = cv::FONT_HERSHEY_SIMPLEX;
+    const int THICKNESS_1 = 1;
+    const int THICKNESS_2 = 2;
+
+    // Colors.
+    const cv::Scalar BLACK = cv::Scalar(0, 0, 0);
+    const cv::Scalar BLUE = cv::Scalar(255, 178, 50);
+    const cv::Scalar YELLOW = cv::Scalar(0, 255, 255);
+    const cv::Scalar RED = cv::Scalar(0, 0, 255);
+
+public:
     YOLOObjectDetector(const std::string& classListPath, const std::string& modelPath) : m_running(false)
     {
         try {
@@ -34,11 +36,12 @@ class YOLOObjectDetector
 			std::string line;
 			while (getline(ifs, line))
 			{
-				classList.push_back(line);
+				m_classList.push_back(line);
 			}
 
 			// Load model.
-			net = cv::dnn::readNet(modelPath);
+			m_net = cv::dnn::readNet(modelPath);
+            startThread();
 		}
 		catch (const std::exception& e)
 		{
@@ -66,13 +69,33 @@ class YOLOObjectDetector
         }
     }
 
+    void showObjects(cv::Mat& frameOut)
+    {
+        try
+        {
+			std::vector<cv::Mat> detections;
+            if (m_detections.tryGet(detections))
+            {
+                // Draw the predicted bounding box.
+				post_process(frameOut, detections, m_classList);
+
+                std::string fps = cv::format("FPSyolo: %.2f ", getFPS());
+                putText(frameOut, fps, cv::Point(480, 125), FONT_FACE, FONT_SCALE, BLUE, THICKNESS_2);
+            }
+		}
+        catch (const std::exception& e)
+        {
+			Console::red() << "YOLOObjectDetector::showObjects exception: " << e.what() << std::endl;
+		}
+	}
+
     float getFPS()
-    {   
+    {
         // Put efficiency information.
         // The function getPerfProfile returns the overall time for inference(t) and the timings for each of the layers(in layersTimes)
         std::vector<double> layersTimes;
-        double freq = cv::getTickFrequency() / 1000;
-        return static_cast<float>(freq / net.getPerfProfile(layersTimes));
+        double freq = cv::getTickFrequency();
+        return static_cast<float>(freq / m_net.getPerfProfile(layersTimes));
     }
 
 private:
@@ -121,11 +144,7 @@ private:
                     //// Convertion frame to gray for detection improve
                     //cv::Mat gray;
                     //cv::cvtColor(frameToProcess, gray, cv::COLOR_BGR2GRAY);
-
-                    std::vector<cv::Mat> detections;
-                    detections = pre_process(frameToProcess, net);
-
-                    cv::Mat img = post_process(frameToProcess, detections, classList);
+                    m_detections.push(pre_process(frameToProcess, m_net));
                 }
                 else
                 {
@@ -145,7 +164,7 @@ private:
     {
         // Display the label at the top of the bounding box.
         int baseLine;
-        cv::Size label_size = cv::getTextSize(label, FONT_FACE, FONT_SCALE, THICKNESS, &baseLine);
+        cv::Size label_size = cv::getTextSize(label, FONT_FACE, FONT_SCALE, THICKNESS_1, &baseLine);
         top = std::max(top, label_size.height);
         // Top left corner.
         cv::Point tlc = cv::Point(left, top);
@@ -154,7 +173,7 @@ private:
         // Draw black rectangle.
         rectangle(input_image, tlc, brc, BLACK, cv::FILLED);
         // Put the label on the black rectangle.
-        putText(input_image, label, cv::Point(left, top + label_size.height), FONT_FACE, FONT_SCALE, YELLOW, THICKNESS);
+        putText(input_image, label, cv::Point(left, top + label_size.height), FONT_FACE, FONT_SCALE, YELLOW, THICKNESS_1);
     }
 
     std::vector<cv::Mat> pre_process(cv::Mat& input_image, cv::dnn::Net& net)
@@ -242,7 +261,7 @@ private:
             int width = box.width;
             int height = box.height;
             // Draw bounding box.
-            rectangle(input_image, cv::Point(left, top), cv::Point(left + width, top + height), BLUE, 3 * THICKNESS);
+            rectangle(input_image, cv::Point(left, top), cv::Point(left + width, top + height), BLUE, 3 * THICKNESS_1);
 
             // Get the label for the class name and its confidence.
             std::string label = cv::format("%.2f", confidences[idx]);
@@ -255,9 +274,10 @@ private:
 
     private:
         bool m_running = false;
-        std::vector<std::string> classList;         // List of class names.
-        cv::dnn::Net net;                           // Neural network.
+        std::vector<std::string> m_classList;         // List of class names.
+        cv::dnn::Net m_net;                           // Neural network.
         ThreadSafeValue<cv::Mat> m_currentFrame;    // Current frame.
+        ThreadSafeValue<std::vector<cv::Mat>> m_detections;// Detections.
         std::thread m_objectDetectorLoopThread;     // Thread for detection loop.
         std::mutex m_mutex;							// Mutex for synchronizing access
         std::condition_variable m_loopCondition;	// Conditional variable for waiting for data

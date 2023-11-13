@@ -13,9 +13,9 @@ CascadeObjectDetector::CascadeObjectDetector(const std::string& path) : m_runnin
 	}
 }
 
-CascadeObjectDetector::CascadeObjectDetector(const std::list<std::string>& cascadeModelsList) : m_running(false)
+CascadeObjectDetector::CascadeObjectDetector(const std::list<std::string>& cascadeModelPathList) : m_running(false)
 {
-	for (std::string model : cascadeModelsList)
+	for (std::string model : cascadeModelPathList)
 	{
 		cv::CascadeClassifier cascadeClassifier;
 		if (cascadeClassifier.load(model))
@@ -52,15 +52,22 @@ void CascadeObjectDetector::processFrame(const cv::Mat& frameIn)
 	}
 }
 
-void CascadeObjectDetector::drawObjects(cv::Mat& frameOut)
+void CascadeObjectDetector::showObjects(cv::Mat& frameOut)
 {
-	// drouing rectangles for detected objects
-	for (std::vector<cv::Rect> objects : m_objectsList)
+	std::list <std::vector<cv::Rect>> objectsList;
+	if (m_objectsList.tryGet(objectsList))
 	{
-		for (const cv::Rect& object : objects) {
-			cv::rectangle(frameOut, object, frameColor, 2);
+		// drouing rectangles for detected objects
+		for (std::vector<cv::Rect> objects : objectsList)
+		{
+			for (const cv::Rect& object : objects) {
+				cv::rectangle(frameOut, object, RED, 2);
+			}
 		}
 	}
+
+	std::string fps = cv::format("FPScscd: %.2f ", getFPS());
+	putText(frameOut, fps, cv::Point(480, 100), FONT_FACE, FONT_SCALE, RED, THICKNESS_2);
 }
 
 float CascadeObjectDetector::getFPS()
@@ -115,7 +122,7 @@ void CascadeObjectDetector::detectionLoop()
 				cv::Mat gray;
 				cv::cvtColor(frameToProcess, gray, cv::COLOR_BGR2GRAY);
 
-				m_objectsList.clear();
+				std::list <std::vector<cv::Rect>> objectsList;
 				// detection
 				for (cv::CascadeClassifier cascadeClassifier : m_cascadeClassifiers)
 				{
@@ -123,9 +130,9 @@ void CascadeObjectDetector::detectionLoop()
 					cascadeClassifier.detectMultiScale(gray, objects, scaleFactor, minNeighbors);
 
 					std::unique_lock<std::mutex> lock(m_mutex);
-					m_objectsList.push_back(std::move(objects));
+					objectsList.push_back(std::move(objects));
 				}
-
+				m_objectsList.push(std::move(objectsList));
 			}
 			else
 			{

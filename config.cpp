@@ -16,9 +16,13 @@ int horizontal = 2;
 int vertical = 2;
 
 // Cascade detector
-std::list<std::string> cascadeModelsList{ 
+std::list<std::string> cascadeModelList{ 
 	"C:/src/opencv_src/opencv/data/haarcascades/haarcascade_frontalface_default.xml",
 	"C:/src/opencv_src/opencv/data/haarcascades/haarcascade_upperbody.xml",
 	"C:/src/opencv_src/opencv/data/haarcascades/haarcascade_lowerbody.xml",
 	"C:/src/opencv_src/opencv/data/haarcascades/haarcascade_fullbody.xml"
 };
+
+// YOLO detector
+std::string classList = "./YOLO/YOLOv5_classes/coco.names";
+std::string YOLOModel = "./YOLO/YOLOv5_models/yolov5s6.onnx";
