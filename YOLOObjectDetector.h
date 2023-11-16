@@ -41,6 +41,8 @@ public:
 
 			// Load model.
 			m_net = cv::dnn::readNet(modelPath);
+            m_net.setPreferableBackend(cv::dnn::DNN_BACKEND_CUDA);
+            m_net.setPreferableTarget(cv::dnn::DNN_TARGET_CUDA);
             startThread();
 		}
 		catch (const std::exception& e)
@@ -54,7 +56,7 @@ public:
         stopThread();
     }
 
-    void processFrame(const cv::Mat& frameIn)
+    void processFrame(const cv::UMat& frameIn)
     {
         try
         {
@@ -69,7 +71,7 @@ public:
         }
     }
 
-    void showObjects(cv::Mat& frameOut)
+    void showObjects(cv::UMat& frameOut)
     {
         try
         {
@@ -138,12 +140,9 @@ private:
         {
             while (m_running)
             {
-                cv::Mat frameToProcess;
-                if (m_currentFrame.tryPop(frameToProcess)) {
-
-                    //// Convertion frame to gray for detection improve
-                    //cv::Mat gray;
-                    //cv::cvtColor(frameToProcess, gray, cv::COLOR_BGR2GRAY);
+                cv::UMat frameToProcess;
+                if (m_currentFrame.tryPop(frameToProcess)) 
+                {
                     m_detections.push(pre_process(frameToProcess, m_net));
                 }
                 else
@@ -160,7 +159,7 @@ private:
     }
 
     // Draw the predicted bounding box.
-    void draw_label(cv::Mat& input_image, std::string label, int left, int top)
+    void draw_label(cv::UMat& input_image, std::string label, int left, int top)
     {
         // Display the label at the top of the bounding box.
         int baseLine;
@@ -176,10 +175,10 @@ private:
         putText(input_image, label, cv::Point(left, top + label_size.height), FONT_FACE, FONT_SCALE, YELLOW, THICKNESS_1);
     }
 
-    std::vector<cv::Mat> pre_process(cv::Mat& input_image, cv::dnn::Net& net)
+    std::vector<cv::Mat> pre_process(const cv::UMat& input_image, cv::dnn::Net& net)
     {
         // Convert to blob.
-        cv::Mat blob;
+        cv::UMat blob;
         cv::dnn::blobFromImage(input_image, blob, 1. / 255., cv::Size(static_cast<size_t>(INPUT_WIDTH), static_cast<size_t>(INPUT_HEIGHT)), cv::Scalar(), true, false);
 
         net.setInput(blob);
@@ -191,7 +190,7 @@ private:
         return outputs;
     }
 
-    cv::Mat post_process(cv::Mat& input_image, std::vector<cv::Mat>& outputs, const std::vector<std::string>& class_name)
+    void post_process(cv::UMat& input_image, std::vector<cv::Mat>& outputs, const std::vector<std::string>& class_name)
     {
         // Initialize vectors to hold respective outputs while unwrapping detections.
         std::vector<int> class_ids;
@@ -269,17 +268,16 @@ private:
             // Draw class labels.
             draw_label(input_image, label, left, top);
         }
-        return input_image;
     }
 
-    private:
-        bool m_running = false;
-        std::vector<std::string> m_classList;         // List of class names.
-        cv::dnn::Net m_net;                           // Neural network.
-        ThreadSafeValue<cv::Mat> m_currentFrame;    // Current frame.
-        ThreadSafeValue<std::vector<cv::Mat>> m_detections;// Detections.
-        std::thread m_objectDetectorLoopThread;     // Thread for detection loop.
-        std::mutex m_mutex;							// Mutex for synchronizing access
-        std::condition_variable m_loopCondition;	// Conditional variable for waiting for data
+private:
+    bool m_running = false;
+    std::vector<std::string> m_classList;         // List of class names.
+    cv::dnn::Net m_net;                           // Neural network.
+    ThreadSafeValue<cv::UMat> m_currentFrame;    // Current frame.
+    ThreadSafeValue<std::vector<cv::Mat>> m_detections;// Detections.
+    std::thread m_objectDetectorLoopThread;     // Thread for detection loop.
+    std::mutex m_mutex;							// Mutex for synchronizing access
+    std::condition_variable m_loopCondition;	// Conditional variable for waiting for data
 };
 

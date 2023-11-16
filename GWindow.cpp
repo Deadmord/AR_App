@@ -32,7 +32,14 @@ GWindow::GWindow(unsigned int WinID, unsigned int WinWidth, unsigned int WinHeig
 
     // Set the user pointer to this instance so that it can be accessed in the static wrapper functions.
     glfwSetWindowUserPointer(window, this);
-    Console::green() << "GLFW window created successfully: " << window << std::endl;
+
+    // Get GLSL lenguage version
+    const char* glslVersion = reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION));
+    if (!glslVersion) {
+        Console::red() << "Failed to retrieve GLSL version" << std::endl;
+    }
+
+    Console::green() << "GLFW window created: " << window << " GLSL Version: " << glslVersion << std::endl;
 }
 
 GWindow::~GWindow()

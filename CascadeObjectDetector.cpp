@@ -57,12 +57,17 @@ void CascadeObjectDetector::showObjects(cv::Mat& frameOut)
 	std::list <std::vector<cv::Rect>> objectsList;
 	if (m_objectsList.tryGet(objectsList))
 	{
+		int index{0};
 		// drouing rectangles for detected objects
 		for (std::vector<cv::Rect> objects : objectsList)
 		{
 			for (const cv::Rect& object : objects) {
-				cv::rectangle(frameOut, object, RED, 2);
+				if(index == 0) cv::rectangle(frameOut, object, RED, 2);
+				else if (index == 1) cv::rectangle(frameOut, object, GREEN, 2);
+				else if (index == 2) cv::rectangle(frameOut, object, BLUE, 2);
+				else if (index == 3) cv::rectangle(frameOut, object, YELLOW, 2);
 			}
+			index++;
 		}
 	}
 
