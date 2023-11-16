@@ -35,10 +35,10 @@ constexpr cv::aruco::PredefinedDictionaryType ArUcoDictionaryId = cv::aruco::DIC
 constexpr bool ArUcoShowRejected = true;
 
 // ---------------------- Cameras ------------------------
-constexpr int defaultCamera = 2;
-constexpr int usbCamera_1 = 1;
-constexpr int usbCamera_2 = 3;
-constexpr int usbCamera_3 = 0;
+constexpr int defaultCamera = 3;
+constexpr int usbCamera_1 = 0;
+constexpr int usbCamera_2 = 1;
+constexpr int usbCamera_3 = 2;
 
 // ---------------------- textures -----------------------
 constexpr int sleepTime = 30;	//Sleep time for VideoCapturing Loops

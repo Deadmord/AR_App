@@ -113,8 +113,10 @@ void GLObject::renderObject(Camera& camera, PrintInFrameCallback printCallback)
         }
         if (yoloObjectDetector_ != nullptr)
         {
-			yoloObjectDetector_->processFrame(textureFrame);
-            yoloObjectDetector_->showObjects(textureFrame);
+            cv::UMat umatFrame = textureFrame.getUMat(cv::ACCESS_READ);
+            yoloObjectDetector_->processFrame(umatFrame);
+            yoloObjectDetector_->showObjects(umatFrame);
+            cv::Mat matFrame = umatFrame.getMat(cv::ACCESS_READ);
 		}
 
         printCallback(textureFrame, arucoThreadWrapperPtr_->getFrameSize(), texture_->getFPS(), arucoThreadWrapperPtr_->getFPS());

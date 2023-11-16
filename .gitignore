@@ -1,6 +1,7 @@
 ### Local ###
 [Ss]creanShots_Window-*/
 *.onnx
+[Hh]aarcascades/
 
 ### C++ ###
 # Prerequisites

@@ -17,10 +17,10 @@ int vertical = 2;
 
 // Cascade detector
 std::list<std::string> cascadeModelList{ 
-	"C:/src/opencv_src/opencv/data/haarcascades/haarcascade_frontalface_default.xml",
-	"C:/src/opencv_src/opencv/data/haarcascades/haarcascade_upperbody.xml",
-	"C:/src/opencv_src/opencv/data/haarcascades/haarcascade_lowerbody.xml",
-	"C:/src/opencv_src/opencv/data/haarcascades/haarcascade_fullbody.xml"
+	"./Cascade/haarcascades/haarcascade_frontalface_default.xml",
+	"./Cascade/haarcascades/haarcascade_upperbody.xml",
+	"./Cascade/haarcascades/haarcascade_lowerbody.xml",
+	"./Cascade/haarcascades/haarcascade_fullbody.xml"
 };
 
 // YOLO detector
