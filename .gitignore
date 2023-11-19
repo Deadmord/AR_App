@@ -2,6 +2,7 @@
 [Ss]creanShots_Window-*/
 *.onnx
 [Hh]aarcascades/
+[Hh]aarcascades_cuda/
 
 ### C++ ###
 # Prerequisites
