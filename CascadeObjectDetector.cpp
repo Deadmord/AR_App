@@ -2,14 +2,18 @@
 
 CascadeObjectDetector::CascadeObjectDetector(const std::string& path) : m_running(false)
 {
-	cv::CascadeClassifier cascadeClassifier;
-	if (cascadeClassifier.load(path))
+	cv::Ptr<cv::cuda::CascadeClassifier> cascadeClassifier = cv::cuda::CascadeClassifier::create(path);
+
+	if (cascadeClassifier->empty())
 	{
+		Console::red() << "Error load cascade classifier model: " << path << std::endl;
+	}
+	else
+	{
+		cascadeClassifier->setScaleFactor(scaleFactor);
+		cascadeClassifier->setMinNeighbors(minNeighbors);
 		m_cascadeClassifiers.push_back(cascadeClassifier);
 		startThread();
-	}
-	else {
-		Console::red() << "Error load cascade classifier model: " << path << std::endl;
 	}
 }
 
@@ -17,13 +21,16 @@ CascadeObjectDetector::CascadeObjectDetector(const std::list<std::string>& casca
 {
 	for (std::string model : cascadeModelPathList)
 	{
-		cv::CascadeClassifier cascadeClassifier;
-		if (cascadeClassifier.load(model))
+		cv::Ptr<cv::cuda::CascadeClassifier> cascadeClassifier = cv::cuda::CascadeClassifier::create(model);
+		if (cascadeClassifier->empty())
 		{
-			m_cascadeClassifiers.push_back(cascadeClassifier);
-		}
-		else {
 			Console::red() << "Error load cascade classifier model: " << model << std::endl;
+		}
+		else
+		{
+			cascadeClassifier->setScaleFactor(scaleFactor);
+			cascadeClassifier->setMinNeighbors(minNeighbors);
+			m_cascadeClassifiers.push_back(cascadeClassifier);
 		}
 	}
 	if (!m_cascadeClassifiers.empty())
@@ -37,7 +44,7 @@ CascadeObjectDetector::~CascadeObjectDetector()
 	stopThread();
 }
 
-void CascadeObjectDetector::processFrame(const cv::Mat& frameIn)
+void CascadeObjectDetector::processFrame(const cv::UMat& frameIn)
 {
 	try
 	{
@@ -52,7 +59,7 @@ void CascadeObjectDetector::processFrame(const cv::Mat& frameIn)
 	}
 }
 
-void CascadeObjectDetector::showObjects(cv::Mat& frameOut)
+void CascadeObjectDetector::showObjects(cv::UMat& frameOut)
 {
 	std::list <std::vector<cv::Rect>> objectsList;
 	if (m_objectsList.tryGet(objectsList))
@@ -120,21 +127,23 @@ void CascadeObjectDetector::detectionLoop()
 		while (m_running)
 		{
 			FPStimer.startTimer();
-			cv::Mat frameToProcess;
-			if (m_currentFrame.tryPop(frameToProcess)) {
-
+			cv::UMat frameToProcess;
+			if (m_currentFrame.tryPop(frameToProcess)) 
+			{
+				// Convertion frame to gpuMat
+				cv::cuda::GpuMat frame_gpu(frameToProcess);
 				// Convertion frame to gray for detection improve
-				cv::Mat gray;
-				cv::cvtColor(frameToProcess, gray, cv::COLOR_BGR2GRAY);
-
+				cv::cuda::cvtColor(frame_gpu, frame_gpu, cv::COLOR_RGB2GRAY);
 				std::list <std::vector<cv::Rect>> objectsList;
-				// detection
-				for (cv::CascadeClassifier cascadeClassifier : m_cascadeClassifiers)
+				// detection loop
+				for (cv::Ptr<cv::cuda::CascadeClassifier> cascadeClassifier : m_cascadeClassifiers)
 				{
-					std::vector<cv::Rect> objects;
-					cascadeClassifier.detectMultiScale(gray, objects, scaleFactor, minNeighbors);
-
 					std::unique_lock<std::mutex> lock(m_mutex);
+					cv::cuda::GpuMat objectsGpu;
+					cascadeClassifier->detectMultiScale(frame_gpu, objectsGpu);
+
+					std::vector<cv::Rect> objects;
+					cascadeClassifier->convert(objectsGpu, objects);
 					objectsList.push_back(std::move(objects));
 				}
 				m_objectsList.push(std::move(objectsList));
