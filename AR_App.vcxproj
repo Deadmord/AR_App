@@ -72,12 +72,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(OPENCV481_DIR)\include;C:\src\OpenGL\Libraries\include;$(IDS_PEAK_GENERIC_SDK_PATH)\api\include;$(IDS_PEAK_GENERIC_SDK_PATH)\afl\include;$(IDS_PEAK_GENERIC_SDK_PATH)\ipl\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(OPENCV481_DIR)\x64\vc17\lib;C:\src\OpenGL\Libraries\lib;$(IDS_PEAK_GENERIC_SDK_PATH)\api\lib\x86_64;$(IDS_PEAK_GENERIC_SDK_PATH)\afl\lib\x86_64;$(IDS_PEAK_GENERIC_SDK_PATH)\ipl\lib\x86_64;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(OPENCV_DIR)\include;C:\src\OpenGL\Libraries\include;$(IDS_PEAK_GENERIC_SDK_PATH)\api\include;$(IDS_PEAK_GENERIC_SDK_PATH)\afl\include;$(IDS_PEAK_GENERIC_SDK_PATH)\ipl\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(OPENCV_DIR)\x64\vc17\lib;C:\src\OpenGL\Libraries\lib;$(IDS_PEAK_GENERIC_SDK_PATH)\api\lib\x86_64;$(IDS_PEAK_GENERIC_SDK_PATH)\afl\lib\x86_64;$(IDS_PEAK_GENERIC_SDK_PATH)\ipl\lib\x86_64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(OPENCV481_DIR)\include;C:\src\OpenGL\Libraries\include;$(IDS_PEAK_GENERIC_SDK_PATH)\api\include;$(IDS_PEAK_GENERIC_SDK_PATH)\afl\include;$(IDS_PEAK_GENERIC_SDK_PATH)\ipl\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(OPENCV481_DIR)\x64\vc17\lib;C:\src\OpenGL\Libraries\lib;$(IDS_PEAK_GENERIC_SDK_PATH)\api\lib\x86_64;$(IDS_PEAK_GENERIC_SDK_PATH)\afl\lib\x86_64;$(IDS_PEAK_GENERIC_SDK_PATH)\ipl\lib\x86_64;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(OPENCV_DIR)\include;C:\src\OpenGL\Libraries\include;$(IDS_PEAK_GENERIC_SDK_PATH)\api\include;$(IDS_PEAK_GENERIC_SDK_PATH)\afl\include;$(IDS_PEAK_GENERIC_SDK_PATH)\ipl\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(OPENCV_DIR)\x64\vc17\lib;C:\src\OpenGL\Libraries\lib;$(IDS_PEAK_GENERIC_SDK_PATH)\api\lib\x86_64;$(IDS_PEAK_GENERIC_SDK_PATH)\afl\lib\x86_64;$(IDS_PEAK_GENERIC_SDK_PATH)\ipl\lib\x86_64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>C:\src\OpenGL\Libraries\include;$(IDS_PEAK_GENERIC_SDK_PATH)\api\include;$(IDS_PEAK_GENERIC_SDK_PATH)\ipl\include;$(IncludePath)</IncludePath>

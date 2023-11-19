@@ -108,16 +108,16 @@ void GLObject::renderObject(Camera& camera, PrintInFrameCallback printCallback)
         // Object detection and draw rects
         if (cascadeObjectDetector_ != nullptr)
         {
-            cascadeObjectDetector_->processFrame(textureFrame);
-            cascadeObjectDetector_->showObjects(textureFrame);
+            cv::UMat textureFrameUMat = textureFrame.getUMat(cv::ACCESS_READ);
+            cascadeObjectDetector_->processFrame(textureFrameUMat);
+            cascadeObjectDetector_->showObjects(textureFrameUMat);
         }
         if (yoloObjectDetector_ != nullptr)
         {
-            cv::UMat umatFrame = textureFrame.getUMat(cv::ACCESS_READ);
-            yoloObjectDetector_->processFrame(umatFrame);
-            yoloObjectDetector_->showObjects(umatFrame);
-            cv::Mat matFrame = umatFrame.getMat(cv::ACCESS_READ);
-		}
+            cv::UMat textureFrameUMat = textureFrame.getUMat(cv::ACCESS_READ);
+            yoloObjectDetector_->processFrame(textureFrameUMat);
+            yoloObjectDetector_->showObjects(textureFrameUMat);
+        }
 
         printCallback(textureFrame, arucoThreadWrapperPtr_->getFrameSize(), texture_->getFPS(), arucoThreadWrapperPtr_->getFPS());
     }

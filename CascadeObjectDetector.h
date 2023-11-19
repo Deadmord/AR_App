@@ -29,9 +29,9 @@ public:
 
 	~CascadeObjectDetector();
 
-	void processFrame(const cv::Mat& frameIn);
+	void processFrame(const cv::UMat& frameIn);
 
-	void showObjects(cv::Mat& frameOut);
+	void showObjects(cv::UMat& frameOut);
 
 	float getFPS();
 
@@ -47,7 +47,7 @@ private:
 	bool m_running = false;
 	std::list <cv::CascadeClassifier> m_cascadeClassifiers;
 	ThreadSafeValue<std::list <std::vector<cv::Rect>>> m_objectsList;
-	ThreadSafeValue<cv::Mat> m_currentFrame;
+	ThreadSafeValue<cv::UMat> m_currentFrame;
 	std::thread m_objectDetectorLoopThread;
 	std::mutex m_mutex;							// Mutex for synchronizing access
 	std::condition_variable m_loopCondition;	// Conditional variable for waiting for data

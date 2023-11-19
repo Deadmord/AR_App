@@ -37,7 +37,7 @@ CascadeObjectDetector::~CascadeObjectDetector()
 	stopThread();
 }
 
-void CascadeObjectDetector::processFrame(const cv::Mat& frameIn)
+void CascadeObjectDetector::processFrame(const cv::UMat& frameIn)
 {
 	try
 	{
@@ -52,7 +52,7 @@ void CascadeObjectDetector::processFrame(const cv::Mat& frameIn)
 	}
 }
 
-void CascadeObjectDetector::showObjects(cv::Mat& frameOut)
+void CascadeObjectDetector::showObjects(cv::UMat& frameOut)
 {
 	std::list <std::vector<cv::Rect>> objectsList;
 	if (m_objectsList.tryGet(objectsList))
@@ -120,11 +120,11 @@ void CascadeObjectDetector::detectionLoop()
 		while (m_running)
 		{
 			FPStimer.startTimer();
-			cv::Mat frameToProcess;
+			cv::UMat frameToProcess;
 			if (m_currentFrame.tryPop(frameToProcess)) {
 
 				// Convertion frame to gray for detection improve
-				cv::Mat gray;
+				cv::UMat gray;
 				cv::cvtColor(frameToProcess, gray, cv::COLOR_BGR2GRAY);
 
 				std::list <std::vector<cv::Rect>> objectsList;
