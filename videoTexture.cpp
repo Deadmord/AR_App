@@ -149,11 +149,11 @@ void videoTexture::captureLoop()
 						cv::rotate(frameVideo, frameVideo, cv::ROTATE_180);
 
 					//currentValue_.push(std::move(frameVideo));
-					currentValue_.push(frameVideo.clone());	//create a copy instead of moving
+					currentValue_.push(std::move(frameVideo));	//create a copy instead of moving
 					if (false) {
 						Console::log() << std::setprecision(8);
 						stop = static_cast<float>(glfwGetTime());
-						Console::log() << "FPS :\t" << 1.0f / (stop - start) << "\tVideo " + (isVideo_ ? filePath_ : ("live: " + std::to_string(streamIndex_))) << std::endl;
+						Console::log() << "FPS :\t" << 1.0f / (stop - start) << "\tVideo IDS" << std::endl;
 						start = stop;
 					}
 					std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime)); // Sleep for decrise utilization CPU
