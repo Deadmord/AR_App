@@ -284,7 +284,6 @@ cv::Mat AcquisitionWorker::ConvertPeakImageToCvMat(const peak::ipl::Image& peakI
         cv::Mat bgrImage;
         cv::cvtColor(bgraImage, bgrImage, cv::COLOR_BGRA2BGR);      //very heavy operation
         return bgrImage;
-        //return cv::Mat(height, width, CV_8UC4, peakData);
     }
     else if (peakImage.PixelFormat() == peak::ipl::PixelFormatName::BGR8) {
         return cv::Mat(height, width, CV_8UC3, peakData);

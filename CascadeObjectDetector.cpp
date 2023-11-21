@@ -37,12 +37,12 @@ CascadeObjectDetector::~CascadeObjectDetector()
 	stopThread();
 }
 
-void CascadeObjectDetector::processFrame(const cv::UMat& frameIn)
+void CascadeObjectDetector::processFrame(const cv::Mat& frameIn)
 {
 	try
 	{
 		std::unique_lock<std::mutex> lock(m_mutex);
-		m_currentFrame.push(frameIn.clone());
+		m_currentFrame.push(frameIn.getUMat(cv::ACCESS_RW));
 		lock.unlock();
 		m_loopCondition.notify_one();
 	}
@@ -52,7 +52,7 @@ void CascadeObjectDetector::processFrame(const cv::UMat& frameIn)
 	}
 }
 
-void CascadeObjectDetector::showObjects(cv::UMat& frameOut)
+void CascadeObjectDetector::showObjects(cv::Mat& frameOut)
 {
 	std::list <std::vector<cv::Rect>> objectsList;
 	if (m_objectsList.tryGet(objectsList))
