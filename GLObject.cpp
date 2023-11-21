@@ -108,15 +108,23 @@ void GLObject::renderObject(Camera& camera, PrintInFrameCallback printCallback)
         // Object detection and draw rects
         if (cascadeObjectDetector_ != nullptr)
         {
-            cv::UMat textureFrameUMat = textureFrame.getUMat(cv::ACCESS_READ);
-            cascadeObjectDetector_->processFrame(textureFrameUMat);
-            cascadeObjectDetector_->showObjects(textureFrameUMat);
+            // the processFrame took 0.5-1.5 ms for copy frame, so it little bit faster to pass frame to thread, but it should be detached to avoid memory leak
+            std::thread cascadeObjectDetector_passFrameThread(&CascadeObjectDetector::processFrame, cascadeObjectDetector_, textureFrame);
+            cascadeObjectDetector_passFrameThread.detach();
+
+            //cascadeObjectDetector_->processFrame(textureFrame);
+            cascadeObjectDetector_->showObjects(textureFrame);
+
         }
         if (yoloObjectDetector_ != nullptr)
         {
-            cv::UMat textureFrameUMat = textureFrame.getUMat(cv::ACCESS_READ);
-            yoloObjectDetector_->processFrame(textureFrameUMat);
-            yoloObjectDetector_->showObjects(textureFrameUMat);
+            // the processFrame took 0.5-1.5 ms for copy frame, so it little bit faster to pass frame to thread, but it should be detached to avoid memory leak
+            std::thread yoloObjectDetector_passFrameThread(&YOLOObjectDetector::processFrame, yoloObjectDetector_, textureFrame);
+            yoloObjectDetector_passFrameThread.detach();
+
+            //yoloObjectDetector_->processFrame(textureFrame);
+            yoloObjectDetector_->showObjects(textureFrame);
+            
         }
 
         printCallback(textureFrame, arucoThreadWrapperPtr_->getFrameSize(), texture_->getFPS(), arucoThreadWrapperPtr_->getFPS());

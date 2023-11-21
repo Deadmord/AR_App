@@ -56,12 +56,12 @@ public:
         stopThread();
     }
 
-    void processFrame(const cv::UMat& frameIn)
+    void processFrame(const cv::Mat& frameIn)
     {
         try
         {
             std::unique_lock<std::mutex> lock(m_mutex);
-            m_currentFrame.push(frameIn.clone());
+            m_currentFrame.push(frameIn.getUMat(cv::ACCESS_RW));
             lock.unlock();
             m_loopCondition.notify_one();
         }
@@ -71,7 +71,7 @@ public:
         }
     }
 
-    void showObjects(cv::UMat& frameOut)
+    void showObjects(cv::Mat& frameOut)
     {
         try
         {
@@ -159,7 +159,7 @@ private:
     }
 
     // Draw the predicted bounding box.
-    void draw_label(cv::UMat& input_image, std::string label, int left, int top)
+    void draw_label(cv::Mat& input_image, std::string label, int left, int top)
     {
         // Display the label at the top of the bounding box.
         int baseLine;
@@ -190,7 +190,7 @@ private:
         return outputs;
     }
 
-    void post_process(cv::UMat& input_image, std::vector<cv::Mat>& outputs, const std::vector<std::string>& class_name)
+    void post_process(cv::Mat& input_image, std::vector<cv::Mat>& outputs, const std::vector<std::string>& class_name)
     {
         // Initialize vectors to hold respective outputs while unwrapping detections.
         std::vector<int> class_ids;

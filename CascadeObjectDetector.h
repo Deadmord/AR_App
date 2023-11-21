@@ -29,9 +29,9 @@ public:
 
 	~CascadeObjectDetector();
 
-	void processFrame(const cv::UMat& frameIn);
+	void processFrame(const cv::Mat& frameIn);
 
-	void showObjects(cv::UMat& frameOut);
+	void showObjects(cv::Mat& frameOut);
 
 	float getFPS();
 
