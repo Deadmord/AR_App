@@ -1,6 +1,5 @@
 #pragma once
 #include "camera.h"
-//#include "shader.h"
 #include "GLObject.h"
 #include <iostream>
 #include <sstream>
@@ -9,11 +8,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/string_cast.hpp> // For glm::value_ptr è glm::to_string
-//#include "stb_image.h"
-//#include "geometryObjects.h"
-//#include "geometryData.h"
-//#include "aruco/ArucoProcessor.h"
 
+#include "WindowMenu.h"
 #include "RTCounter.h"
 #include "ScreanShot.h"
 #include "config.h"
@@ -37,7 +33,7 @@ public:
 	void renderFrame(float deltaTime);
 
 private:
-	void showInFrame(const cv::Mat& frame, cv::Size WindSize, cv::Size frameSize, float renderFPS, float cameraFPS, float markerFPS, std::initializer_list<float> dTimes);
+	void showInFrame(cv::Mat& frame, cv::Size WindSize, cv::Size frameSize, float renderFPS, float cameraFPS, float markerFPS, std::initializer_list<float> dTimes);
 
 	static void framebufferSizeCallbackWrapper(GLFWwindow* window, int width, int height);
 	static void mouseButtonCallbackWrapper(GLFWwindow* window, int button, int action, int mods);
@@ -64,6 +60,8 @@ private:
 	GLuint WinWidth = 800; 
 	GLuint WinHeight = 600;
 	glm::vec4 bgColor;
+
+	WindowMenu windowMenu;
 
 	std::vector<std::shared_ptr<GLObject>> glObjects;
 	ArucoThreadWrapper arucoThreadWrapper;

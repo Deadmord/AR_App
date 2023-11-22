@@ -13,7 +13,7 @@
 #include "config.h"
 #include "Console.h"
 
-using PrintInFrameCallback = std::function<void(const cv::Mat& frame, cv::Size frameSize, float cameraFPS, float markerFPS)>;
+using PrintInFrameCallback = std::function<void(cv::Mat& frame, cv::Size frameSize, float cameraFPS, float markerFPS)>;
 
 class GLObject
 {
