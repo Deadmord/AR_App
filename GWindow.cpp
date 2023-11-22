@@ -107,10 +107,10 @@ void GWindow::renderFrame(float deltaTime)
 
     // Render object method reqaer camera veuw matrix and printState functions in some caces
     // create alias for lambda function
-    using RenderCallback = std::function<void(const cv::Mat&, cv::Size, float, float)>;
+    using RenderCallback = std::function<void(cv::Mat&, cv::Size, float, float)>;
 
     // define lambda f()
-    RenderCallback renderCallback = [&](const cv::Mat& frame, cv::Size frameSize, float cameraFPS, float markerFPS) {
+    RenderCallback renderCallback = [&](cv::Mat& frame, cv::Size frameSize, float cameraFPS, float markerFPS) {
         showInFrame(frame, cv::Size(WinWidth, WinHeight), frameSize, RTCounter::getFPS(wndID), cameraFPS, markerFPS,
             { RTCounter::getDeltaTime(wndID),
             RTCounter::getDeltaTime((4 * 1) + wndID),
@@ -144,10 +144,12 @@ void GWindow::renderFrame(float deltaTime)
     RTCounter::stopTimer(wndID);
 }
 
-void GWindow::showInFrame(const cv::Mat& frame, cv::Size WindSize, cv::Size frameSize, float renderFPS, float cameraFPS, float markerFPS, std::initializer_list<float> dTimes)
+void GWindow::showInFrame(cv::Mat& frame, cv::Size WindSize, cv::Size frameSize, float renderFPS, float cameraFPS, float markerFPS, std::initializer_list<float> dTimes)
 {
     // Lock the mutex before accessing the frame
     std::lock_guard<std::mutex> lock(frameMutex);
+
+    windowMenu.displayMenu(frame);
 
     std::ostringstream vector_to_marker;
 
@@ -249,6 +251,16 @@ void GWindow::processInput(GLFWwindow* window, float deltaTime)
             camera.ProcessKeyboard(RIGHT, deltaTime);
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
             ScreanShot::makeAndSave(wndID, glObjects.at(0)->getTextureImage());
+        if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS)
+            windowMenu.F1Toggle();
+        if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_PRESS)
+			windowMenu.F2Toggle();
+        if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_PRESS)
+            windowMenu.F3Toggle();
+        if (glfwGetKey(window, GLFW_KEY_F4) == GLFW_PRESS)
+            windowMenu.F4Toggle();
+        if (glfwGetKey(window, GLFW_KEY_F5) == GLFW_PRESS)
+            windowMenu.F5Toggle();
     }
     catch (const std::exception& e)
     {
